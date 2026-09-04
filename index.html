@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Splitsheet</title>
+<meta name="description" content="Track shared expenses with a group and see who owes whom." />
+<meta name="theme-color" content="#2F5D50" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Splitsheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --paper:#F6F4EF;
+    --paper-raise:#EFEBE1;
+    --ink:#211F1D;
+    --ink-soft:#5B564D;
+    --ink-faint:#8A8375;
+    --green:#2F5D50;
+    --green-soft:#E4ECE7;
+    --rust:#8C3B2E;
+    --rust-soft:#F3E4DF;
+    --line:#DCD6C9;
+    --line-strong:#B9B0A0;
+    --serif:"Source Serif 4",Georgia,serif;
+    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:var(--sans);
+    font-size:15px;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:3rem;
+  }
+  a{color:var(--green);}
+  .wrap{
+    max-width:640px;
+    margin:0 auto;
+    padding:2.25rem 1.25rem 1rem;
+  }
+  header.top{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:1rem;
+    margin-bottom:2rem;
+  }
+  h1{
+    font-family:var(--serif);
+    font-weight:600;
+    font-size:1.9rem;
+    margin:0 0 0.2rem;
+    letter-spacing:-0.01em;
+  }
+  .sub{
+    color:var(--ink-soft);
+    font-size:0.92rem;
+    margin:0;
+  }
+  #install-btn{
+    display:none;
+    white-space:nowrap;
+    background:var(--green);
+    color:var(--paper);
+    border:none;
+    border-radius:3px;
+    padding:0.5rem 0.85rem;
+    font-family:var(--sans);
+    font-size:0.85rem;
+    font-weight:600;
+    cursor:pointer;
+  }
+  #install-btn.show{display:inline-block;}
+  section{
+    margin-bottom:2rem;
+  }
+  section h2{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:0.95rem;
+    margin:0 0 0.85rem;
+    color:var(--ink);
+  }
+  .currency-row{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    font-size:0.82rem;
+    color:var(--ink-soft);
+  }
+  .currency-row input{
+    width:2.4rem;
+    text-align:center;
+    border:1px solid var(--line-strong);
+    border-radius:3px;
+    background:var(--paper);
+    font-family:var(--mono);
+    font-size:0.85rem;
+    padding:0.15rem 0.2rem;
+    color:var(--ink);
+  }
+
+  /* people chips */
+  .people-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.5rem;
+    margin-bottom:0.9rem;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    background:var(--paper-raise);
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:0.3rem 0.55rem;
+    font-size:0.86rem;
+  }
+  .chip button{
+    border:none;
+    background:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:0.9rem;
+    line-height:1;
+    padding:0;
+  }
+  .chip button:hover{color:var(--rust);}
+  .inline-form{
+    display:flex;
+    gap:0.5rem;
+  }
+  input[type=text], input[type=number], select{
+    font-family:var(--sans);
+    font-size:0.9rem;
+    color:var(--ink);
+    background:var(--paper);
+    border:1px solid var(--line-strong);
+    border-radius:3px;
+    padding:0.5rem 0.6rem;
+  }
+  input[type=text]:focus, input[type=number]:focus, select:focus{
+    outline:2px solid var(--green);
+    outline-offset:1px;
+  }
+  .people-row + .inline-form input{flex:1;}
+  .btn{
+    font-family:var(--sans);
+    font-size:0.86rem;
+    font-weight:600;
+    border:1px solid var(--ink);
+    background:var(--ink);
+    color:var(--paper);
+    border-radius:3px;
+    padding:0.5rem 0.9rem;
+    cursor:pointer;
+  }
+  .btn:hover{background:#3a3733;}
+  .btn.ghost{
+    background:var(--paper);
+    color:var(--ink);
+    border:1px solid var(--line-strong);
+  }
+  .btn.ghost:hover{border-color:var(--ink);}
+  .btn:disabled{opacity:0.45;cursor:not-allowed;}
+
+  /* add expense form */
+  .expense-form{
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:1rem 1.1rem 1.1rem;
+    background:var(--paper-raise);
+  }
+  .field{margin-bottom:0.75rem;}
+  .field label{
+    display:block;
+    font-size:0.78rem;
+    color:var(--ink-soft);
+    margin-bottom:0.3rem;
+  }
+  .field input, .field select{width:100%;}
+  .row2{display:flex;gap:0.7rem;}
+  .row2 .field{flex:1;}
+  .split-boxes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.5rem 1rem;
+  }
+  .split-boxes label{
+    display:flex;
+    align-items:center;
+    gap:0.4rem;
+    font-size:0.86rem;
+    color:var(--ink);
+  }
+  .split-boxes input{width:auto;}
+  .form-actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top:0.9rem;
+  }
+
+  /* ledger */
+  .ledger-row{
+    display:flex;
+    align-items:baseline;
+    gap:0.75rem;
+    padding:0.65rem 0;
+    border-bottom:1px solid var(--line);
+  }
+  .ledger-row:first-child{border-top:1px solid var(--line);}
+  .ledger-date{
+    font-family:var(--mono);
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    width:3.6rem;
+    flex-shrink:0;
+  }
+  .ledger-mid{flex:1;min-width:0;}
+  .ledger-desc{font-size:0.92rem;}
+  .ledger-meta{
+    font-size:0.76rem;
+    color:var(--ink-soft);
+    margin-top:0.1rem;
+  }
+  .ledger-amt{
+    font-family:var(--mono);
+    font-weight:600;
+    font-size:0.92rem;
+    white-space:nowrap;
+  }
+  .ledger-del{
+    border:none;
+    background:none;
+    color:var(--ink-faint);
+    cursor:pointer;
+    font-size:0.95rem;
+    padding:0 0 0 0.2rem;
+    flex-shrink:0;
+  }
+  .ledger-del:hover{color:var(--rust);}
+
+  /* balances */
+  .balance-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0.6rem 0.7rem;
+    border-radius:3px;
+    background:var(--rust-soft);
+    margin-bottom:0.5rem;
+    font-size:0.9rem;
+  }
+  .balance-row .amt{
+    font-family:var(--mono);
+    font-weight:600;
+    color:var(--rust);
+  }
+  .settled{
+    color:var(--green);
+    background:var(--green-soft);
+    border-radius:3px;
+    padding:0.7rem 0.8rem;
+    font-size:0.88rem;
+  }
+  .empty{
+    color:var(--ink-faint);
+    font-size:0.88rem;
+    font-style:italic;
+    padding:0.4rem 0;
+  }
+
+  footer{
+    max-width:640px;
+    margin:2.5rem auto 0;
+    padding:1rem 1.25rem 0;
+    border-top:1px solid var(--line);
+    color:var(--ink-faint);
+    font-size:0.76rem;
+  }
+
+  @media (max-width:420px){
+    .row2{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Splitsheet</h1>
+      <p class="sub">a running ledger for shared costs</p>
+    </div>
+    <button id="install-btn">Install app</button>
+  </header>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
+      <h2 style="margin:0;">People</h2>
+      <div class="currency-row">
+        symbol <input id="currency-input" type="text" maxlength="3" />
+      </div>
+    </div>
+    <div class="people-row" id="people-list"></div>
+    <form class="inline-form" id="add-person-form">
+      <input type="text" id="person-name" placeholder="Add a person" autocomplete="off" />
+      <button type="submit" class="btn ghost">Add</button>
+    </form>
+  </section>
+
+  <section>
+    <h2>Add expense</h2>
+    <form class="expense-form" id="add-expense-form">
+      <div class="row2">
+        <div class="field">
+          <label for="exp-desc">Description</label>
+          <input type="text" id="exp-desc" placeholder="Dinner, cab, groceries…" autocomplete="off" />
+        </div>
+        <div class="field">
+          <label for="exp-amount">Amount</label>
+          <input type="number" id="exp-amount" step="0.01" min="0" placeholder="0.00" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="exp-paidby">Paid by</label>
+        <select id="exp-paidby"></select>
+      </div>
+      <div class="field">
+        <label>Split equally among</label>
+        <div class="split-boxes" id="split-boxes"></div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn" id="add-expense-btn">Add expense</button>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <h2>Ledger</h2>
+    <div id="ledger-list"></div>
+  </section>
+
+  <section>
+    <h2>Balances</h2>
+    <div id="balances-list"></div>
+  </section>
+</div>
+
+<footer>
+  Data stays on this device, saved locally in the browser. On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.
+</footer>
+
+<script>
+(function(){
+  "use strict";
+
+  var STORAGE_KEY = "splitsheet-data-v1";
+  var uid = function(){ return (crypto.randomUUID ? crypto.randomUUID() : "id-" + Date.now() + "-" + Math.random().toString(16).slice(2)); };
+
+  var state = loadState();
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && Array.isArray(parsed.people) && Array.isArray(parsed.expenses)){
+          if(!parsed.currency) parsed.currency = "₹";
+          return parsed;
+        }
+      }
+    }catch(e){ /* fall through to default */ }
+    return { people: [], expenses: [], currency: "₹" };
+  }
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function fmtAmount(n){
+    var num = Number(n) || 0;
+    return state.currency + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function fmtDate(iso){
+    var d = new Date(iso);
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  }
+
+  function personName(id){
+    var p = state.people.find(function(x){ return x.id === id; });
+    return p ? p.name : "—";
+  }
+
+  // ---------- rendering ----------
+
+  function renderAll(){
+    renderCurrency();
+    renderPeople();
+    renderPayerSelect();
+    renderSplitBoxes();
+    renderLedger();
+    renderBalances();
+  }
+
+  function renderCurrency(){
+    var el = document.getElementById("currency-input");
+    if(document.activeElement !== el) el.value = state.currency;
+  }
+
+  function renderPeople(){
+    var el = document.getElementById("people-list");
+    el.innerHTML = "";
+    if(state.people.length === 0){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "No one added yet — add the people splitting costs.";
+      el.appendChild(e);
+      return;
+    }
+    state.people.forEach(function(p){
+      var chip = document.createElement("div");
+      chip.className = "chip";
+      var span = document.createElement("span");
+      span.textContent = p.name;
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.title = "Remove " + p.name;
+      btn.textContent = "×";
+      btn.addEventListener("click", function(){ removePerson(p.id); });
+      chip.appendChild(span);
+      chip.appendChild(btn);
+      el.appendChild(chip);
+    });
+  }
+
+  function renderPayerSelect(){
+    var sel = document.getElementById("exp-paidby");
+    var prev = sel.value;
+    sel.innerHTML = "";
+    if(state.people.length === 0){
+      var opt = document.createElement("option");
+      opt.textContent = "Add people first";
+      opt.value = "";
+      sel.appendChild(opt);
+      sel.disabled = true;
+      return;
+    }
+    sel.disabled = false;
+    state.people.forEach(function(p){
+      var o = document.createElement("option");
+      o.value = p.id;
+      o.textContent = p.name;
+      sel.appendChild(o);
+    });
+    if(state.people.some(function(p){ return p.id === prev; })) sel.value = prev;
+  }
+
+  function renderSplitBoxes(){
+    var el = document.getElementById("split-boxes");
+    var checkedIds = Array.prototype.slice.call(el.querySelectorAll("input:checked")).map(function(i){ return i.value; });
+    el.innerHTML = "";
+    if(state.people.length === 0) return;
+    state.people.forEach(function(p){
+      var label = document.createElement("label");
+      var cb = document.createElement("input");
+      cb.type = "checkbox";
+      cb.value = p.id;
+      cb.checked = checkedIds.length ? checkedIds.indexOf(p.id) !== -1 : true;
+      label.appendChild(cb);
+      label.appendChild(document.createTextNode(p.name));
+      el.appendChild(label);
+    });
+  }
+
+  function renderLedger(){
+    var el = document.getElementById("ledger-list");
+    el.innerHTML = "";
+    if(state.expenses.length === 0){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "No expenses yet — add one above to start the ledger.";
+      el.appendChild(e);
+      return;
+    }
+    var sorted = state.expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
+    sorted.forEach(function(exp){
+      var row = document.createElement("div");
+      row.className = "ledger-row";
+
+      var date = document.createElement("div");
+      date.className = "ledger-date";
+      date.textContent = fmtDate(exp.date);
+
+      var mid = document.createElement("div");
+      mid.className = "ledger-mid";
+      var desc = document.createElement("div");
+      desc.className = "ledger-desc";
+      desc.textContent = exp.desc;
+      var meta = document.createElement("div");
+      meta.className = "ledger-meta";
+      var splitNames = exp.split.map(personName).join(", ");
+      meta.textContent = "paid by " + personName(exp.paidBy) + " · split: " + splitNames;
+      mid.appendChild(desc);
+      mid.appendChild(meta);
+
+      var amt = document.createElement("div");
+      amt.className = "ledger-amt";
+      amt.textContent = fmtAmount(exp.amount);
+
+      var del = document.createElement("button");
+      del.className = "ledger-del";
+      del.title = "Delete expense";
+      del.textContent = "×";
+      del.addEventListener("click", function(){ removeExpense(exp.id); });
+
+      row.appendChild(date);
+      row.appendChild(mid);
+      row.appendChild(amt);
+      row.appendChild(del);
+      el.appendChild(row);
+    });
+  }
+
+  function computeBalances(){
+    var balances = {};
+    state.people.forEach(function(p){ balances[p.id] = 0; });
+    state.expenses.forEach(function(exp){
+      if(!(exp.paidBy in balances)) return;
+      balances[exp.paidBy] += exp.amount;
+      var share = exp.amount / exp.split.length;
+      exp.split.forEach(function(pid){
+        if(pid in balances) balances[pid] -= share;
+      });
+    });
+    return balances;
+  }
+
+  function simplifyDebts(balances){
+    var creditors = [];
+    var debtors = [];
+    Object.keys(balances).forEach(function(id){
+      var v = balances[id];
+      if(v > 0.005) creditors.push({ id: id, amt: v });
+      else if(v < -0.005) debtors.push({ id: id, amt: -v });
+    });
+    creditors.sort(function(a,b){ return b.amt - a.amt; });
+    debtors.sort(function(a,b){ return b.amt - a.amt; });
+    var txns = [];
+    var i = 0, j = 0;
+    while(i < debtors.length && j < creditors.length){
+      var pay = Math.min(debtors[i].amt, creditors[j].amt);
+      txns.push({ from: debtors[i].id, to: creditors[j].id, amount: pay });
+      debtors[i].amt -= pay;
+      creditors[j].amt -= pay;
+      if(debtors[i].amt < 0.005) i++;
+      if(creditors[j].amt < 0.005) j++;
+    }
+    return txns;
+  }
+
+  function renderBalances(){
+    var el = document.getElementById("balances-list");
+    el.innerHTML = "";
+    if(state.people.length === 0 || state.expenses.length === 0){
+      var e = document.createElement("div");
+      e.className = "empty";
+      e.textContent = "Balances will show up once there are people and expenses.";
+      el.appendChild(e);
+      return;
+    }
+    var txns = simplifyDebts(computeBalances());
+    if(txns.length === 0){
+      var s = document.createElement("div");
+      s.className = "settled";
+      s.textContent = "All settled up.";
+      el.appendChild(s);
+      return;
+    }
+    txns.forEach(function(t){
+      var row = document.createElement("div");
+      row.className = "balance-row";
+      var label = document.createElement("span");
+      label.textContent = personName(t.from) + " owes " + personName(t.to);
+      var amt = document.createElement("span");
+      amt.className = "amt";
+      amt.textContent = fmtAmount(t.amount);
+      row.appendChild(label);
+      row.appendChild(amt);
+      el.appendChild(row);
+    });
+  }
+
+  // ---------- mutations ----------
+
+  function addPerson(name){
+    name = name.trim();
+    if(!name) return;
+    state.people.push({ id: uid(), name: name });
+    saveState();
+    renderAll();
+  }
+
+  function removePerson(id){
+    var used = state.expenses.some(function(exp){ return exp.paidBy === id || exp.split.indexOf(id) !== -1; });
+    if(used){
+      alert("Can't remove someone who appears in an expense. Delete their expenses first.");
+      return;
+    }
+    state.people = state.people.filter(function(p){ return p.id !== id; });
+    saveState();
+    renderAll();
+  }
+
+  function addExpense(desc, amount, paidBy, split){
+    state.expenses.push({
+      id: uid(),
+      date: new Date().toISOString(),
+      desc: desc,
+      amount: amount,
+      paidBy: paidBy,
+      split: split
+    });
+    saveState();
+    renderAll();
+  }
+
+  function removeExpense(id){
+    state.expenses = state.expenses.filter(function(e){ return e.id !== id; });
+    saveState();
+    renderAll();
+  }
+
+  // ---------- events ----------
+
+  document.getElementById("add-person-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var input = document.getElementById("person-name");
+    addPerson(input.value);
+    input.value = "";
+    input.focus();
+  });
+
+  document.getElementById("currency-input").addEventListener("change", function(ev){
+    var v = ev.target.value.trim() || "₹";
+    state.currency = v;
+    saveState();
+    renderAll();
+  });
+
+  document.getElementById("add-expense-form").addEventListener("submit", function(ev){
+    ev.preventDefault();
+    var desc = document.getElementById("exp-desc").value.trim();
+    var amount = parseFloat(document.getElementById("exp-amount").value);
+    var paidBy = document.getElementById("exp-paidby").value;
+    var checked = Array.prototype.slice.call(document.querySelectorAll("#split-boxes input:checked")).map(function(i){ return i.value; });
+
+    if(!desc){ alert("Add a description."); return; }
+    if(!amount || amount <= 0){ alert("Enter an amount greater than 0."); return; }
+    if(!paidBy){ alert("Add at least one person first."); return; }
+    if(checked.length === 0){ alert("Pick at least one person to split with."); return; }
+
+    addExpense(desc, amount, paidBy, checked);
+
+    document.getElementById("exp-desc").value = "";
+    document.getElementById("exp-amount").value = "";
+  });
+
+  renderAll();
+
+  // ---------- PWA install + service worker ----------
+
+  var deferredPrompt = null;
+  var installBtn = document.getElementById("install-btn");
+
+  window.addEventListener("beforeinstallprompt", function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.add("show");
+  });
+
+  installBtn.addEventListener("click", function(){
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.finally(function(){
+      deferredPrompt = null;
+      installBtn.classList.remove("show");
+    });
+  });
+
+  window.addEventListener("appinstalled", function(){
+    installBtn.classList.remove("show");
+  });
+
+  if("serviceWorker" in navigator){
+    window.addEventListener("load", function(){
+      navigator.serviceWorker.register("service-worker.js").catch(function(){ /* offline caching optional */ });
+    });
+  }
+})();
+</script>
+</body>
+</html>
