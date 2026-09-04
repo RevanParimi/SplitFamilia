@@ -1,4 +1,4 @@
-const CACHE = "splitsheet-v1";
+const CACHE = "splitsheet-v2";
 const SHELL = [
   "./index.html",
   "./manifest.json",
@@ -21,7 +21,13 @@ self.addEventListener("activate", (e) => {
 });
 
 self.addEventListener("fetch", (e) => {
+  // Only handle same-origin GETs (the app shell). Never intercept Firestore's
+  // long-lived connections, Google Fonts, or the Firebase SDK from a CDN —
+  // those must go straight to the network.
+  const url = new URL(e.request.url);
+  if (url.origin !== self.location.origin) return;
   if (e.request.method !== "GET") return;
+
   e.respondWith(
     caches.match(e.request).then((cached) => {
       const network = fetch(e.request)
