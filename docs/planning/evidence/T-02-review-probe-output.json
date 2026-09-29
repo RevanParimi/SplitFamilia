@@ -1,0 +1,311 @@
+{
+  "P1_oddSplitRemovedPerson": {
+    "ledger": [
+      "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+      "28 Sept Negative paid by Asha · split: Asha Not counted in balances: the amount isn't valid. Delete it and add it again. — ×",
+      "28 Sept String amount paid by Asha · split: Asha, Ben Not counted in balances: the amount isn't valid. Delete it and add it again. — ×",
+      "28 Sept Chai paid by Removed person · split: Ben, Chitra, Asha ₹7.00 ×",
+      "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+      "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, Removed person ₹100.01 ×"
+    ],
+    "balances": [
+      "2 expenses aren't counted because they have problems. See the ledger.",
+      "Chitra owes Asha ₹27.35",
+      "Ben owes Asha ₹27.30",
+      "Removed person owes Asha ₹18.00"
+    ]
+  },
+  "P2_links": {
+    "\"goa/trip\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"a--b\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"%2E%2E\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"__x__\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"x-\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "81 chars": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "\"Goa-trip\"": {
+      "join": true,
+      "alert": "That group link isn't valid.",
+      "saved": "rv-odd",
+      "subs": []
+    },
+    "plainOpenAfter": {
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "group": "rv-odd",
+      "url": "",
+      "saved": "rv-odd",
+      "subs": [
+        "groups/rv-odd/people",
+        "groups/rv-odd/expenses",
+        "groups/rv-odd"
+      ]
+    },
+    "savedInvalidNoLink": {
+      "join": true,
+      "app": false,
+      "alert": "The group saved on this phone had an invalid code, so it was cleared.",
+      "joinError": "",
+      "group": "",
+      "url": "",
+      "saved": null,
+      "subs": []
+    },
+    "savedInvalidAndBadLink": {
+      "join": true,
+      "app": false,
+      "alert": "That group link isn't valid.",
+      "joinError": "",
+      "group": "",
+      "url": "?g=goa/trip",
+      "saved": null,
+      "subs": []
+    }
+  },
+  "P3_race": {
+    "midway": {
+      "btn": "Checking…",
+      "disabled": true,
+      "startDisabled": false
+    },
+    "afterStart": {
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "group": "race-trip-2uccdwqhsd",
+      "url": "?g=race-trip-2uccdwqhsd",
+      "saved": "race-trip-2uccdwqhsd",
+      "subs": [
+        "groups/race-trip-2uccdwqhsd/people",
+        "groups/race-trip-2uccdwqhsd/expenses",
+        "groups/race-trip-2uccdwqhsd"
+      ]
+    },
+    "afterCheck": {
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "group": "rv-odd",
+      "url": "?g=rv-odd",
+      "saved": "rv-odd",
+      "subs": [
+        "groups/race-trip-2uccdwqhsd/people",
+        "groups/race-trip-2uccdwqhsd/expenses",
+        "groups/race-trip-2uccdwqhsd",
+        "groups/rv-odd/people",
+        "groups/rv-odd/expenses",
+        "groups/rv-odd"
+      ]
+    },
+    "writesAfterOneAddPersonAndOneAddExpense": [
+      {
+        "op": "add",
+        "path": "groups/race-trip-2uccdwqhsd/people",
+        "data": {
+          "name": "Dev"
+        }
+      },
+      {
+        "op": "add",
+        "path": "groups/race-trip-2uccdwqhsd/expenses",
+        "data": {
+          "date": "2026-09-29T02:07:26.306Z",
+          "desc": "Race check",
+          "amount": 10,
+          "paidBy": "a",
+          "split": [
+            "a",
+            "B",
+            "c"
+          ]
+        }
+      }
+    ],
+    "dialogs": [
+      "Add a description."
+    ]
+  },
+  "errorsA": [],
+  "P4_upgrade_revisited": {
+    "v2": {
+      "ctrl": "controlled",
+      "caches": {
+        "splitsheet-v2": [
+          "/icon-192.png",
+          "/icon-512.png",
+          "/index.html",
+          "/manifest.json"
+        ]
+      },
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by — · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, — ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹25.03",
+          "Ben owes Asha ₹24.95"
+        ]
+      }
+    },
+    "firstOpenAfterDeploy": {
+      "ctrl": "controlled",
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by — · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, — ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹25.03",
+          "Ben owes Asha ₹24.95"
+        ]
+      },
+      "errors": []
+    },
+    "secondOpen": {
+      "ctrl": "controlled",
+      "caches": {
+        "splitsheet-v4": [
+          "/group-code.js?v=4",
+          "/icon-192.png",
+          "/icon-512.png",
+          "/index.html",
+          "/manifest.json",
+          "/money.js?v=4"
+        ]
+      },
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by Removed person · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, Removed person ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹27.35",
+          "Ben owes Asha ₹27.30",
+          "Removed person owes Asha ₹18.00"
+        ]
+      },
+      "swScript": "http://127.0.0.1:49993/service-worker.js"
+    },
+    "serverDown": {
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by Removed person · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, Removed person ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹27.35",
+          "Ben owes Asha ₹27.30",
+          "Removed person owes Asha ₹18.00"
+        ]
+      },
+      "group": "rv-up",
+      "fetchFails": true
+    },
+    "errors": [
+      "Failed to load resource: net::ERR_FAILED http://127.0.0.1:49993/manifest.json?nocache=1790647659694"
+    ]
+  },
+  "P4b_uncachedLinkAfterDeploy": {
+    "before": {
+      "ctrl": "controlled",
+      "caches": {
+        "splitsheet-v2": [
+          "/icon-192.png",
+          "/icon-512.png",
+          "/index.html",
+          "/manifest.json"
+        ]
+      }
+    },
+    "first": {
+      "ctrl": "controlled",
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by Removed person · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, Removed person ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹27.35",
+          "Ben owes Asha ₹27.30",
+          "Removed person owes Asha ₹18.00"
+        ]
+      }
+    },
+    "second": {
+      "screen": {
+        "ledger": [
+          "28 Sept Own ticket paid by Ben · split: Ben ₹25.00 ×",
+          "28 Sept Chai paid by Removed person · split: Ben, Chitra, Asha ₹7.00 ×",
+          "28 Sept Toffee paid by Ben · split: Asha, Chitra ₹0.05 ×",
+          "28 Sept Hotel paid by Asha · split: Chitra, Ben, Asha, Removed person ₹100.01 ×"
+        ],
+        "balances": [
+          "Chitra owes Asha ₹27.35",
+          "Ben owes Asha ₹27.30",
+          "Removed person owes Asha ₹18.00"
+        ]
+      },
+      "caches": {
+        "splitsheet-v4": [
+          "/group-code.js?v=4",
+          "/icon-192.png",
+          "/icon-512.png",
+          "/index.html",
+          "/manifest.json",
+          "/money.js?v=4"
+        ]
+      }
+    },
+    "errors": []
+  }
+}

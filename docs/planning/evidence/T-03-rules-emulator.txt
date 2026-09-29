@@ -1,0 +1,99 @@
+T-03 / SF-007: Firestore rules on the emulator (2026-09-29, about 14:47-15:10 IST)
+Machine: Windows 11, Node 24.21.0, npm 11.19.0, Eclipse Temurin 21.0.12.1 (JDK bin prepended to PATH),
+firebase-tools 15.32.0, @firebase/rules-unit-testing 5.0.2, firebase 12.17.1 (its Firestore logs itself as 12.17.0:
+@firebase/app 0.16.0 wasn't republished for the patch), cloud-firestore-emulator-v1.22.0.jar (130.4 MB, downloaded by
+firebase-tools on the first run to %USERPROFILE%\.cache\firebase\emulators). Project demo-splitfamilia (never a real one).
+Inputs: firestore.rules 8ba1333edc813e08f59c23ebc622b39954bfa1021134341c2fcbb6db2a5bc1df,
+tests/rules/firestore-rules.test.js 20bceeb6f8b7407db3a9d2fe18a071c42796b27150dbcaa50b82a4b187fd1e28,
+package.json fb2c073a090e219ff804d7e9765947cacb0f93f1ce01e6f24cd993221f53de40, firebase.json e87125f3ec6439a59ba44d80a6dcc46378a27a0644b0cda30abeafd2efb67e20.
+Removed from the transcripts below: the SDK's one-line log per refused request ("GrpcConnection RPC ... PERMISSION_DENIED")
+and the emulator's reason lines that follow it. Their count is given per run.
+
+=== Run 1: npm run test:rules in the repo (exit 0; 66 PERMISSION_DENIED lines) ===
+> test:rules
+> firebase emulators:exec --only firestore --project demo-splitfamilia "node --test tests/rules/firestore-rules.test.js"
+i  emulators: Starting emulators: firestore
+i  emulators: Detected demo project ID "demo-splitfamilia", emulated services will use a demo configuration and attempts to access non-emulated services for this project will fail.
+i  firestore: downloading cloud-firestore-emulator-v1.22.0.jar...
+i  firestore: Firestore Emulator logging to firestore-debug.log
++  firestore: Firestore Emulator was started in standard edition.
++  firestore: Firestore Emulator UI websocket is running on 9150.
+i  Running script: node --test tests/rules/firestore-rules.test.js
+✔ allowed: open a group by its code, whether or not it has a group document (3861.5926ms)
+✔ allowed: read a group's people and expenses, as the ledger and the Join check do (663.588ms)
+✔ allowed: start a new group ({ currency: '₹' }, merged) and change its currency (488.7858ms)
+✔ allowed: add a person with a name of 1 to 60 characters, in any script (380.4122ms)
+✔ allowed: add an expense exactly as the app writes it, at the edges of each limit (588.5928ms)
+✔ allowed: delete a person and an expense (169.556ms)
+✔ denied: listing every group (221.7858ms)
+✔ denied: collection-group queries across groups (180.3953ms)
+✔ denied: codes the app would never make (2563.5031ms)
+✔ denied: a group document that isn't exactly { currency } of 1 to 3 characters (264.7541ms)
+✔ denied: deleting a group document (108.7262ms)
+✔ denied: a person that isn't exactly { name } of 1 to 60 characters (307.0763ms)
+✔ denied: an expense that isn't ledger-shaped (1101.0549ms)
+✔ denied: editing a person or an expense (SF-022 and SF-023 will open what they need) (241.98ms)
+✔ denied: every other path (430.3249ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 18724.227
++  Script exited successfully (code 0)
+i  emulators: Shutting down emulators.
+i  firestore: Stopping Firestore Emulator
+!  Firestore Emulator has exited upon receiving signal: SIGINT
+i  hub: Stopping emulator hub
+i  logging: Stopping Logging Emulator
+
+=== Run 2: the same, at the end, on the restored rules file (exit 0; 66 PERMISSION_DENIED lines) ===
+> test:rules
+> firebase emulators:exec --only firestore --project demo-splitfamilia "node --test tests/rules/firestore-rules.test.js"
+i  emulators: Starting emulators: firestore
+i  Running script: node --test tests/rules/firestore-rules.test.js
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 14569.0705
++  Script exited successfully (code 0)
+
+=== Control: the unmodified rules in a scratch copy whose firebase.json has no rules entry (exit 0) ===
+The emulator starts allowing everything, so the 9 denied tests can only pass because the test file uploads
+firestore.rules itself (initializeTestEnvironment).
+!  firestore: Did not find a Cloud Firestore rules file specified in a firebase.json config file.
+!  firestore: The emulator will default to allowing all reads and writes. Learn more about this option: https://firebase.google.com/docs/emulator-suite/install_and_configure#security_rules_configuration.
+i  Running script: node --test tests/rules/firestore-rules.test.js
+ℹ tests 15
+ℹ pass 15
+ℹ fail 0
+!  Firestore Emulator has exited upon receiving signal: SIGINT
+
+=== Break checks: change firestore.rules, run the suite, expect a failure, restore, compare SHA-256 ===
+BR1, BR2, BR4 ran in the repo; BR3 in the scratch copy (see the note below). Every file restored byte-identical.
+BR1 | allow list on groups | exit=1 pass=14 fail=1 restored=yes port8080_listeners_after=0 (repo)
+BR2 | expense amount limit 10,000,001 | exit=1 pass=14 fail=1 restored=yes (repo)
+BR4 | update allowed on expenses | exit=1 pass=14 fail=1 restored=yes (repo)
+BR3 | person name limit 59 | exit=1 pass=14 fail=1 restored=yes (copy)
+Failing test per check:
+  BR1: ✖ denied: listing every group 
+  BR2: ✖ denied: an expense that isn't ledger-shaped 
+  BR3: ✖ allowed: add a person with a name of 1 to 60 characters, in any script 
+  BR4: ✖ denied: editing a person or an expense (SF-022 and SF-023 will open what they need) 
+
+Note on BR3: in the repo, with BR3's edit, firebase-tools printed "Change detected, updating rules..." as the emulator
+started and stopped with "Error: Failed to make request to http://127.0.0.1:8080/emulator/v1/projects/demo-splitfamilia:securityRules",
+leaving the emulator's java process on port 8080 (the next run then says "port taken"). It happened on 4 of 4 BR3 attempts
+(waits of 6, 6 and 30 s after the edit in the repo, and 3 s in a copy outside OneDrive that still named the rules file),
+and once for BR2 (retried and caught); never for the unmodified file. The cause wasn't found: firebase-tools' chokidar
+watcher on the rules file fired with nothing else writing it. The watcher exists only because firebase.json names the
+rules file, so BR3's recorded run is in a copy without that entry (the control shows the tests still evaluate the
+uploaded rules). A first attempt through a Node wrapper also ended exit 1 for all four checks with an emulator left on
+port 8080; its output wasn't kept, so it isn't counted. Leftover emulators were stopped by matching the emulator jar in
+their command line, never any other java process.

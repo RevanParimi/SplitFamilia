@@ -1,0 +1,71 @@
+rules_version = '2';
+
+// SplitFamilia's Firestore rules (SF-007). Everything not allowed below is denied.
+//
+// There is no sign-in: a group's code is its password. Anyone who knows a code can read and
+// change that group, but nobody can list the groups, and only ledger-shaped data is accepted.
+// The limits match the app: the group-code pattern and length in group-code.js,
+// MAX_AMOUNT_PAISE in money.js (₹1,00,00,000.00), and the maxlength of the page's inputs.
+// tests/wiring.test.js checks that they agree; tests/rules/ runs these rules on the emulator
+// (`npm run test:rules`).
+//
+// The owner deploys these (CLAUDE.md §5); see docs/google-play/FIRESTORE_RULES.md.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // The same pattern and limit as isValidGroupId() in group-code.js.
+    function validGroupId(gid) {
+      return gid.size() <= 80 && gid.matches('^[a-z0-9]+(-[a-z0-9]+)*$');
+    }
+
+    function exactKeys(data, keys) {
+      return data.keys().hasAll(keys) && data.keys().hasOnly(keys);
+    }
+
+    function stringOfLength(value, min, max) {
+      return value is string && value.size() >= min && value.size() <= max;
+    }
+
+    // What the app writes for a group: { currency }, merged ("₹" for a new group).
+    function validGroup(data) {
+      return exactKeys(data, ['currency'])
+        && stringOfLength(data.currency, 1, 3);
+    }
+
+    // What the app writes for a person: { name }.
+    function validPerson(data) {
+      return exactKeys(data, ['name'])
+        && stringOfLength(data.name, 1, 60);
+    }
+
+    // What the app writes for an expense: an ISO date, the description, the amount in rupees
+    // (a number, never a string), the payer's ID and the IDs it is split among.
+    function validExpense(data) {
+      return exactKeys(data, ['date', 'desc', 'amount', 'paidBy', 'split'])
+        && stringOfLength(data.date, 1, 40)
+        && stringOfLength(data.desc, 1, 200)
+        && data.amount is number && data.amount > 0 && data.amount <= 10000000
+        && stringOfLength(data.paidBy, 1, 100)
+        && data.split is list && data.split.size() >= 1 && data.split.size() <= 50;
+    }
+
+    match /groups/{gid} {
+      // Open one group by its code. There is no `list`, so nobody can ask for every group.
+      allow get: if validGroupId(gid);
+      allow create, update: if validGroupId(gid) && validGroup(request.resource.data);
+
+      match /people/{pid} {
+        allow get, list: if validGroupId(gid);
+        allow create: if validGroupId(gid) && validPerson(request.resource.data);
+        allow delete: if validGroupId(gid);
+      }
+
+      match /expenses/{eid} {
+        allow get, list: if validGroupId(gid);
+        allow create: if validGroupId(gid) && validExpense(request.resource.data);
+        allow delete: if validGroupId(gid);
+      }
+    }
+  }
+}

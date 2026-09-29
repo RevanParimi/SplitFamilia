@@ -1,0 +1,470 @@
+{
+  "F0_firstOpen": {
+    "boot": false,
+    "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+    "join": true,
+    "app": false,
+    "group": "",
+    "status": "· connecting…",
+    "notice": null,
+    "saved": null,
+    "subs": []
+  },
+  "F1_race_buttonClick": {
+    "midway": {
+      "btn": "Checking…",
+      "joinDisabled": true,
+      "startDisabled": true
+    },
+    "afterStartClick": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": true,
+      "app": false,
+      "group": "",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": null,
+      "subs": []
+    },
+    "afterCheck": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "rv-odd",
+      "status": "· live",
+      "notice": null,
+      "saved": "rv-odd",
+      "subs": [
+        "groups/rv-odd/people",
+        "groups/rv-odd/expenses",
+        "groups/rv-odd"
+      ]
+    },
+    "writes": [
+      {
+        "op": "add",
+        "path": "groups/rv-odd/people",
+        "data": {
+          "name": "Dev"
+        }
+      },
+      {
+        "op": "add",
+        "path": "groups/rv-odd/expenses",
+        "data": {
+          "date": "2026-09-29T07:13:01.550Z",
+          "desc": "Race check",
+          "amount": 10,
+          "paidBy": "a",
+          "split": [
+            "a",
+            "b"
+          ]
+        }
+      }
+    ]
+  },
+  "F2_race_forced": {
+    "forcedStart": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "race-trip-hhue8rzj8t",
+      "status": "· live",
+      "notice": null,
+      "saved": "race-trip-hhue8rzj8t",
+      "subs": [
+        "groups/race-trip-hhue8rzj8t/people",
+        "groups/race-trip-hhue8rzj8t/expenses",
+        "groups/race-trip-hhue8rzj8t"
+      ]
+    },
+    "forcedAfterCheck": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "race-trip-hhue8rzj8t",
+      "status": "· live",
+      "notice": null,
+      "saved": "race-trip-hhue8rzj8t",
+      "subs": [
+        "groups/race-trip-hhue8rzj8t/people",
+        "groups/race-trip-hhue8rzj8t/expenses",
+        "groups/race-trip-hhue8rzj8t"
+      ]
+    },
+    "writes": [
+      {
+        "op": "add",
+        "path": "groups/race-trip-hhue8rzj8t/people",
+        "data": {
+          "name": "Dev"
+        }
+      }
+    ]
+  },
+  "F3_permissionDenied": {
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "rv-denied",
+      "status": "· not syncing",
+      "notice": "This group can't be opened. Check the invite link.",
+      "saved": "rv-denied",
+      "subs": [
+        "groups/rv-denied/people",
+        "groups/rv-denied/expenses",
+        "groups/rv-denied"
+      ]
+    },
+    "rawOnPage": false,
+    "console": [
+      "error: SplitFamilia: sync stopped permission-denied"
+    ]
+  },
+  "F4_writeRefused": {
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "rv-readonly",
+      "status": "· live",
+      "notice": "Couldn't add that person. This group can't be opened. Check the invite link.",
+      "saved": "rv-readonly",
+      "subs": [
+        "groups/rv-readonly/people",
+        "groups/rv-readonly/expenses",
+        "groups/rv-readonly"
+      ]
+    },
+    "console": [
+      "error: SplitFamilia: Couldn't add that person. permission-denied"
+    ],
+    "dialogs": []
+  },
+  "F5_unexpected": {
+    "cleanBefore": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "rv-odd",
+      "status": "· live",
+      "notice": null,
+      "saved": "rv-odd",
+      "subs": [
+        "groups/rv-odd/people",
+        "groups/rv-odd/expenses",
+        "groups/rv-odd"
+      ]
+    },
+    "after": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "rv-odd",
+      "status": "· live",
+      "notice": "Something went wrong. If the page looks wrong, reload the app.",
+      "saved": "rv-odd",
+      "subs": [
+        "groups/rv-odd/people",
+        "groups/rv-odd/expenses",
+        "groups/rv-odd"
+      ]
+    },
+    "console": [
+      "error: SplitFamilia: unexpected error Error",
+      "error: SplitFamilia: unexpected error Error"
+    ]
+  },
+  "F6_browserTab": {
+    "app": {
+      "inApp": false,
+      "referrer": "",
+      "iosTip": true,
+      "installBtn": true,
+      "joinNote": "Your group's data is stored in the cloud, not on this device, so installing the app won't lose it.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link. On iPhone/iPad: open in Safari, tap Share, then \"Add to Home Screen\" to install."
+    },
+    "join": {
+      "inApp": false,
+      "referrer": "",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device, so installing the app won't lose it.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link. On iPhone/iPad: open in Safari, tap Share, then \"Add to Home Screen\" to install."
+    }
+  },
+  "F7_standalone": {
+    "cdpEmulationMatches": false,
+    "emulationError": null,
+    "app": {
+      "inApp": true,
+      "referrer": "",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device, so installing the app won't lose it.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link."
+    },
+    "join": {
+      "inApp": true,
+      "referrer": "",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link. On iPhone/iPad: open in Safari, tap Share, then \"Add to Home Screen\" to install."
+    }
+  },
+  "F8_androidApp": {
+    "first": {
+      "inApp": true,
+      "referrer": "android-app://com.splitfamilia.app/",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device, so installing the app won't lose it.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link."
+    },
+    "afterSwitchGroup": {
+      "inApp": true,
+      "referrer": "http://127.0.0.1:58827/index.html?g=rv-odd",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link. On iPhone/iPad: open in Safari, tap Share, then \"Add to Home Screen\" to install."
+    },
+    "afterJoiningAgain": {
+      "inApp": true,
+      "referrer": "http://127.0.0.1:58827/index.html?g=rv-odd",
+      "iosTip": false,
+      "installBtn": false,
+      "joinNote": "Your group's data is stored in the cloud, not on this device, so installing the app won't lose it.",
+      "footer": "Data syncs live through the cloud to everyone with this group's link."
+    }
+  },
+  "errorsF": [
+    "Error: secret-text-1\n    at <anonymous>:1:43",
+    "Error: secret-text-2\n    at <anonymous>:2:20\n    at <anonymous>:2:64"
+  ],
+  "firestoreHitsF": [],
+  "F9_slowStart": {
+    "whileHeld": {
+      "boot": true,
+      "bootText": "SplitFamilia Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": false,
+      "group": "",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": null,
+      "subs": []
+    },
+    "afterRelease": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": true,
+      "app": false,
+      "group": "",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": null,
+      "subs": []
+    }
+  },
+  "R1_online_firestoreBlocked": {
+    "ctrl": "controlled",
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "t03-probe-445d71441e",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": "t03-probe-445d71441e",
+      "subs": []
+    },
+    "afterAdding": {
+      "screen": {
+        "boot": false,
+        "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+        "join": false,
+        "app": true,
+        "group": "t03-probe-445d71441e",
+        "status": "· 3 changes waiting to sync",
+        "notice": null,
+        "saved": "t03-probe-445d71441e",
+        "subs": []
+      },
+      "ledger": {
+        "people": [
+          "Ben",
+          "Asha"
+        ],
+        "ledger": [
+          "29 Sept Chai paid by Asha · split: Ben, Asha waiting to sync ₹90.00 ×"
+        ],
+        "balances": [
+          "Ben owes Asha ₹45.00"
+        ]
+      }
+    },
+    "caches": {
+      "splitsheet-v5": [
+        "/group-code.js?v=5",
+        "/icon-192.png",
+        "/icon-512.png",
+        "/index.html",
+        "/manifest.json",
+        "/money.js?v=5",
+        "/sync-status.js?v=5",
+        "www.gstatic.com/firebasejs/12.17.1/firebase-app.js",
+        "www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+      ]
+    }
+  },
+  "R2_offlineReopen": {
+    "ctrl": "controlled",
+    "onLine": false,
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "t03-probe-445d71441e",
+      "status": "· offline: 3 changes waiting to sync",
+      "notice": null,
+      "saved": "t03-probe-445d71441e",
+      "subs": []
+    },
+    "ledger": {
+      "people": [
+        "Ben",
+        "Asha"
+      ],
+      "ledger": [
+        "29 Sept Chai paid by Asha · split: Ben, Asha waiting to sync ₹90.00 ×"
+      ],
+      "balances": [
+        "Ben owes Asha ₹45.00"
+      ]
+    }
+  },
+  "R2b_newLinkOffline": {
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "t03-probe-other",
+      "status": "· offline: changes will sync when you're back online",
+      "notice": null,
+      "saved": "t03-probe-other",
+      "subs": []
+    }
+  },
+  "R2c_cachesAfter": {
+    "splitsheet-v5": [
+      "/group-code.js?v=5",
+      "/icon-192.png",
+      "/icon-512.png",
+      "/index.html",
+      "/manifest.json",
+      "/money.js?v=5",
+      "/sync-status.js?v=5",
+      "www.gstatic.com/firebasejs/12.17.1/firebase-app.js",
+      "www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+    ]
+  },
+  "R3_backOnline": {
+    "onLine": true,
+    "screen": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": true,
+      "group": "t03-probe-445d71441e",
+      "status": "· 3 changes waiting to sync",
+      "notice": null,
+      "saved": "t03-probe-445d71441e",
+      "subs": []
+    },
+    "ledger": {
+      "people": [
+        "Ben",
+        "Asha"
+      ],
+      "ledger": [
+        "29 Sept Chai paid by Asha · split: Ben, Asha waiting to sync ₹90.00 ×"
+      ],
+      "balances": [
+        "Ben owes Asha ₹45.00"
+      ]
+    }
+  },
+  "errorsR": [
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED",
+    "log: Failed to load resource: net::ERR_INTERNET_DISCONNECTED"
+  ],
+  "firestoreHitsR": [],
+  "firestoreRequestsTriedAndBlockedR": 50,
+  "R4_sdkBlocked": {
+    "blocked": {
+      "boot": true,
+      "bootText": "SplitFamilia Can't reach SplitFamilia. Check your connection. Retry",
+      "join": false,
+      "app": false,
+      "group": "",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": null,
+      "subs": [],
+      "ms": 2558,
+      "nativeSubmitProbe": true
+    },
+    "afterRetry": {
+      "boot": false,
+      "bootText": "SplitFamilia Loading… Can't reach SplitFamilia. Check your connection. Retry",
+      "join": true,
+      "app": false,
+      "group": "",
+      "status": "· connecting…",
+      "notice": null,
+      "saved": null,
+      "subs": []
+    }
+  },
+  "errorsR4": [],
+  "firestoreHitsR4": [],
+  "probeGroupPrefix": "t03-probe-"
+}

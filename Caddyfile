@@ -1,0 +1,25 @@
+# Serves SplitFamilia's static files on Railway (SF-011). Railway handles HTTPS in front of this
+# and sends the traffic to $PORT. See docs/google-play/HOSTING_RAILWAY.md.
+{
+	admin off
+	auto_https off
+}
+
+:{$PORT:8080} {
+	# /srv in the container. SITE_ROOT exists only so the same file can be tried outside Docker.
+	root * {$SITE_ROOT:/srv}
+	encode zstd gzip
+
+	header {
+		# Every file is checked with the server on each fetch (a quick 304 when unchanged), so an
+		# update reaches phones on their next open. The service worker keeps the offline copy.
+		Cache-Control "no-cache"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+	# Android checks this file to let the app open full screen (SF-012).
+	header /.well-known/assetlinks.json Content-Type "application/json"
+
+	file_server
+}

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>Splitsheet</title>
+<title>SplitFamilia</title>
 <meta name="description" content="Track shared expenses with a group and see who owes whom." />
 <meta name="theme-color" content="#2F5D50" />
 <link rel="manifest" href="manifest.json" />
@@ -11,7 +11,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="Splitsheet" />
+<meta name="apple-mobile-web-app-title" content="SplitFamilia" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
@@ -290,6 +290,12 @@
     flex-shrink:0;
   }
   .ledger-del:hover{color:var(--rust);}
+  .ledger-row.flagged .ledger-amt{color:var(--ink-faint);}
+  .ledger-flag{
+    font-size:0.76rem;
+    color:var(--rust);
+    margin-top:0.2rem;
+  }
 
   /* balances */
   .balance-row{
@@ -306,6 +312,11 @@
     font-family:var(--mono);
     font-weight:600;
     color:var(--rust);
+  }
+  .balance-note{
+    font-size:0.82rem;
+    color:var(--rust);
+    margin-bottom:0.6rem;
   }
   .settled{
     color:var(--green);
@@ -330,10 +341,10 @@
     font-size:0.76rem;
   }
 
-  /* join gate */
+  /* join gate: hidden until the page's script has started and shows it */
   .join-screen{
     min-height:100vh;
-    display:flex;
+    display:none;
     align-items:center;
     justify-content:center;
     padding:1.5rem;
@@ -362,25 +373,197 @@
     margin-top:0.6rem;
     display:none;
   }
+  .join-alert{
+    display:none;
+    background:var(--rust-soft);
+    color:var(--rust);
+    border-radius:3px;
+    padding:0.6rem 0.75rem;
+    font-size:0.85rem;
+    margin:1rem 0 0;
+  }
+  .join-block{margin-top:1.5rem;}
+  .join-block h2{
+    font-family:var(--sans);
+    font-weight:600;
+    font-size:0.95rem;
+    margin:0 0 0.2rem;
+  }
+  .join-block .join-copy{margin:0 0 0.75rem;}
+  .join-or{
+    display:flex;
+    align-items:center;
+    gap:0.75rem;
+    margin-top:1.5rem;
+    color:var(--ink-faint);
+    font-size:0.72rem;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+  }
+  .join-or::before, .join-or::after{
+    content:"";
+    flex:1;
+    border-top:1px solid var(--line);
+  }
+
+  /* start-up panel: "Loading…", or a plain message with Retry when the app can't start (SF-008) */
+  .boot{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:1.5rem;
+    text-align:center;
+  }
+  .boot.done{display:none;}
+  .boot-loading{
+    color:var(--ink-faint);
+    font-size:0.88rem;
+    opacity:0;
+    animation:boot-appear 0.2s ease 0.6s forwards;
+  }
+  @keyframes boot-appear{ to{ opacity:1; } }
+  .boot-failed p{
+    color:var(--ink-soft);
+    font-size:0.92rem;
+    margin:1rem 0;
+  }
+  .boot.failed .boot-loading{display:none;}
+
+  /* one friendly message at a time: save errors, sync errors, anything unexpected (SF-009) */
+  .notice{
+    position:fixed;
+    left:50%;
+    bottom:1rem;
+    transform:translateX(-50%);
+    width:calc(100% - 2rem);
+    max-width:600px;
+    display:flex;
+    align-items:flex-start;
+    gap:0.75rem;
+    background:var(--rust-soft);
+    color:var(--rust);
+    border:1px solid var(--rust);
+    border-radius:4px;
+    padding:0.65rem 0.8rem;
+    font-size:0.86rem;
+    z-index:10;
+  }
+  .notice[hidden]{display:none;}
+  .notice span{flex:1;}
+  .notice button{
+    border:none;
+    background:none;
+    color:var(--rust);
+    font-size:1rem;
+    line-height:1;
+    cursor:pointer;
+    padding:0;
+  }
+  .ledger-sync{
+    font-size:0.72rem;
+    color:var(--ink-faint);
+    margin-top:0.15rem;
+  }
+
+  /* inside the installed or Android app, hide what only makes sense in a browser (SF-010) */
+  .in-app .web-only, .in-app #install-btn.show{display:none;}
 
   @media (max-width:420px){
     .row2{flex-direction:column;}
   }
 </style>
+<script>
+  // Runs before the page's module, and works even when the module can't load.
+  (function(){
+    // SF-010: inside the installed app (standalone) or the Android app, which opens the page with
+    // an android-app:// referrer, hide the install button and the iPhone tip. The referrer is
+    // only there on the first page, so this tab remembers it.
+    var IN_APP_KEY = "splitfamilia-in-app";
+    var inApp = false;
+    try{
+      if(document.referrer.indexOf("android-app://") === 0) sessionStorage.setItem(IN_APP_KEY, "1");
+      inApp = sessionStorage.getItem(IN_APP_KEY) === "1";
+    }catch(e){}
+    if(inApp || (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true){
+      document.documentElement.classList.add("in-app");
+    }
+
+    // SF-008: the module needs the Firebase SDK. If it can't load or start (for example, the
+    // first open with no connection), show a plain message and Retry, not a screen that does
+    // nothing. The module calls splitBoot.ready() once it runs, which also clears the message if
+    // the start was only slow.
+    var started = false;
+    function panel(){ return document.getElementById("boot"); }
+    function fail(){
+      if(started || !panel()) return;
+      panel().classList.add("failed");
+      document.getElementById("boot-failed").hidden = false;
+    }
+    window.splitBoot = {
+      ready: function(){
+        started = true;
+        if(panel()) panel().classList.add("done");
+      },
+      fail: fail
+    };
+    // A <script> that can't load (the module or anything it imports) fires "error" on itself;
+    // listening while the event travels down from window catches it.
+    window.addEventListener("error", function(e){
+      if(e.target && e.target.tagName === "SCRIPT") fail();
+    }, true);
+    setTimeout(fail, 10000);
+    document.addEventListener("click", function(e){
+      if(e.target && e.target.id === "boot-retry") location.reload();
+    });
+    // No form here is ever submitted by the browser itself: that would only reload the page and
+    // drop its ?g=. The module's own handlers still run.
+    document.addEventListener("submit", function(e){ e.preventDefault(); }, true);
+  })();
+</script>
 </head>
 <body>
 
+<div class="boot" id="boot">
+  <div class="join-card">
+    <h1>SplitFamilia</h1>
+    <p class="boot-loading">Loading…</p>
+    <div class="boot-failed" id="boot-failed" role="alert" hidden>
+      <p>Can't reach SplitFamilia. Check your connection.</p>
+      <button type="button" class="btn" id="boot-retry">Retry</button>
+    </div>
+  </div>
+</div>
+
 <div class="join-screen" id="join-screen">
   <div class="join-card">
-    <h1>Splitsheet</h1>
+    <h1>SplitFamilia</h1>
     <p class="sub">a running ledger for shared costs</p>
-    <p class="join-copy">Name this group. Anyone who opens the link you share afterward lands in the same ledger, live.</p>
-    <form class="inline-form" id="join-form">
-      <input type="text" id="join-name" placeholder="e.g. goa-trip-2026" autocomplete="off" />
-      <button type="submit" class="btn">Start / join</button>
-    </form>
-    <p class="join-error" id="join-error">Use only letters, numbers and hyphens.</p>
-    <p class="join-note">Data is stored in the cloud (Firestore), not on this device — install won't lose it.</p>
+    <p class="join-alert" id="join-alert" role="alert"></p>
+
+    <div class="join-block">
+      <h2>Start a new group</h2>
+      <p class="join-copy">Name it after the trip or the household. You'll get a private invite link to share with the others.</p>
+      <form class="inline-form" id="new-group-form" novalidate>
+        <input type="text" id="new-group-name" placeholder="e.g. Goa trip 2026" maxlength="60" autocomplete="off" aria-label="Group name" />
+        <button type="submit" class="btn">Start group</button>
+      </form>
+      <p class="join-error" id="new-group-error" role="alert"></p>
+    </div>
+
+    <div class="join-or">or</div>
+
+    <div class="join-block">
+      <h2>Join a group</h2>
+      <p class="join-copy">Paste the invite link or code someone shared with you.</p>
+      <form class="inline-form" id="join-form" novalidate>
+        <input type="text" id="join-code" placeholder="Invite link or code" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Invite link or code" />
+        <button type="submit" class="btn ghost" id="join-btn">Join</button>
+      </form>
+      <p class="join-error" id="join-error" role="alert"></p>
+    </div>
+
+    <p class="join-note">Your group's data is stored in the cloud, not on this device<span class="web-only">, so installing the app won't lose it</span>.</p>
   </div>
 </div>
 
@@ -388,14 +571,14 @@
   <div class="wrap">
     <header class="top">
       <div>
-        <h1>Splitsheet</h1>
+        <h1>SplitFamilia</h1>
         <p class="sub">a running ledger for shared costs</p>
       </div>
-      <button id="install-btn">Install app</button>
+      <button id="install-btn" class="web-only">Install app</button>
     </header>
 
     <div class="group-bar">
-      <div><span class="g-name" id="group-name"></span><span class="g-status" id="group-status">connecting…</span></div>
+      <div><span class="g-name" id="group-name"></span><span class="g-status" id="group-status">· connecting…</span></div>
       <div class="g-actions">
         <button class="link-btn" id="copy-link-btn">Copy invite link</button>
         <button class="link-btn muted" id="switch-group-btn">Switch group</button>
@@ -411,18 +594,18 @@
       </div>
       <div class="people-row" id="people-list"></div>
       <form class="inline-form" id="add-person-form">
-        <input type="text" id="person-name" placeholder="Add a person" autocomplete="off" />
+        <input type="text" id="person-name" placeholder="Add a person" maxlength="60" autocomplete="off" />
         <button type="submit" class="btn ghost">Add</button>
       </form>
     </section>
 
     <section>
       <h2>Add expense</h2>
-      <form class="expense-form" id="add-expense-form">
+      <form class="expense-form" id="add-expense-form" novalidate>
         <div class="row2">
           <div class="field">
             <label for="exp-desc">Description</label>
-            <input type="text" id="exp-desc" placeholder="Dinner, cab, groceries…" autocomplete="off" />
+            <input type="text" id="exp-desc" placeholder="Dinner, cab, groceries…" maxlength="200" autocomplete="off" />
           </div>
           <div class="field">
             <label for="exp-amount">Amount</label>
@@ -455,18 +638,30 @@
   </div>
 
   <footer>
-    Data syncs live through the cloud to everyone with this group's link. On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.
+    Data syncs live through the cloud to everyone with this group's link.<span class="web-only" id="ios-tip"> On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.</span>
   </footer>
+</div>
+
+<div class="notice" id="notice" role="alert" hidden>
+  <span id="notice-text"></span>
+  <button type="button" id="notice-close" aria-label="Dismiss">×</button>
 </div>
 
 <script type="module">
   // ---------- Firebase ----------
   // Fill these in from Firebase Console → Project settings → Your apps → SDK setup and configuration.
+  // The service worker keeps these two SDK files for offline starts; its SDK list must name the
+  // same version (npm test checks).
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import {
     initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-    collection, doc, addDoc, updateDoc, deleteDoc, setDoc, onSnapshot
+    collection, doc, addDoc, deleteDoc, setDoc, onSnapshot,
+    getDocFromServer, getDocsFromServer, query, limit
   } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+  // "?v=5" matches the service worker's cache name; bump them together (see service-worker.js).
+  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=5";
+  import { isValidGroupId, newGroupId, parseInvite } from "./group-code.js?v=5";
+  import { friendlyError, countPending, syncStatusText } from "./sync-status.js?v=5";
 
   const firebaseConfig = {
     apiKey: "AIzaSyCWcLYXre5DfLan0_1etxnMk9Ixey5xdsI",
@@ -477,49 +672,173 @@
     appId: "1:433564298612:web:901a2b1a9155a47104d021"
   };
 
-  const fbApp = initializeApp(firebaseConfig);
-  const db = initializeFirestore(fbApp, {
-    localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-  });
+  // ---------- messages (SF-009) ----------
+  // People see plain words, never Firestore's own text. The console gets at most the error's
+  // code: never what someone typed, and never a group code.
+  const notice = document.getElementById("notice");
+  const noticeText = document.getElementById("notice-text");
+  function showNotice(text){
+    noticeText.textContent = text;
+    notice.hidden = false;
+  }
+  document.getElementById("notice-close").addEventListener("click", function(){ notice.hidden = true; });
+
+  function errorCode(err){
+    return err && typeof err.code === "string" ? err.code : "unknown";
+  }
+  // `what` says what failed, e.g. "Couldn't save that expense."
+  function reportError(what, err){
+    console.error("SplitFamilia: " + what, errorCode(err));
+    showNotice(what + " " + friendlyError(err));
+  }
+
+  // ---------- start ----------
+  let db;
+  try{
+    const fbApp = initializeApp(firebaseConfig);
+    db = initializeFirestore(fbApp, {
+      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
+    });
+  }catch(err){
+    // The start-up panel shows "Can't reach SplitFamilia" with Retry (SF-008).
+    console.error("SplitFamilia: Firebase didn't start", errorCode(err));
+    window.splitBoot.fail();
+    throw err;
+  }
+
+  // From here on, anything that goes wrong without its own message gets one friendly message.
+  let unexpectedShown = false;
+  function reportUnexpected(err){
+    console.error("SplitFamilia: unexpected error", err && err.code ? err.code : (err && err.name) || "unknown");
+    if(unexpectedShown) return;
+    unexpectedShown = true;
+    showNotice("Something went wrong. If the page looks wrong, reload the app.");
+  }
+  window.addEventListener("error", function(e){ reportUnexpected(e.error); });
+  window.addEventListener("unhandledrejection", function(e){ reportUnexpected(e.reason); });
 
   // ---------- group resolution ----------
-  function slugify(raw){
-    return raw.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 60);
-  }
+  const GROUP_KEY = "splitsheet-group";
+  const BAD_LINK = "That group link isn't valid.";
+  const OFFLINE_JOIN = "You're offline, so that code can't be checked yet. Connect to the internet and try again.";
 
-  function resolveGroupId(){
-    const url = new URL(window.location.href);
-    const fromUrl = url.searchParams.get("g");
-    if(fromUrl){
-      localStorage.setItem("splitsheet-group", fromUrl);
-      return fromUrl;
+  // The group to open: the invite link's ?g= first, then the one saved on this phone.
+  // An invalid code is never saved, and an invalid saved one is cleared (SF-005).
+  function resolveGroup(){
+    let saved = localStorage.getItem(GROUP_KEY);
+    let error = null;
+    if(saved !== null && !isValidGroupId(saved)){
+      localStorage.removeItem(GROUP_KEY);
+      saved = null;
+      error = "The group saved on this phone had an invalid code, so it was cleared.";
     }
-    return localStorage.getItem("splitsheet-group");
+    const fromUrl = new URL(window.location.href).searchParams.get("g");
+    if(fromUrl !== null){
+      if(!isValidGroupId(fromUrl)) return { id: null, error: BAD_LINK };
+      localStorage.setItem(GROUP_KEY, fromUrl);
+      return { id: fromUrl, error: null };
+    }
+    return { id: saved, error: error };
   }
 
-  let groupId = resolveGroupId();
+  const resolved = resolveGroup();
+  let groupId = resolved.id;
 
   const joinScreen = document.getElementById("join-screen");
   const appShell = document.getElementById("app-shell");
+  const joinAlert = document.getElementById("join-alert");
+  const newGroupForm = document.getElementById("new-group-form");
+  const newGroupName = document.getElementById("new-group-name");
+  const newGroupError = document.getElementById("new-group-error");
   const joinForm = document.getElementById("join-form");
-  const joinInput = document.getElementById("join-name");
+  const joinInput = document.getElementById("join-code");
+  const joinBtn = document.getElementById("join-btn");
   const joinError = document.getElementById("join-error");
+  const newGroupBtn = newGroupForm.querySelector("button");
+
+  function showMessage(el, text){
+    el.textContent = text;
+    el.style.display = text ? "block" : "none";
+  }
+
+  // Opens a group in this page: saves it, puts it in the address bar, starts the ledger.
+  // At most one group opens per page load (F-3): a "Join" check that returns after "Start a new
+  // group" has already opened a group is ignored.
+  function openGroup(id, isNew){
+    if(appStarted) return;
+    localStorage.setItem(GROUP_KEY, id);
+    const url = new URL(window.location.href);
+    url.searchParams.set("g", id);
+    history.replaceState(null, "", url.toString());
+    groupId = id;
+    startApp(id, isNew);
+  }
+
+  // True when the server has anything under this code: the group document, a person or an
+  // expense. Asks the server, not this phone's cache, so a made-up code isn't taken as a group.
+  function groupExists(id){
+    const check = Promise.all([
+      getDocFromServer(doc(db, "groups", id)),
+      getDocsFromServer(query(collection(db, "groups", id, "people"), limit(1))),
+      getDocsFromServer(query(collection(db, "groups", id, "expenses"), limit(1)))
+    ]).then(function(r){ return r[0].exists() || !r[1].empty || !r[2].empty; });
+    const timeout = new Promise(function(resolve, reject){
+      setTimeout(function(){ reject({ code: "timeout" }); }, 15000);
+    });
+    return Promise.race([check, timeout]);
+  }
+
+  newGroupForm.addEventListener("submit", function(ev){
+    ev.preventDefault();
+    const name = newGroupName.value.trim();
+    if(!name){
+      showMessage(newGroupError, "Give the group a name.");
+      return;
+    }
+    showMessage(newGroupError, "");
+    openGroup(newGroupId(name), true);
+  });
 
   joinForm.addEventListener("submit", function(ev){
     ev.preventDefault();
-    const slug = slugify(joinInput.value);
-    if(!slug){
-      joinError.style.display = "block";
+    showMessage(joinAlert, "");
+    if(!joinInput.value.trim()){
+      showMessage(joinError, "Paste an invite link or code.");
       return;
     }
-    localStorage.setItem("splitsheet-group", slug);
-    const url = new URL(window.location.href);
-    url.searchParams.set("g", slug);
-    window.location.href = url.toString();
+    const id = parseInvite(joinInput.value);
+    if(!id){
+      showMessage(joinError, BAD_LINK);
+      return;
+    }
+    if(!navigator.onLine){
+      showMessage(joinError, OFFLINE_JOIN);
+      return;
+    }
+    showMessage(joinError, "");
+    // While the check runs, neither form can open another group (F-3).
+    joinBtn.disabled = true;
+    newGroupBtn.disabled = true;
+    joinBtn.textContent = "Checking…";
+    groupExists(id).then(function(found){
+      if(found) openGroup(id, false);
+      else showMessage(joinError, "No group found with that code. Check it, or ask for the invite link.");
+    }).catch(function(err){
+      if(err && err.code === "unavailable"){
+        showMessage(joinError, OFFLINE_JOIN);
+      }else{
+        if(err && err.code !== "timeout") console.error("SplitFamilia: join check failed", errorCode(err));
+        showMessage(joinError, "Couldn't check that code just now. Try again.");
+      }
+    }).finally(function(){
+      joinBtn.disabled = false;
+      newGroupBtn.disabled = false;
+      joinBtn.textContent = "Join";
+    });
   });
 
   document.getElementById("switch-group-btn").addEventListener("click", function(){
-    localStorage.removeItem("splitsheet-group");
+    localStorage.removeItem(GROUP_KEY);
     const url = new URL(window.location.href);
     url.searchParams.delete("g");
     window.location.href = url.toString();
@@ -538,13 +857,18 @@
     }
   });
 
+  let appStarted = false;
   if(!groupId){
     joinScreen.style.display = "flex";
+    if(resolved.error) showMessage(joinAlert, resolved.error);
   }else{
-    startApp(groupId);
+    startApp(groupId, false);
   }
+  window.splitBoot.ready();
 
-  function startApp(gid){
+  function startApp(gid, isNew){
+    if(appStarted) return;
+    appStarted = true;
     joinScreen.style.display = "none";
     appShell.style.display = "";
     document.getElementById("group-name").textContent = gid;
@@ -553,14 +877,19 @@
     const peopleCol = collection(db, "groups", gid, "people");
     const expensesCol = collection(db, "groups", gid, "expenses");
 
+    // A new group gets its group document at once, so "Join" finds it before anyone is added.
+    if(isNew){
+      setDoc(groupDocRef, { currency: "₹" }, { merge: true }).catch(function(e){ reportError("Couldn't create the group.", e); });
+    }
+
     let people = [];
     let expenses = [];
     let currency = "₹";
-    let synced = false;
+    // Expenses this phone added that the server hasn't confirmed yet (SF-009).
+    let unsyncedExpenses = new Set();
 
-    function fmtAmount(n){
-      const num = Number(n) || 0;
-      return currency + num.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    function fmtPaise(paise){
+      return currency + formatPaise(paise);
     }
     function fmtDate(iso){
       const d = new Date(iso);
@@ -568,8 +897,14 @@
     }
     function personName(id){
       const p = people.find(function(x){ return x.id === id; });
-      return p ? p.name : "—";
+      return p ? p.name : "Removed person";
     }
+    // Why an expense isn't counted, in words (see expenseProblem in money.js).
+    const PROBLEM_TEXT = {
+      amount: "Not counted in balances: the amount isn't valid. Delete it and add it again.",
+      payer: "Not counted in balances: it has no payer. Delete it and add it again.",
+      split: "Not counted in balances: it isn't split with anyone. Delete it and add it again."
+    };
 
     function renderAll(){
       renderCurrency();
@@ -676,14 +1011,29 @@
         desc.textContent = exp.desc;
         const meta = document.createElement("div");
         meta.className = "ledger-meta";
-        const splitNames = exp.split.map(personName).join(", ");
+        const splitNames = Array.isArray(exp.split) && exp.split.length ? exp.split.map(personName).join(", ") : "nobody";
         meta.textContent = "paid by " + personName(exp.paidBy) + " · split: " + splitNames;
         mid.appendChild(desc);
         mid.appendChild(meta);
+        if(unsyncedExpenses.has(exp.id)){
+          const waiting = document.createElement("div");
+          waiting.className = "ledger-sync";
+          waiting.textContent = "waiting to sync";
+          mid.appendChild(waiting);
+        }
+        const problem = expenseProblem(exp);
+        if(problem){
+          row.classList.add("flagged");
+          const flag = document.createElement("div");
+          flag.className = "ledger-flag";
+          flag.textContent = PROBLEM_TEXT[problem];
+          mid.appendChild(flag);
+        }
 
         const amt = document.createElement("div");
         amt.className = "ledger-amt";
-        amt.textContent = fmtAmount(exp.amount);
+        const paise = toPaise(exp.amount);
+        amt.textContent = paise === null ? "—" : fmtPaise(paise);
 
         const del = document.createElement("button");
         del.className = "ledger-del";
@@ -699,43 +1049,6 @@
       });
     }
 
-    function computeBalances(){
-      const balances = {};
-      people.forEach(function(p){ balances[p.id] = 0; });
-      expenses.forEach(function(exp){
-        if(!(exp.paidBy in balances)) return;
-        balances[exp.paidBy] += exp.amount;
-        const share = exp.amount / exp.split.length;
-        exp.split.forEach(function(pid){
-          if(pid in balances) balances[pid] -= share;
-        });
-      });
-      return balances;
-    }
-
-    function simplifyDebts(balances){
-      const creditors = [];
-      const debtors = [];
-      Object.keys(balances).forEach(function(id){
-        const v = balances[id];
-        if(v > 0.005) creditors.push({ id: id, amt: v });
-        else if(v < -0.005) debtors.push({ id: id, amt: -v });
-      });
-      creditors.sort(function(a,b){ return b.amt - a.amt; });
-      debtors.sort(function(a,b){ return b.amt - a.amt; });
-      const txns = [];
-      let i = 0, j = 0;
-      while(i < debtors.length && j < creditors.length){
-        const pay = Math.min(debtors[i].amt, creditors[j].amt);
-        txns.push({ from: debtors[i].id, to: creditors[j].id, amount: pay });
-        debtors[i].amt -= pay;
-        creditors[j].amt -= pay;
-        if(debtors[i].amt < 0.005) i++;
-        if(creditors[j].amt < 0.005) j++;
-      }
-      return txns;
-    }
-
     function renderBalances(){
       const el = document.getElementById("balances-list");
       el.innerHTML = "";
@@ -746,7 +1059,16 @@
         el.appendChild(e);
         return;
       }
-      const txns = simplifyDebts(computeBalances());
+      const skipped = expenses.filter(function(exp){ return expenseProblem(exp) !== null; }).length;
+      if(skipped > 0){
+        const note = document.createElement("div");
+        note.className = "balance-note";
+        note.textContent = skipped === 1
+          ? "1 expense isn't counted because it has a problem. See the ledger."
+          : skipped + " expenses aren't counted because they have problems. See the ledger.";
+        el.appendChild(note);
+      }
+      const txns = simplifyDebts(computeBalances(people, expenses));
       if(txns.length === 0){
         const s = document.createElement("div");
         s.className = "settled";
@@ -761,7 +1083,7 @@
         label.textContent = personName(t.from) + " owes " + personName(t.to);
         const amt = document.createElement("span");
         amt.className = "amt";
-        amt.textContent = fmtAmount(t.amount);
+        amt.textContent = fmtPaise(t.amount);
         row.appendChild(label);
         row.appendChild(amt);
         el.appendChild(row);
@@ -770,19 +1092,21 @@
 
     // ---------- mutations (each is its own atomic Firestore write) ----------
 
+    // Offline, a write waits in this phone's queue and its promise settles only once the server
+    // answers, so these messages appear only when the server refuses a change.
     function addPerson(name){
       name = name.trim();
       if(!name) return;
-      addDoc(peopleCol, { name: name }).catch(function(e){ alert("Couldn't save: " + e.message); });
+      addDoc(peopleCol, { name: name }).catch(function(e){ reportError("Couldn't add that person.", e); });
     }
 
     function removePerson(id){
-      const used = expenses.some(function(exp){ return exp.paidBy === id || exp.split.indexOf(id) !== -1; });
+      const used = expenses.some(function(exp){ return exp.paidBy === id || (Array.isArray(exp.split) && exp.split.indexOf(id) !== -1); });
       if(used){
         alert("Can't remove someone who appears in an expense. Delete their expenses first.");
         return;
       }
-      deleteDoc(doc(peopleCol, id)).catch(function(e){ alert("Couldn't remove: " + e.message); });
+      deleteDoc(doc(peopleCol, id)).catch(function(e){ reportError("Couldn't remove that person.", e); });
     }
 
     function addExpense(desc, amount, paidBy, split){
@@ -792,11 +1116,11 @@
         amount: amount,
         paidBy: paidBy,
         split: split
-      }).catch(function(e){ alert("Couldn't save: " + e.message); });
+      }).catch(function(e){ reportError("Couldn't save that expense.", e); });
     }
 
     function removeExpense(id){
-      deleteDoc(doc(expensesCol, id)).catch(function(e){ alert("Couldn't remove: " + e.message); });
+      deleteDoc(doc(expensesCol, id)).catch(function(e){ reportError("Couldn't delete that expense.", e); });
     }
 
     // ---------- events ----------
@@ -811,22 +1135,27 @@
 
     document.getElementById("currency-input").addEventListener("change", function(ev){
       const v = ev.target.value.trim() || "₹";
-      setDoc(groupDocRef, { currency: v }, { merge: true }).catch(function(e){ alert("Couldn't save: " + e.message); });
+      setDoc(groupDocRef, { currency: v }, { merge: true }).catch(function(e){ reportError("Couldn't change the currency.", e); });
     });
 
     document.getElementById("add-expense-form").addEventListener("submit", function(ev){
       ev.preventDefault();
       const desc = document.getElementById("exp-desc").value.trim();
-      const amount = parseFloat(document.getElementById("exp-amount").value);
+      const amountInput = document.getElementById("exp-amount");
+      // A number input reports "" for text it can't read, such as "12abc".
+      const amount = amountInput.validity.badInput
+        ? { error: "Enter a number, like 250 or 99.50." }
+        : parseAmountInput(amountInput.value);
       const paidBy = document.getElementById("exp-paidby").value;
       const checked = Array.prototype.slice.call(document.querySelectorAll("#split-boxes input:checked")).map(function(i){ return i.value; });
 
       if(!desc){ alert("Add a description."); return; }
-      if(!amount || amount <= 0){ alert("Enter an amount greater than 0."); return; }
+      if(amount.error){ alert(amount.error); return; }
       if(!paidBy){ alert("Add at least one person first."); return; }
       if(checked.length === 0){ alert("Pick at least one person to split with."); return; }
 
-      addExpense(desc, amount, paidBy, checked);
+      // Stored as a decimal number of rupees, as before: 9950 paise → 99.5.
+      addExpense(desc, amount.paise / 100, paidBy, checked);
 
       document.getElementById("exp-desc").value = "";
       document.getElementById("exp-amount").value = "";
@@ -834,31 +1163,60 @@
 
     // ---------- live sync ----------
 
+    // The status says "live" only when the server has confirmed what's on screen (SF-009). Each
+    // listener also hears about metadata changes: data coming from this phone's cache, and
+    // changes the server hasn't confirmed yet.
     const statusEl = document.getElementById("group-status");
-    function markSynced(){
-      if(synced) return;
-      synced = true;
-      statusEl.textContent = "· live";
+    const latest = { people: null, expenses: null, group: null };
+    let failed = false;
+    function updateStatus(){
+      const snaps = [latest.people, latest.expenses, latest.group].filter(Boolean);
+      statusEl.textContent = "· " + syncStatusText({
+        online: navigator.onLine,
+        heard: snaps.length === 3,
+        fromCache: snaps.some(function(s){ return s.metadata.fromCache; }),
+        pending: snaps.reduce(function(n, s){ return n + countPending(s); }, 0),
+        failed: failed
+      });
     }
+    window.addEventListener("online", updateStatus);
+    window.addEventListener("offline", updateStatus);
 
-    onSnapshot(peopleCol, function(snap){
+    // A listener that fails has stopped for good; its message is shown once.
+    function listenFailed(err){
+      if(!failed){
+        console.error("SplitFamilia: sync stopped", errorCode(err));
+        showNotice(friendlyError(err));
+      }
+      failed = true;
+      updateStatus();
+    }
+    const withMetadata = { includeMetadataChanges: true };
+
+    onSnapshot(peopleCol, withMetadata, function(snap){
+      latest.people = snap;
       people = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
-      markSynced();
+      updateStatus();
       renderAll();
-    }, function(err){ statusEl.textContent = "· sync error: " + err.message; });
+    }, listenFailed);
 
-    onSnapshot(expensesCol, function(snap){
+    onSnapshot(expensesCol, withMetadata, function(snap){
+      latest.expenses = snap;
       expenses = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
-      markSynced();
+      unsyncedExpenses = new Set(snap.docs.filter(function(d){ return d.metadata.hasPendingWrites; }).map(function(d){ return d.id; }));
+      updateStatus();
       renderAll();
-    }, function(err){ statusEl.textContent = "· sync error: " + err.message; });
+    }, listenFailed);
 
-    onSnapshot(groupDocRef, function(snap){
+    onSnapshot(groupDocRef, withMetadata, function(snap){
+      latest.group = snap;
       const data = snap.data();
       currency = (data && data.currency) || "₹";
+      updateStatus();
       renderAll();
-    }, function(err){ statusEl.textContent = "· sync error: " + err.message; });
+    }, listenFailed);
 
+    updateStatus();
     renderAll();
   }
 

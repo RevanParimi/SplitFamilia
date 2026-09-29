@@ -1,0 +1,87 @@
+T-03 / SF-011: headers from the real Caddy server with the repo's Caddyfile (evidence only).
+2026-09-29 about 12:45 IST. Docker is not installed, so the image was not built. Instead:
+- Caddy v2.11.4 for Windows (the version in the Dockerfile's caddy:2.11.4-alpine), downloaded to
+  the session scratchpad, SHA-512 checked against caddy_2.11.4_checksums.txt, deleted afterwards;
+- a folder holding exactly the files the Dockerfile's COPY lines put in /srv (staged by parsing
+  those lines): index.html, manifest.json, service-worker.js, money.js, group-code.js,
+  sync-status.js, icon-192.png, icon-512.png, apple-touch-icon.png, .well-known/assetlinks.json;
+- `caddy validate` → "Valid configuration";
+- `PORT=8765 SITE_ROOT=<that folder> caddy run --config Caddyfile --adapter caddyfile`.
+
+== curl -sI http://127.0.0.1:8765/
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/html; charset=utf-8
+Etag: "dlrlxvb6ntvox11"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/index.html?g=goa-trip-2026
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/html; charset=utf-8
+Etag: "dlrlxvb6ntvox11"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/index.html
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/html; charset=utf-8
+Etag: "dlrlxvb6ntvox11"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/service-worker.js
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/javascript; charset=utf-8
+Etag: "dlrlxvu02qqk2fg"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/manifest.json
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: application/json
+Etag: "dlrltoiopgawjv"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/.well-known/assetlinks.json
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: application/json
+Etag: "dlrlv5ys83e081"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/money.js?v=5
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/javascript; charset=utf-8
+Etag: "dlrb0cyqzquk4b0"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/sync-status.js
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: text/javascript; charset=utf-8
+Etag: "dlrlxr8i7uxw262"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== curl -sI http://127.0.0.1:8765/icon-192.png
+HTTP/1.1 200 OK
+Cache-Control: no-cache
+Content-Type: image/png
+Etag: "dlr46ltgszqo5cj"
+Referrer-Policy: strict-origin-when-cross-origin
+X-Content-Type-Options: nosniff
+== Files that are not in the image:
+/docs/planning/STATE.json   → HTTP/1.1 404 Not Found
+/tests/wiring.test.js       → HTTP/1.1 404 Not Found
+/package.json               → HTTP/1.1 404 Not Found
+/firestore.rules            → HTTP/1.1 404 Not Found
+/Caddyfile                  → HTTP/1.1 404 Not Found
+(These 404s carry "Server: Caddy" and not the three security headers: Caddy's error responses
+skip the `header` directive. Nothing is served on them, so this was left as is.)
+== Other checks
+GET /index.html with Accept-Encoding: gzip → 200, Content-Encoding: gzip, 11891 bytes on the wire
+GET /index.html with If-None-Match: <its Etag> → 304
+/index.html is served directly (no redirect to /), so the service worker can keep it as the page.
+`caddy adapt` with PORT unset → listen [":8080"]
+The body of /.well-known/assetlinks.json is the repo's file (package com.splitfamilia.app).

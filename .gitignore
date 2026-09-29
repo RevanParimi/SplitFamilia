@@ -1,0 +1,60 @@
+# Keeps signing keys, local secrets and build outputs out of git (SF-003).
+# The Firebase web config in index.html is public by design and stays tracked.
+
+# Signing keys and their settings. The upload key lives outside this repo.
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+*.pepk
+keystore.properties
+key.properties
+signing.properties
+
+# Local config and credentials
+local.properties
+.env
+.env.*
+!.env.example
+*service-account*.json
+*serviceAccount*.json
+google-services.json
+GoogleService-Info.plist
+
+# Build outputs and tooling
+node_modules/
+.gradle/
+build/
+dist/
+*.aab
+*.apk
+*.idsig
+*.apks
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Firebase tools and emulators
+.firebase/
+firebase-debug*.log
+firestore-debug*.log
+ui-debug*.log
+database-debug*.log
+pubsub-debug*.log
+
+# Logs
+npm-debug.log*
+*.log
+
+# Editors and OS clutter
+.idea/
+*.iml
+.vscode/
+*.swp
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+.claude/settings.local.json

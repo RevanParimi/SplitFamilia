@@ -1,0 +1,272 @@
+{
+  "smoke-one": {
+    "ledger": [
+      "28 Sept Dinner paid by Asha · split: Asha, Ben, Chitra ₹300.00 ×"
+    ],
+    "balances": [
+      "Ben owes Asha ₹100.00",
+      "Chitra owes Asha ₹100.00"
+    ]
+  },
+  "smoke-odd": {
+    "ledger": [
+      "28 Sept Snacks paid by Asha · split: Asha, Ben, Chitra ₹100.00 ×"
+    ],
+    "balances": [
+      "Ben owes Asha ₹33.33",
+      "Chitra owes Asha ₹33.33"
+    ]
+  },
+  "smoke-gone": {
+    "ledger": [
+      "28 Sept Hotel paid by Asha · split: Asha, Ben, Removed person ₹300.00 ×",
+      "27 Sept Fuel paid by Removed person · split: Asha, Ben ₹60.00 ×"
+    ],
+    "balances": [
+      "Ben owes Asha ₹130.00",
+      "Removed person owes Asha ₹40.00"
+    ]
+  },
+  "smoke-bad": {
+    "ledger": [
+      "28 Sept Tea paid by Removed person · split: Asha, Ben ₹30.00 ×",
+      "28 Sept No split field paid by Asha · split: nobody Not counted in balances: it isn't split with anyone. Delete it and add it again. ₹50.00 ×",
+      "28 Sept Nobody paid by Asha · split: nobody Not counted in balances: it isn't split with anyone. Delete it and add it again. ₹50.00 ×",
+      "28 Sept Huge 2 paid by Asha · split: Asha, Ben Not counted in balances: the amount isn't valid. Delete it and add it again. — ×",
+      "28 Sept Huge 1 paid by Asha · split: Asha, Ben Not counted in balances: the amount isn't valid. Delete it and add it again. — ×"
+    ],
+    "balances": [
+      "4 expenses aren't counted because they have problems. See the ledger.",
+      "Asha owes Removed person ₹15.00",
+      "Ben owes Removed person ₹15.00"
+    ]
+  },
+  "amountField": [
+    {
+      "typed": "",
+      "dialog": "Enter an amount.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "1e",
+      "dialog": "Enter a number, like 250 or 99.50.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "0",
+      "dialog": "Enter an amount greater than 0.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "-5",
+      "dialog": "Enter an amount greater than 0.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "10.555",
+      "dialog": "Use at most 2 decimal places.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "20000000",
+      "dialog": "The largest amount allowed is 1,00,00,000.00.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "1e308",
+      "dialog": "Enter a number, like 250 or 99.50.",
+      "storedAmounts": "[]"
+    },
+    {
+      "typed": "99.5",
+      "dialog": null,
+      "storedAmounts": "[99.5]"
+    },
+    {
+      "typed": "0.29",
+      "dialog": null,
+      "storedAmounts": "[99.5,0.29]"
+    }
+  ],
+  "badLink": {
+    "join": true,
+    "app": false,
+    "alert": "That group link isn't valid.",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "",
+    "url": "?g=goa/trip",
+    "saved": null
+  },
+  "badLinkAfterReload": {
+    "join": true,
+    "app": false,
+    "alert": "That group link isn't valid.",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "",
+    "url": "?g=goa/trip",
+    "saved": null
+  },
+  "upperCaseLink": {
+    "join": true,
+    "app": false,
+    "alert": "That group link isn't valid.",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "",
+    "url": "?g=GOA",
+    "saved": null
+  },
+  "badSavedCode": {
+    "join": true,
+    "app": false,
+    "alert": "The group saved on this phone had an invalid code, so it was cleared.",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "",
+    "url": "",
+    "saved": null
+  },
+  "validOldLink": {
+    "join": false,
+    "app": true,
+    "alert": "",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "goa-trip-2026",
+    "url": "?g=goa-trip-2026",
+    "saved": "goa-trip-2026"
+  },
+  "joinScreenText": "Splitsheet a running ledger for shared costs Start a new group Name it after the trip or the household. You'll get a private invite link to share with the others. Start group OR Join a group Paste the invite link or code someone shared with you. Join Data is stored in the cloud (Firestore), not on this device — install won't lose it.",
+  "newGroupEmptyName": {
+    "join": true,
+    "app": false,
+    "alert": "",
+    "joinError": "",
+    "newGroupError": "Give the group a name.",
+    "group": "",
+    "url": "",
+    "saved": null
+  },
+  "newGroup": {
+    "join": false,
+    "app": true,
+    "alert": "",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "goa-trip-bxcdqqwp97",
+    "url": "?g=goa-trip-bxcdqqwp97",
+    "saved": "goa-trip-bxcdqqwp97"
+  },
+  "newGroupWrites": "[{\"op\":\"set\",\"path\":\"groups/goa-trip-bxcdqqwp97\",\"data\":{\"currency\":\"₹\"},\"opts\":{\"merge\":true}}]",
+  "copiedLink": "http://127.0.0.1:8765/index.html?g=goa-trip-bxcdqqwp97",
+  "openCopiedLinkFresh": {
+    "join": false,
+    "app": true,
+    "alert": "",
+    "joinError": "",
+    "newGroupError": "",
+    "group": "goa-trip-bxcdqqwp97",
+    "url": "?g=goa-trip-bxcdqqwp97",
+    "saved": "goa-trip-bxcdqqwp97"
+  },
+  "join": [
+    {
+      "input": "https://example.invalid/index.html?g=smoke-one",
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "newGroupError": "",
+      "group": "smoke-one",
+      "url": "?g=smoke-one",
+      "saved": "smoke-one"
+    },
+    {
+      "input": "Smoke Odd",
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "newGroupError": "",
+      "group": "smoke-odd",
+      "url": "?g=smoke-odd",
+      "saved": "smoke-odd"
+    },
+    {
+      "input": "made-up-code-2222222222",
+      "join": true,
+      "app": false,
+      "alert": "",
+      "joinError": "No group found with that code. Check it, or ask for the invite link.",
+      "newGroupError": "",
+      "group": "",
+      "url": "",
+      "saved": null
+    },
+    {
+      "input": "https://example.invalid/?x=1",
+      "join": true,
+      "app": false,
+      "alert": "",
+      "joinError": "That group link isn't valid.",
+      "newGroupError": "",
+      "group": "",
+      "url": "",
+      "saved": null
+    },
+    {
+      "input": "",
+      "join": true,
+      "app": false,
+      "alert": "",
+      "joinError": "Paste an invite link or code.",
+      "newGroupError": "",
+      "group": "",
+      "url": "",
+      "saved": null
+    },
+    {
+      "input": "smoke-gone",
+      "join": false,
+      "app": true,
+      "alert": "",
+      "joinError": "",
+      "newGroupError": "",
+      "group": "smoke-gone",
+      "url": "?g=smoke-gone",
+      "saved": "smoke-gone"
+    }
+  ],
+  "joinOffline": {
+    "onLine": false,
+    "join": true,
+    "app": false,
+    "alert": "",
+    "joinError": "You're offline, so that code can't be checked yet. Connect to the internet and try again.",
+    "newGroupError": "",
+    "group": "",
+    "url": "",
+    "saved": null
+  },
+  "serviceWorker": {
+    "splitsheet-v4": [
+      "/group-code.js",
+      "/icon-192.png",
+      "/icon-512.png",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/index.html",
+      "/manifest.json",
+      "/money.js"
+    ]
+  },
+  "pageErrors": []
+}

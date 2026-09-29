@@ -1,6 +1,6 @@
 {
-  "name": "Splitsheet — shared expense ledger",
-  "short_name": "Splitsheet",
+  "name": "SplitFamilia",
+  "short_name": "SplitFamilia",
   "description": "Track shared expenses with a group and see who owes whom.",
   "id": "/splitsheet/",
   "start_url": "./index.html",
