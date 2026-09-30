@@ -1,5 +1,5 @@
 // Runs the real service-worker.js in a sandbox with a fake cache and a fake network, and checks
-// what it does (SF-008 and the T-02 review's F-4). No browser and no real network.
+// what it does (SF-008, the T-02 review's F-4, and SF-035). No browser and no real network.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
@@ -7,8 +7,6 @@ import vm from "node:vm";
 
 const SOURCE = readFileSync(new URL("../service-worker.js", import.meta.url), "utf8");
 const ORIGIN = "https://splitfamilia.up.railway.app";
-const SDK_APP = "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-const SDK_FIRESTORE = "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
 const VERSION = /const CACHE = "splitsheet-v(\d+)";/.exec(SOURCE)[1];
 const CACHE = "splitsheet-v" + VERSION;
 
@@ -101,13 +99,13 @@ function loadWorker(files){
 }
 
 const SHELL_FILES = ["index.html", "money.js?v=" + VERSION, "group-code.js?v=" + VERSION, "sync-status.js?v=" + VERSION,
+  "ledger-rules.js?v=" + VERSION, "ledger-client.js?v=" + VERSION, "outbox.js?v=" + VERSION,
   "manifest.json", "icon-192.png", "icon-512.png"];
 function site(pageBody){
   const files = {};
   SHELL_FILES.forEach(function(f){ files[ORIGIN + "/" + f.replace(/\?.*$/, "")] = f === "index.html" ? pageBody : "file " + f; });
   files[ORIGIN + "/privacy.html"] = "privacy";
-  files[SDK_APP] = "sdk app";
-  files[SDK_FIRESTORE] = "sdk firestore";
+  files[ORIGIN + "/api/group"] = "a group";
   return files;
 }
 
@@ -129,12 +127,12 @@ test("install fetches the app's own files past the browser's HTTP cache (cache: 
   own.forEach(function(e){ assert.equal(e.cache, "reload", e.url + " was fetched with cache: " + e.cache); });
 });
 
-test("install caches the shell and both Firebase SDK files, so the app can start offline", async function(){
+test("install caches the shell and nothing from another site, so the app can start offline", async function(){
   const w = loadWorker(site("page"));
   await w.install();
   SHELL_FILES.forEach(function(f){ assert.ok(w.cached(f), f + " is not cached"); });
-  assert.equal(w.cached(SDK_APP).body, "sdk app");
-  assert.equal(w.cached(SDK_FIRESTORE).body, "sdk firestore");
+  w.cacheKeys().forEach(function(k){ assert.ok(k.startsWith(ORIGIN + "/"), k); });
+  assert.equal(w.cacheKeys().length, SHELL_FILES.length);
 });
 
 test("activate removes every older cache", async function(){
@@ -189,13 +187,25 @@ test("the page's background refresh updates the one cached copy for the next ope
   assert.equal(second.res.body, "page B");
 });
 
-test("offline, the page, its modules and the SDK all come from the cache", async function(){
+test("offline, the page and every module come from the cache", async function(){
   const w = await installed("page A");
   w.net.online = false;
   assert.equal((await w.request(ORIGIN + "/index.html?g=new-group-2222222222", { mode: "navigate" })).res.body, "page A");
-  assert.equal((await w.request(ORIGIN + "/group-code.js?v=" + VERSION)).res.body, "file group-code.js?v=" + VERSION);
-  assert.equal((await w.request(SDK_FIRESTORE)).res.body, "sdk firestore");
-  assert.equal((await w.request(SDK_APP)).res.body, "sdk app");
+  for(const f of SHELL_FILES.filter(function(x){ return x.includes("?v="); })){
+    assert.equal((await w.request(ORIGIN + "/" + f)).res.body, "file " + f);
+  }
+});
+
+test("the page is fetched from the network without its ?g=, so an invite code doesn't reach the server's log", async function(){
+  const w = await installed("page A");
+  for(const path of ["/index.html?g=goa-trip-2026", "/?g=goa-trip-7k2m9xqpwd"]){
+    await w.request(ORIGIN + path, { mode: "navigate" });
+  }
+  assert.ok(w.net.log.length >= 2);
+  w.net.log.forEach(function(e){
+    assert.doesNotMatch(e.url, /goa-trip/, e.url);
+    assert.equal(e.url, ORIGIN + "/index.html");
+  });
 });
 
 test("a redirected response is never kept as the page (a browser refuses it for a navigation)", async function(){
@@ -213,37 +223,28 @@ test("other pages on the site are cached as themselves, not as the app page", as
   assert.equal(w.cached("privacy.html").body, "privacy");
 });
 
-// ---------- the Firebase SDK ----------
-
-test("the SDK is served from the cache without asking the network", async function(){
-  const w = await installed();
-  const r = await w.request(SDK_FIRESTORE);
-  assert.equal(r.res.body, "sdk firestore");
-  assert.deepEqual(w.net.log, []);
-});
-
-test("an SDK file missing from the cache is fetched once and kept", async function(){
-  const w = await installed();
-  w.stores.get(CACHE).delete(SDK_APP);
-  const r = await w.request(SDK_APP);
-  assert.equal(r.res.body, "sdk app");
-  assert.equal(w.cached(SDK_APP).body, "sdk app");
-  await w.request(SDK_APP);
-  assert.equal(w.net.log.length, 1);
-});
-
 // ---------- left alone ----------
 
-test("Firestore, fonts, other SDK versions and non-GET requests go straight to the network", async function(){
+test("the API is never answered by the worker, and never cached, online or offline (SF-035)", async function(){
+  const w = await installed();
+  for(const path of ["/api/group", "/api/group/events", "/api", "/api/expenses/e1"]){
+    assert.equal((await w.request(ORIGIN + path)).handled, false, path);
+  }
+  w.net.online = false;
+  assert.equal((await w.request(ORIGIN + "/api/group")).handled, false);
+  assert.equal(w.cacheKeys().filter(function(k){ return k.includes("/api"); }).length, 0);
+  // A file that only starts like the API is still the app's.
+  assert.equal((await w.request(ORIGIN + "/apiary.html")).handled, true);
+});
+
+test("other sites (the fonts) and non-GET requests go straight to the network", async function(){
   const w = await installed();
   for(const url of [
-    "https://firestore.googleapis.com/google.firestore.v1.Firestore/Listen/channel?VER=8",
     "https://fonts.googleapis.com/css2?family=Inter",
-    "https://fonts.gstatic.com/s/inter/v1/x.woff2",
-    "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js"
+    "https://example.com/x.js"
   ]){
     assert.equal((await w.request(url)).handled, false, url);
   }
   assert.equal((await w.request(ORIGIN + "/index.html", { method: "POST" })).handled, false);
-  assert.equal((await w.request(SDK_APP, { method: "POST" })).handled, false);
+  assert.equal((await w.request(ORIGIN + "/api/expenses", { method: "POST" })).handled, false);
 });

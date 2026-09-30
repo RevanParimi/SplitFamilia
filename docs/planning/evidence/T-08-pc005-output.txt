@@ -1,0 +1,16 @@
+PC-005 against https://splitfamilia.up.railway.app and commit a8bffb8, 2026-09-30T15:02:01.499Z
+2. /healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+3. / → 200 | title SplitFamilia: true | cache-control no-cache | nosniff | strict-origin-when-cross-origin
+   /index.html → 200 | byte-identical to a8bffb8:index.html: true | text/html; charset=utf-8 | no-cache | nosniff
+   /money.js?v=5 → 200 | byte-identical to a8bffb8:money.js: true | text/javascript; charset=utf-8 | no-cache | nosniff
+   /group-code.js?v=5 → 200 | byte-identical to a8bffb8:group-code.js: true | text/javascript; charset=utf-8 | no-cache | nosniff
+   /sync-status.js?v=5 → 200 | byte-identical to a8bffb8:sync-status.js: true | text/javascript; charset=utf-8 | no-cache | nosniff
+   /service-worker.js → 200 | byte-identical to a8bffb8:service-worker.js: true | text/javascript; charset=utf-8 | no-cache | nosniff
+   /manifest.json → 200 | byte-identical to a8bffb8:manifest.json: true | application/json | no-cache | nosniff
+   /.well-known/assetlinks.json → 200 application/json
+4. /package.json → 404 | nosniff
+4. /server/main.js → 404 | nosniff
+4. /docs/planning/STATE.json → 404 | nosniff
+4. /%2e%2e/ → 404 | nosniff
+4. /ledger-rules.js → 404 | nosniff
+4. /data/splitfamilia.db → 404 | nosniff

@@ -3,7 +3,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  isValidGroupId, MAX_GROUP_ID_LENGTH, slugify, CODE_ALPHABET, CODE_LENGTH, randomCode, newGroupId, parseInvite
+  isValidGroupId, MAX_GROUP_ID_LENGTH, slugify, CODE_ALPHABET, CODE_LENGTH, randomCode, newGroupId, parseInvite, movedLink, HOME
 } from "../group-code.js";
 
 // Fills the bytes from a fixed list, like a stubbed crypto.getRandomValues.
@@ -129,4 +129,34 @@ test("invite parsing: typed codes and old group names", function(){
   const long = "a".repeat(60) + "-" + BYTES_CODE;
   assert.equal(parseInvite(long), long);
   ["", "   ", "!!!", "गोवा"].forEach(function(text){ assert.equal(parseInvite(text), null, text); });
+});
+
+// ---------- the old address (SF-038) ----------
+
+test("on GitHub Pages the page points to the Railway address, keeping the group", function(){
+  assert.equal(HOME, "https://splitfamilia.up.railway.app/");
+  const pages = "https://revanparimi.github.io/SplitFamilia/";
+  assert.equal(movedLink(pages + "?g=goa-trip-2026", null), "https://splitfamilia.up.railway.app/?g=goa-trip-2026");
+  assert.equal(movedLink(pages + "index.html?g=goa-trip-7k2m9xqpwd", "other-trip"), "https://splitfamilia.up.railway.app/?g=goa-trip-7k2m9xqpwd");
+  // No code in the link: the group saved on this phone; none at all: the start screen.
+  assert.equal(movedLink(pages, "goa-trip-2026"), "https://splitfamilia.up.railway.app/?g=goa-trip-2026");
+  assert.equal(movedLink(pages, null), "https://splitfamilia.up.railway.app/");
+  // A bad code in the link isn't carried over (the saved one is, if valid).
+  assert.equal(movedLink(pages + "?g=Goa%20Trip", null), "https://splitfamilia.up.railway.app/");
+  assert.equal(movedLink(pages + "?g=Goa%20Trip", "goa-trip-2026"), "https://splitfamilia.up.railway.app/?g=goa-trip-2026");
+  assert.equal(movedLink(pages, "not a code"), "https://splitfamilia.up.railway.app/");
+});
+
+test("on the Railway address, localhost and any other host, the page just runs", function(){
+  for(const href of [
+    "https://splitfamilia.up.railway.app/?g=goa-trip-2026",
+    "http://localhost:8080/?g=goa-trip-2026",
+    "http://127.0.0.1:8000/index.html",
+    "https://example.com/?g=goa-trip-2026",
+    "https://github.io.example.com/",
+    "https://notgithub.io/",
+    "not a url"
+  ]){
+    assert.equal(movedLink(href, "goa-trip-2026"), null, href);
+  }
 });

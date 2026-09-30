@@ -1,0 +1,406 @@
+{
+  "P1_tokens": {
+    "none": 404,
+    "wrong": 404,
+    "upperCase": 404,
+    "twoSpaces": 404,
+    "lowerScheme": 404,
+    "tokenPlusSpace": 200,
+    "shortTokenServer": 404,
+    "getWhenOn": 405,
+    "getWhenOff": 404
+  },
+  "P1_sixtyWrongTokens": [
+    404
+  ],
+  "P1_unknownCodeAfter": 404,
+  "P2_beforeImport": 404,
+  "P2_firstImport": {
+    "status": 200,
+    "body": {
+      "version": 1,
+      "created": true,
+      "added": {
+        "people": 2,
+        "expenses": 2
+      }
+    }
+  },
+  "P2_readBack": {
+    "version": 1,
+    "people": 2,
+    "expenses": [
+      [
+        "x1",
+        1000001
+      ],
+      [
+        "x2",
+        999
+      ]
+    ]
+  },
+  "P2_balances": {
+    "meera1": 666168,
+    "kabir2": -332835,
+    "ravi-gone": -333333
+  },
+  "P2_check": true,
+  "P3_rerunAfterChanges": {
+    "status": 200,
+    "body": {
+      "version": 3,
+      "created": false,
+      "added": {
+        "people": 0,
+        "expenses": 0
+      }
+    },
+    "versionBefore": 3,
+    "versionAfter": 3,
+    "expenses": [
+      "x1",
+      "x3"
+    ],
+    "check": false
+  },
+  "P4_importMovesVersion": {
+    "status": 200,
+    "body": {
+      "version": 4,
+      "created": false,
+      "added": {
+        "people": 0,
+        "expenses": 1
+      }
+    },
+    "versionRead": 4,
+    "expenses": [
+      "x1",
+      "x3",
+      "x4"
+    ]
+  },
+  "R1_offline": {
+    "status": "· offline: 3 changes waiting to sync",
+    "server": null,
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [
+      "Asha",
+      "Ben"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R1_reloadedOffline": {
+    "screen": {
+      "href": "http://127.0.0.1:61602/",
+      "boot": false,
+      "join": false,
+      "moved": false,
+      "app": true,
+      "controlled": true
+    },
+    "status": "· offline: 3 changes waiting to sync",
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [
+      "Asha",
+      "Ben"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R1_online": {
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null,
+    "server": {
+      "currency": "₹",
+      "version": 3,
+      "people": [
+        "Asha",
+        "Ben"
+      ],
+      "expenses": []
+    }
+  },
+  "R2_tabB_live": "· live",
+  "R2_otherPhoneFuel": 201,
+  "R2_offline": {
+    "A": {
+      "status": "· offline: 3 changes waiting to sync",
+      "people": [
+        "Asha",
+        "Chitra"
+      ],
+      "waitingPeople": [
+        "Chitra"
+      ],
+      "rows": [
+        "Dinner ₹90.00 (waiting)"
+      ],
+      "balances": [
+        "Chitra owes Asha₹45.00"
+      ],
+      "currency": "₹",
+      "notice": null
+    },
+    "B": {
+      "status": "· offline: 1 change waiting to sync",
+      "people": [
+        "Asha"
+      ],
+      "waitingPeople": [],
+      "rows": [],
+      "balances": [],
+      "currency": "₹",
+      "notice": null
+    }
+  },
+  "R2_online": {
+    "A": "· live",
+    "B": "· live"
+  },
+  "R2_after": {
+    "A": {
+      "status": "· live",
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "waitingPeople": [],
+      "rows": [
+        "Dinner ₹90.00",
+        "Fuel ₹60.00"
+      ],
+      "balances": [
+        "Chitra owes Ben₹30.00",
+        "Chitra owes Asha₹15.00"
+      ],
+      "currency": "₹",
+      "notice": "Couldn't remove Ben. That person is in an expense now, so they can't be removed. Delete their expenses first."
+    },
+    "B": {
+      "status": "· live",
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "waitingPeople": [],
+      "rows": [
+        "Dinner ₹90.00",
+        "Fuel ₹60.00"
+      ],
+      "balances": [
+        "Chitra owes Ben₹30.00",
+        "Chitra owes Asha₹15.00"
+      ],
+      "currency": "₹",
+      "notice": null
+    },
+    "server": {
+      "currency": "₹",
+      "version": 6,
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "expenses": [
+        "Fuel 6000",
+        "Dinner 9000"
+      ]
+    },
+    "sentOnce": {
+      "personDeletes": 1,
+      "expensePosts": 1,
+      "peoplePosts": 1
+    },
+    "refusals": 1
+  },
+  "R3_offline": {
+    "A": "· offline: 1 change waiting to sync",
+    "B": "· offline: 1 change waiting to sync"
+  },
+  "R3_after15s": {
+    "A": "· live",
+    "B": "· connecting…",
+    "server": {
+      "currency": "₹",
+      "version": 1,
+      "people": [],
+      "expenses": []
+    },
+    "creates": 2
+  },
+  "R3_B_reloaded": "· live",
+  "R4a_offline": {
+    "screen": {
+      "href": "http://127.0.0.1:61602/",
+      "boot": false,
+      "join": false,
+      "moved": false,
+      "app": true,
+      "controlled": true
+    },
+    "status": "· offline: changes will sync when you're back online",
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R4a_online": {
+    "status": "· live",
+    "people": [
+      "Isha",
+      "Omar"
+    ],
+    "waitingPeople": [],
+    "rows": [
+      "Tickets €10.01"
+    ],
+    "balances": [
+      "Omar owes Isha€5.00"
+    ],
+    "currency": "€",
+    "notice": null
+  },
+  "R4b_offline": {
+    "status": "· offline: 1 change waiting to sync",
+    "people": [
+      "Zed"
+    ],
+    "waitingPeople": [
+      "Zed"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R4b_online": {
+    "status": "· not syncing",
+    "serverHasGroup": false,
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": "No group found with that code. Check it, or ask for the invite link."
+  },
+  "R4c_offline": {
+    "status": "· offline: 1 change waiting to sync"
+  },
+  "R4c_online": {
+    "status": "· not syncing",
+    "serverGroup": {
+      "currency": "$",
+      "version": 1,
+      "people": [],
+      "expenses": []
+    },
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": "No group found with that code. Check it, or ask for the invite link."
+  },
+  "R5_lookalike": {
+    "href": "http://notgithub.io:61602/",
+    "boot": false,
+    "join": true,
+    "moved": false,
+    "app": false,
+    "controlled": false
+  },
+  "R7_offlineReopen": {
+    "swPause": false,
+    "runs": [
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:61602/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:61602/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:61602/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:61602/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:61602/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      }
+    ]
+  },
+  "dialogs": [],
+  "errors": [],
+  "cdpTimeouts": [],
+  "R6_logs": {
+    "serverLines": 74,
+    "consoleLines": 114,
+    "leaks": [],
+    "sampleServer": [
+      "SplitFamilia api: POST 404 not-found",
+      "SplitFamilia api: GET 405 invalid-argument",
+      "SplitFamilia api: GET 404 not-found",
+      "SplitFamilia api: DELETE 409 failed-precondition"
+    ],
+    "sampleConsole": [
+      "[ProtocolLaunch] handler constructed; wiring port events.",
+      "SplitFamilia: a change was refused failed-precondition",
+      "[Polyfills] Logger initialized with session \"ccbcf392-5a4c-42de-9055-a6425c763801\"",
+      "[UnleashFeatureFlags] Initialized feature flags manager.",
+      "👋 Initializing 1Password",
+      "[Storage] [BackgroundStorage] Using browser.storage.persistent",
+      "[Storage] [BackgroundStorage] Using browser.storage.session",
+      "[Store] Loading pre-registration flags from persistent storage: []",
+      "[Runtime] 1Password 8.12.37.1 has been installed on Wed Sep 30 2026 23:45:34 GMT+0530 (India Standard Time).",
+      "[op_wasm_b5x.js] using deprecated parameters for the initialization function; pass a single object instead",
+      "[Background] channel: stable\nversion: 8.12.37.1\nbuild: 81237001 (154.0.4258.37)\nbrowser: Microsoft Edge (154.0.4258.37)\nos: Windows (11.0)",
+      "[DiagnosticsReport] Upgrading diagnostics database from version 0 to 1. BuA"
+    ]
+  }
+}

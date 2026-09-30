@@ -1,0 +1,33 @@
+PC-006 against https://splitfamilia.up.railway.app: push A db540e7, baseline a8bffb8, 2026-09-30T18:32:22.955Z
+1. /healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+2. / → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /index.html → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /money.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /group-code.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /sync-status.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /service-worker.js → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /manifest.json → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. the worker's cache: splitsheet-v5
+3. POST /api/import with no Authorization → 404 {"error":"not-found"}
+3. POST /api/import with a made-up token → 404 {"error":"not-found"}
+3. GET /api/import → 404 (404 while off; 405 would mean the endpoint is on)
+
+The health watch around the push (every 2 s; push at 23:58:20 IST):
+23:58:13 IST  200 {"status":"ok","database":"ok","storage":"volume"}
+23:58:51 IST  no answer (AbortError)
+23:58:53 IST  200 {"status":"ok","database":"ok","storage":"volume"}
+
+=== After the owner set IMPORT_TOKEN (PC-006 steps 4-5), 2026-10-01 ===
+PC-006 against https://splitfamilia.up.railway.app: push A db540e7, baseline a8bffb8, 2026-09-30T18:52:26.234Z
+1. /healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+2. / → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /index.html → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /money.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /group-code.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /sync-status.js?v=5 → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /service-worker.js → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. /manifest.json → 200 | byte-identical to a8bffb8: true | to db540e7: true | no-cache | nosniff
+2. the worker's cache: splitsheet-v5
+3. POST /api/import with no Authorization → 404 {"error":"not-found"}
+3. POST /api/import with a made-up token → 404 {"error":"not-found"}
+3. GET /api/import → 405 (404 while off; 405 would mean the endpoint is on)

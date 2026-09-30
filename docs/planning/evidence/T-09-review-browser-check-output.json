@@ -1,0 +1,252 @@
+{
+  "B1_first": {
+    "boot": false,
+    "join": true,
+    "app": false,
+    "controlled": true
+  },
+  "B1_caches": {
+    "splitsheet-v6": [
+      "/group-code.js?v=6",
+      "/icon-192.png",
+      "/icon-512.png",
+      "/index.html",
+      "/ledger-client.js?v=6",
+      "/ledger-rules.js?v=6",
+      "/manifest.json",
+      "/money.js?v=6",
+      "/outbox.js?v=6",
+      "/sync-status.js?v=6"
+    ]
+  },
+  "B2_start": {
+    "codeShape": true,
+    "status": "· live",
+    "serverGroup": {
+      "currency": "₹",
+      "version": 1
+    }
+  },
+  "B3_E1": {
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra"
+    ],
+    "waitingPeople": 0,
+    "rows": [
+      "Chai ₹0.05",
+      "Hotel ₹100.00"
+    ],
+    "balances": [
+      "Chitra owes Asha₹33.35",
+      "Ben owes Asha₹33.31"
+    ],
+    "notice": null,
+    "server": [
+      {
+        "id": "5fb5f263-0bb7-40a5-a0a1-e9d23008b21d",
+        "description": "Hotel",
+        "paise": 10000,
+        "deleted": 0
+      },
+      {
+        "id": "a54938cf-1c2a-49f7-90ce-aecf689960ef",
+        "description": "Chai",
+        "paise": 5,
+        "deleted": 0
+      }
+    ],
+    "namesInIdOrder": [
+      "Ben",
+      "Chitra",
+      "Asha"
+    ]
+  },
+  "B4_offline": {
+    "status": "· offline: 2 changes waiting to sync",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra"
+    ],
+    "waitingPeople": 0,
+    "rows": [
+      "Taxi ₹250.00 (waiting)",
+      "Hotel ₹100.00"
+    ],
+    "balances": [
+      "Asha owes Ben₹58.33",
+      "Chitra owes Ben₹33.33"
+    ],
+    "notice": null,
+    "serverBefore": [
+      {
+        "id": "5fb5f263-0bb7-40a5-a0a1-e9d23008b21d",
+        "description": "Hotel",
+        "paise": 10000,
+        "deleted": 0
+      },
+      {
+        "id": "a54938cf-1c2a-49f7-90ce-aecf689960ef",
+        "description": "Chai",
+        "paise": 5,
+        "deleted": 0
+      }
+    ]
+  },
+  "B4_online": {
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra"
+    ],
+    "waitingPeople": 0,
+    "rows": [
+      "Taxi ₹250.00",
+      "Hotel ₹100.00"
+    ],
+    "balances": [
+      "Asha owes Ben₹58.33",
+      "Chitra owes Ben₹33.33"
+    ],
+    "notice": null,
+    "server": [
+      {
+        "id": "5fb5f263-0bb7-40a5-a0a1-e9d23008b21d",
+        "description": "Hotel",
+        "paise": 10000,
+        "deleted": 0
+      },
+      {
+        "id": "a54938cf-1c2a-49f7-90ce-aecf689960ef",
+        "description": "Chai",
+        "paise": 5,
+        "deleted": 1
+      },
+      {
+        "id": "7cc554f0-6275-4ae6-9072-bd96aa6afbb2",
+        "description": "Taxi",
+        "paise": 25000,
+        "deleted": 0
+      }
+    ]
+  },
+  "B5_unreachable": {
+    "statusesSeen": [
+      "· connecting…",
+      "· 1 change waiting to sync"
+    ],
+    "ledger": {
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra",
+        "Dev"
+      ],
+      "waitingPeople": 1,
+      "rows": [
+        "Taxi ₹250.00",
+        "Hotel ₹100.00"
+      ],
+      "balances": [
+        "Asha owes Ben₹58.33",
+        "Chitra owes Ben₹33.33"
+      ],
+      "notice": null
+    }
+  },
+  "B5_back": {
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra",
+      "Dev"
+    ],
+    "serverPeople": [
+      "Asha",
+      "Ben",
+      "Chitra",
+      "Dev"
+    ]
+  },
+  "B6_offlineReopen": {
+    "screen": {
+      "boot": false,
+      "join": false,
+      "app": true,
+      "controlled": true
+    },
+    "status": "· offline: changes will sync when you're back online",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra",
+      "Dev"
+    ],
+    "waitingPeople": 0,
+    "rows": [
+      "Taxi ₹250.00",
+      "Hotel ₹100.00"
+    ],
+    "balances": [
+      "Asha owes Ben₹58.33",
+      "Chitra owes Ben₹33.33"
+    ],
+    "notice": null
+  },
+  "B6_backOnline": {
+    "status": "· live"
+  },
+  "B7_join": {
+    "unknown": "No group found with that code. Check it, or ask for the invite link.",
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben",
+      "Chitra",
+      "Dev"
+    ]
+  },
+  "B8_moved": {
+    "moved": true,
+    "join": false,
+    "app": false,
+    "link": "https://splitfamilia.up.railway.app/?g=goa-trip-v77tsrvdau",
+    "text": "SplitFamilia has moved",
+    "linkKeepsGroup": true,
+    "requests": [
+      "GET /?g=<code> → 200 (as GitHub Pages)",
+      "GET /manifest.json → 200 (as GitHub Pages)",
+      "GET /money.js?v=6 → 200 (as GitHub Pages)",
+      "GET /group-code.js?v=6 → 200 (as GitHub Pages)",
+      "GET /sync-status.js?v=6 → 200 (as GitHub Pages)",
+      "GET /ledger-rules.js?v=6 → 200 (as GitHub Pages)",
+      "GET /ledger-client.js?v=6 → 200 (as GitHub Pages)",
+      "GET /outbox.js?v=6 → 200 (as GitHub Pages)",
+      "GET /icon-192.png → 200 (as GitHub Pages)"
+    ]
+  },
+  "dialogs": [],
+  "errors": [],
+  "otherHosts": [
+    "fonts.googleapis.com",
+    "fonts.gstatic.com"
+  ],
+  "requestsWithCodeInUrl": [
+    "GET /?g=goa-trip-v77tsrvdau → 200 (as GitHub Pages)"
+  ],
+  "apiRequestsSample": [
+    "PUT /api/group → 200",
+    "GET /api/group → 200",
+    "POST /api/people → 201",
+    "GET /api/group → 200",
+    "POST /api/people → 201",
+    "GET /api/group → 200",
+    "POST /api/people → 201",
+    "GET /api/group → 200"
+  ]
+}

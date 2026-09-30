@@ -1,11 +1,12 @@
-// Balance maths for the ledger, in whole paise. Pure functions: no DOM, no Firebase, no module
-// state, so `npm test` can check them without the network.
+// Balance maths for the ledger, in whole paise. Pure functions: no DOM, no network, no module
+// state, so `npm test` can check them.
 //
-// Firestore keeps `amount` as a decimal number of rupees, as it always has. Amounts become
-// integer paise only when they are read, so no stored data changes.
+// An expense's `amount` is read as a decimal number of rupees and becomes integer paise with
+// toPaise(). The server keeps whole paise; the page passes them in as amountPaise / 100, which
+// toPaise() turns back into exactly the same paise (outbox.js forBalances; npm test checks).
 
-// The largest amount one expense can have: ₹1,00,00,000.00. The Firestore rules (SF-007) must
-// allow the same maximum.
+// The largest amount one expense can have: ₹1,00,00,000.00. ledger-rules.js, which the server
+// checks every expense with, must allow the same maximum (npm test checks).
 export const MAX_AMOUNT_PAISE = 1000000000;
 
 // A stored amount in paise, or null when it is not a number in (0, maximum].

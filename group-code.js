@@ -1,12 +1,12 @@
 // Group codes: checking them, making new ones and reading invite links. Pure functions: no DOM,
-// no Firebase, so `npm test` can check them without the network.
+// no network, so `npm test` can check them.
 //
-// A group code is the Firestore document ID under groups/, and anyone who knows it can open the
-// group, so new codes end in a random part that strangers can't guess.
+// A group's code is its only key: anyone who knows it can open the group, so new codes end in
+// a random part that strangers can't guess.
 
 // Lowercase letters and digits in runs joined by single hyphens, at most 80 characters, with no
-// hyphen at either end. Every code slugify() or newGroupId() makes fits, and so must the
-// Firestore rules (SF-007).
+// hyphen at either end. Every code slugify() or newGroupId() makes fits, and the server checks
+// every request's code with the same function.
 const GROUP_ID_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const MAX_GROUP_ID_LENGTH = 80;
 
@@ -63,4 +63,21 @@ export function parseInvite(text){
   if(isValidGroupId(lower)) return lower;
   const slug = slugify(raw);
   return slug === "" ? null : slug;
+}
+
+// The app's one address since the move from GitHub Pages (D-10; SF-038). The Android app opens it.
+export const HOME = "https://splitfamilia.up.railway.app/";
+
+// A copy of the page served from the old GitHub Pages address (any *.github.io) only points to
+// its new home, keeping the group: the invite link's `g`, or else the group saved on this phone.
+// → that address, or null anywhere else (the new address itself, or a copy run for development).
+export function movedLink(href, savedCode){
+  let url;
+  try{ url = new URL(href); }catch(e){ return null; }
+  if(!/(^|\.)github\.io$/i.test(url.hostname)) return null;
+  const fromLink = url.searchParams.get("g");
+  const code = isValidGroupId(fromLink) ? fromLink : savedCode;
+  const target = new URL(HOME);
+  if(isValidGroupId(code)) target.searchParams.set("g", code);
+  return target.href;
 }

@@ -1,13 +1,80 @@
-// The page's side of its server (SF-034; the page starts using it in T-09, SF-035). Only what
-// every browser has (fetch, TextDecoder, AbortController, timers), so npm test runs it in Node
-// against the real server.
+// The page's side of its server (SF-034, SF-035): reading a group, sending one change, and the
+// live updates. Only what every browser has (fetch, TextDecoder, AbortController, timers), so npm
+// test runs it in Node against the real server. No imports, so the page loads it with one ?v=.
 //
-// Live updates come as a stream in Server-Sent Events format, read with fetch rather than
-// EventSource, because only fetch can send the group code in a header: the code never goes in a
-// URL, where request logs would record it.
+// Every request carries the group code in a header, never in the URL, where request logs would
+// record it. Live updates come as a stream in Server-Sent Events format, read with fetch rather
+// than EventSource, because only fetch can send that header.
 
 export const GROUP_HEADER = "X-Group-Code";
 export const EVENTS_PATH = "/api/group/events";
+export const GROUP_PATH = "/api/group";
+// A request that hasn't answered by then is treated as "no connection".
+export const REQUEST_TIMEOUT_MS = 15000;
+
+// One API request. → { status, body } with the parsed JSON body (or null). status is 0 when the
+// server couldn't be reached at all (offline, timed out, or the connection dropped), and
+// retryAfter the seconds a 429 or 503 asked to wait (0 when it didn't say).
+// options: { baseUrl, fetch, timeoutMs } for tests.
+export async function request(method, path, code, body, options){
+  options = options || {};
+  const doFetch = options.fetch || globalThis.fetch.bind(globalThis);
+  const ctrl = new AbortController();
+  const timer = setTimeout(function(){ ctrl.abort(); }, options.timeoutMs || REQUEST_TIMEOUT_MS);
+  const headers = { "Accept": "application/json" };
+  headers[GROUP_HEADER] = code;
+  const init = { method: method, headers: headers, cache: "no-store", signal: ctrl.signal };
+  if(body !== undefined){
+    headers["Content-Type"] = "application/json";
+    init.body = JSON.stringify(body);
+  }
+  try{
+    const res = await doFetch((options.baseUrl || "") + path, init);
+    const text = await res.text();
+    let parsed = null;
+    try{ parsed = text ? JSON.parse(text) : null; }catch(e){ parsed = null; }
+    const retryAfter = Number(res.headers.get("Retry-After"));
+    return { status: res.status, body: parsed, retryAfter: Number.isFinite(retryAfter) && retryAfter > 0 ? retryAfter : 0 };
+  }catch(e){
+    return { status: 0, body: null, retryAfter: 0 };
+  }finally{
+    clearTimeout(timer);
+  }
+}
+
+// The whole group: → { status: 200, group: { currency, version, people, expenses } }, or the
+// status alone (404 no such group, 0 no connection, 429 busy …).
+export async function getGroup(code, options){
+  const res = await request("GET", GROUP_PATH, code, undefined, options);
+  const ok = res.status === 200 && res.body && Array.isArray(res.body.people) && Array.isArray(res.body.expenses);
+  return ok ? { status: 200, group: res.body } : { status: res.status === 200 ? 0 : res.status, retryAfter: res.retryAfter };
+}
+
+// The request for one change the page makes (SF-036's outbox keeps them in this form):
+// - { kind: "group", code, currency }                  → PUT /api/group (creates a new group)
+// - { kind: "person", code, id, name }                 → POST /api/people
+// - { kind: "person-delete", code, id }                → DELETE /api/people/<id>
+// - { kind: "expense", code, id, date, desc, amountPaise, paidBy, split } → POST /api/expenses
+// - { kind: "expense-delete", code, id }               → DELETE /api/expenses/<id>
+// Other fields a change carries (such as `key` or a deleted row's name for messages) are not sent.
+export function changeRequest(change){
+  switch(change.kind){
+    case "group": return { method: "PUT", path: GROUP_PATH, body: { currency: change.currency } };
+    case "person": return { method: "POST", path: "/api/people", body: { id: change.id, name: change.name } };
+    case "person-delete": return { method: "DELETE", path: "/api/people/" + encodeURIComponent(change.id) };
+    case "expense": return { method: "POST", path: "/api/expenses", body: {
+      id: change.id, date: change.date, desc: change.desc, amountPaise: change.amountPaise, paidBy: change.paidBy, split: change.split
+    } };
+    case "expense-delete": return { method: "DELETE", path: "/api/expenses/" + encodeURIComponent(change.id) };
+    default: throw new Error("unknown change");
+  }
+}
+
+// Sends one change. → { status, body, retryAfter }, as request().
+export function sendChange(change, options){
+  const r = changeRequest(change);
+  return request(r.method, r.path, change.code, r.body, options);
+}
 // No data for this long (the server sends a heartbeat every 25 s) means the connection is dead,
 // for example after the phone changed networks: drop it and connect again.
 export const IDLE_MS = 60000;

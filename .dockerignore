@@ -10,6 +10,8 @@
 !group-code.js
 !sync-status.js
 !ledger-rules.js
+!ledger-client.js
+!outbox.js
 !icon-192.png
 !icon-512.png
 !apple-touch-icon.png

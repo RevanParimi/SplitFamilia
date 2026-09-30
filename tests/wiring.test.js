@@ -1,12 +1,11 @@
 // Guards the wiring: the page uses the modules instead of its own copies, phones cache every
 // file the page imports under the same version number as the service worker's cache, the server
-// serves exactly those files, the Docker image ships them and the server's own code, and the
-// Firestore rules and ledger-rules.js keep the app's own limits.
+// serves exactly those files, the Docker image ships them and the server's own code, nothing
+// shipped depends on Firebase any more, and ledger-rules.js keeps the app's own limits.
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { MAX_AMOUNT_PAISE } from "../money.js";
-import { MAX_GROUP_ID_LENGTH, isValidGroupId } from "../group-code.js";
 import * as ledgerRules from "../ledger-rules.js";
 import { STATIC_FILES } from "../server/static.js";
 
@@ -16,7 +15,7 @@ const read = function(name){ return readFileSync(new URL("../" + name, import.me
 function localImports(html){
   return [...html.matchAll(/from "(\.\/[^"]+)";/g)].map(function(m){ return m[1]; }).sort();
 }
-// The service worker's SHELL entries ("./…") and SDK entries ("https://…").
+// The service worker's SHELL entries ("./…").
 function swList(sw, name){
   const body = new RegExp("const " + name + " = \\[([^\\]]*)\\];").exec(sw)[1];
   return [...body.matchAll(/"([^"]+)"/g)].map(function(m){ return m[1]; });
@@ -66,7 +65,7 @@ test("index.html takes group codes from group-code.js instead of defining them",
   assert.doesNotMatch(html, /Math\.random/);
 });
 
-test("index.html shows errors through sync-status.js, never Firestore's own message", function(){
+test("index.html shows errors through sync-status.js, never the server's own message", function(){
   const html = read("index.html");
   assert.match(html, /import \{[^}]*\bfriendlyError\b[^}]*\} from "\.\/sync-status\.js\?v=\d+";/);
   assert.doesNotMatch(html, /\.message\b/);
@@ -80,18 +79,32 @@ test("module imports carry the cache version, and the service worker caches exac
   const sw = read("service-worker.js");
   const version = /const CACHE = "splitsheet-v(\d+)";/.exec(sw)[1];
   const imports = localImports(html);
-  assert.deepEqual(imports, ["./group-code.js", "./money.js", "./sync-status.js"].map(function(p){ return p + "?v=" + version; }));
+  assert.deepEqual(imports, ["./group-code.js", "./ledger-client.js", "./ledger-rules.js", "./money.js", "./outbox.js", "./sync-status.js"]
+    .map(function(p){ return p + "?v=" + version; }));
   const shell = swList(sw, "SHELL");
   imports.forEach(function(path){ assert.ok(shell.includes(path), path + " is not in SHELL"); });
   assert.ok(shell.includes("./index.html"));
 });
 
-test("the service worker keeps exactly the Firebase SDK files the page imports (SF-008)", function(){
-  const html = read("index.html");
-  const sw = read("service-worker.js");
-  const pageSdk = [...html.matchAll(/from "(https:\/\/www\.gstatic\.com\/firebasejs\/[^"]+)";/g)].map(function(m){ return m[1]; }).sort();
-  assert.equal(pageSdk.length, 2);
-  assert.deepEqual(swList(sw, "SDK").slice().sort(), pageSdk);
+test("every module the page imports imports nothing, so one ?v= covers it (SF-035)", function(){
+  // A module importing "./money.js" would load a second copy without ?v=, which the service
+  // worker doesn't keep: the app could then start offline with a module missing.
+  localImports(read("index.html")).forEach(function(p){
+    const file = p.replace(/^\.\//, "").replace(/\?.*$/, "");
+    assert.deepEqual(relativeImports(file), [], file);
+    assert.doesNotMatch(read(file), /^\s*import\b/m, file);
+  });
+});
+
+test("nothing shipped mentions Firebase, Firestore or gstatic, and the page talks only to its own server (SF-035, SF-038)", function(){
+  dockerFiles(read("Dockerfile")).filter(function(f){ return !f.endsWith(".png"); }).forEach(function(f){
+    assert.doesNotMatch(read(f), /firebase|firestore|gstatic/i, f);
+  });
+  assert.doesNotMatch(read("service-worker.js"), /const SDK\b/);
+  // The only other site the page names is Google Fonts (until SF-025 serves the fonts itself).
+  const hosts = [...read("index.html").matchAll(/https:\/\/([^/"'\s]+)/g)].map(function(m){ return m[1]; });
+  assert.ok(hosts.length > 0);
+  hosts.forEach(function(h){ assert.equal(h, "fonts.googleapis.com", h); });
 });
 
 test("the server serves exactly the files phones cache, plus the worker, the iPhone icon and assetlinks.json (SF-031)", function(){
@@ -140,8 +153,7 @@ test("the image runs the Node server on node:24 Alpine, checked at /healthz; Cad
 });
 
 test("shipped files use HTTPS only: no localhost and no plain http:// URLs (SF-011)", function(){
-  // ledger-client.js ships with the page in T-09; it is held to the same rule now.
-  dockerFiles(read("Dockerfile")).concat(["ledger-client.js"]).filter(function(f){ return !f.endsWith(".png"); }).forEach(function(f){
+  dockerFiles(read("Dockerfile")).filter(function(f){ return !f.endsWith(".png"); }).forEach(function(f){
     const text = read(f);
     assert.doesNotMatch(text, /http:\/\//, f);
     assert.doesNotMatch(text, /localhost|127\.0\.0\.1/, f);
@@ -158,28 +170,18 @@ test("the page's inputs and ledger-rules.js keep the same limits, and the amount
   // ledger-rules.js imports nothing, so the page can load it with one ?v= and no nested versions.
   assert.deepEqual(relativeImports("ledger-rules.js"), []);
   assert.doesNotMatch(read("ledger-rules.js"), /^import /m);
-  // Until T-09 the Firestore rules still apply to the page, and agree on the split too.
-  assert.match(read("firestore.rules"), new RegExp("data\\.split\\.size\\(\\) <= " + ledgerRules.MAX_SPLIT + "\\b"));
 });
 
-test("the Firestore rules keep the app's limits (SF-007)", function(){
-  const rules = read("firestore.rules");
-  // Amount: MAX_AMOUNT_PAISE in rupees.
-  assert.match(rules, new RegExp("data\\.amount <= " + (MAX_AMOUNT_PAISE / 100) + "\\b"));
-  // Group codes: the same length and pattern as group-code.js.
-  assert.match(rules, new RegExp("gid\\.size\\(\\) <= " + MAX_GROUP_ID_LENGTH + " "));
-  const pattern = /gid\.matches\('([^']+)'\)/.exec(rules)[1];
-  const re = new RegExp(pattern);
-  for(const code of ["goa-trip-2026", "goa-trip-7k2m9xqpwd", "a", "a1-b2-c3", "Goa", "goa--trip", "-goa", "goa-", "goa_trip", "goa trip", ""]){
-    const byRules = re.test(code) && code.length <= MAX_GROUP_ID_LENGTH;
-    assert.equal(byRules, isValidGroupId(code), JSON.stringify(code));
+test("Firebase is gone from the repo: no rules, no Firebase settings, no emulator tests or tools (SF-038)", function(){
+  for(const f of ["firestore.rules", "firebase.json", "tests/rules", "docs/google-play/FIRESTORE_RULES.md"]){
+    assert.equal(existsSync(new URL("../" + f, import.meta.url)), false, f);
   }
-  // The page's inputs never let through more than the rules accept.
-  const html = read("index.html");
-  const maxlength = function(id){ return Number(new RegExp('id="' + id + '"[^>]*maxlength="(\\d+)"').exec(html)[1]); };
-  assert.match(rules, new RegExp("stringOfLength\\(data\\.name, 1, " + maxlength("person-name") + "\\)"));
-  assert.match(rules, new RegExp("stringOfLength\\(data\\.desc, 1, " + maxlength("exp-desc") + "\\)"));
-  assert.match(rules, new RegExp("stringOfLength\\(data\\.currency, 1, " + maxlength("currency-input") + "\\)"));
+  const pkg = JSON.parse(read("package.json"));
+  assert.equal(pkg.devDependencies, undefined);
+  assert.equal(pkg.dependencies, undefined);
+  assert.deepEqual(Object.keys(pkg.scripts).sort(), ["start", "test"]);
+  const lock = JSON.parse(read("package-lock.json"));
+  assert.deepEqual(Object.keys(lock.packages), [""]);
 });
 
 test("the app is called SplitFamilia, and installed copies keep their identity (SF-010, SF-011)", function(){

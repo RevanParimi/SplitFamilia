@@ -1,0 +1,54 @@
+CAUGHT C1 (SF-035) the worker handles (and caches) /api/: 1 failing, 12 passing
+    ✖ the API is never answered by the worker, and never cached, online or offline (SF-035)
+CAUGHT C2 (SF-035) the worker fetches the page with its ?g=: 1 failing, 12 passing
+    ✖ the page is fetched from the network without its ?g=, so an invite code doesn't reach the server's log
+CAUGHT C3 (SF-035) the client puts the group code in the URL: 1 failing, 8 passing
+    ✖ the code goes only in the header, never in the URL, and only the change's own fields are sent
+CAUGHT C4 (SF-035) F-6: a refusal's words ignore what was being saved: 3 failing, 16 passing
+    ✖ the server's refusals come out as plain words, never its own text (F-6)
+    ✖ F-6: a refused change says why, by its field and what was being saved
+    ✖ the numbers in the texts are ledger-rules.js's limits
+CAUGHT C5 (SF-038) a gstatic URL back in index.html (the card's break check): 1 failing, 13 passing
+    ✖ nothing shipped mentions Firebase, Firestore or gstatic, and the page talks only to its own server (SF-035, SF-038)
+CAUGHT C6 (SF-036) a 429 drops the change instead of waiting: 2 failing, 12 passing
+    ✖ 2xx is confirmed; 400, 404, 409 are refused; no connection, 408, 429 and 5xx wait
+    ✖ a change that must wait (429) stops the queue there, so nothing overtakes it
+CAUGHT C7 (SF-036) F-5: deletes aren't counted: 2 failing, 12 passing
+    ✖ offline, changes wait in order; back online they are sent in that order and each is removed
+    ✖ the count includes deletes (the T-03 review's F-5), per group
+CAUGHT C8 (SF-036) a change that must wait is skipped, so later ones overtake it: 3 failing, 11 passing
+    ✖ offline, changes wait in order; back online they are sent in that order and each is removed
+    ✖ a change that must wait (429) stops the queue there, so nothing overtakes it
+    ✖ a lost answer means the change is sent again, and the server still holds one row
+CAUGHT C9 (SF-036) rows not on the server aren't marked waiting: 1 failing, 13 passing
+    ✖ the page shows the server's copy with the waiting changes on top, marked as waiting
+CAUGHT C10 (SF-036) balances read paise as rupees: 3 failing, 20 passing
+    ✖ balances while changes wait include them: ₹100.00 by Asha split three ways, then ₹0.05 by Ben
+    ✖ money.js reads back exactly the server's paise for every amount allowed
+    ✖ offline: delete 'Tea' and add 'Taxi' wait as 2 changes; online, the server holds exactly Taxi (the T-03 probe's E2/E3)
+CAUGHT C11 (SF-036) two tabs may send at once (no lock): 1 failing, 13 passing
+    ✖ every send runs inside the lock, so two tabs never send at once
+CAUGHT C12 (SF-037) the balance check lets one paisa through (the card's break check): 1 failing, 10 passing
+    ✖ the balance check fails if one paisa differs (the card's break check)
+CAUGHT C13 (SF-037) the import takes any token: 1 failing, 10 passing
+    ✖ the import endpoint: off without a long token; a wrong token looks like no such path; bad bodies refused
+CAUGHT C14 (SF-037) expenses the page doesn't count today aren't flagged: 2 failing, 9 passing
+    ✖ the plan: 99.5 → 9950 paise; '12' left out and listed; a removed person keeps their share; balances kept
+    ✖ the terminal shows counts and fingerprints only; the owner's report has the names and balances
+CAUGHT C15 (SF-038) D-18: no cap on a group's split entries: 1 failing, 32 passing
+    ✖ a group holds at most 20,000 split entries, deleted expenses included: then 409 group-full; a replay still succeeds
+CAUGHT C16 (SF-038) D-18: every read builds the answer again: 1 failing, 32 passing
+    ✖ a group's answer is built once per version and shared by every reader; the oldest goes past the byte budget
+CAUGHT C17 (SF-038) D-18: gzip even when the browser refuses it: 1 failing, 32 passing
+    ✖ a group's answer is gzipped when the browser accepts it, and the same data either way
+CAUGHT C18 (SF-038) N-5: /healthz 200 with the database unavailable: 1 failing, 8 passing
+    ✖ if the database can't be opened, the page is still served, and /healthz and the API answer 503 (N-5)
+CAUGHT C19 (SF-038) the old address never shows the notice: 1 failing, 12 passing
+    ✖ on GitHub Pages the page points to the Railway address, keeping the group
+CAUGHT C20 (SF-038) a shipped file mentions Firebase again: 1 failing, 13 passing
+    ✖ nothing shipped mentions Firebase, Firestore or gstatic, and the page talks only to its own server (SF-035, SF-038)
+CAUGHT C21 (SF-033) R3 again: count only Content-Length, not the bytes that arrive: 1 failing, 32 passing
+    ✖ bodies over 16 KB, bodies that aren't JSON and requests that don't say JSON are refused
+CAUGHT C22 (SF-033) R7 again: changes and refusals answer without no-store: 1 failing, 32 passing
+    ✖ every API answer is no-store and nosniff: reads, changes and refusals alike
+All 22 breaks caught; every file restored byte for byte.

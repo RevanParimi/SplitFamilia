@@ -1,0 +1,693 @@
+T-09 review, 2026-09-30 (IST): the reviewer's runs. Node 24.21.0, this machine.
+
+=== npm test (full suite) ===
+ℹ tests 180
+ℹ pass 180
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+
+=== node docs/planning/evidence/T-09-break-checks.mjs (the implementer's C1-C22) ===
+CAUGHT C1 (SF-035) the worker handles (and caches) /api/: 1 failing, 12 passing
+    ✖ the API is never answered by the worker, and never cached, online or offline (SF-035)
+CAUGHT C2 (SF-035) the worker fetches the page with its ?g=: 1 failing, 12 passing
+    ✖ the page is fetched from the network without its ?g=, so an invite code doesn't reach the server's log
+CAUGHT C3 (SF-035) the client puts the group code in the URL: 1 failing, 8 passing
+    ✖ the code goes only in the header, never in the URL, and only the change's own fields are sent
+CAUGHT C4 (SF-035) F-6: a refusal's words ignore what was being saved: 3 failing, 16 passing
+    ✖ the server's refusals come out as plain words, never its own text (F-6)
+    ✖ F-6: a refused change says why, by its field and what was being saved
+    ✖ the numbers in the texts are ledger-rules.js's limits
+CAUGHT C5 (SF-038) a gstatic URL back in index.html (the card's break check): 1 failing, 13 passing
+    ✖ nothing shipped mentions Firebase, Firestore or gstatic, and the page talks only to its own server (SF-035, SF-038)
+CAUGHT C6 (SF-036) a 429 drops the change instead of waiting: 2 failing, 12 passing
+    ✖ 2xx is confirmed; 400, 404, 409 are refused; no connection, 408, 429 and 5xx wait
+    ✖ a change that must wait (429) stops the queue there, so nothing overtakes it
+CAUGHT C7 (SF-036) F-5: deletes aren't counted: 2 failing, 12 passing
+    ✖ offline, changes wait in order; back online they are sent in that order and each is removed
+    ✖ the count includes deletes (the T-03 review's F-5), per group
+CAUGHT C8 (SF-036) a change that must wait is skipped, so later ones overtake it: 3 failing, 11 passing
+    ✖ offline, changes wait in order; back online they are sent in that order and each is removed
+    ✖ a change that must wait (429) stops the queue there, so nothing overtakes it
+    ✖ a lost answer means the change is sent again, and the server still holds one row
+CAUGHT C9 (SF-036) rows not on the server aren't marked waiting: 1 failing, 13 passing
+    ✖ the page shows the server's copy with the waiting changes on top, marked as waiting
+CAUGHT C10 (SF-036) balances read paise as rupees: 3 failing, 20 passing
+    ✖ balances while changes wait include them: ₹100.00 by Asha split three ways, then ₹0.05 by Ben
+    ✖ money.js reads back exactly the server's paise for every amount allowed
+    ✖ offline: delete 'Tea' and add 'Taxi' wait as 2 changes; online, the server holds exactly Taxi (the T-03 probe's E2/E3)
+CAUGHT C11 (SF-036) two tabs may send at once (no lock): 1 failing, 13 passing
+    ✖ every send runs inside the lock, so two tabs never send at once
+CAUGHT C12 (SF-037) the balance check lets one paisa through (the card's break check): 1 failing, 10 passing
+    ✖ the balance check fails if one paisa differs (the card's break check)
+CAUGHT C13 (SF-037) the import takes any token: 1 failing, 10 passing
+    ✖ the import endpoint: off without a long token; a wrong token looks like no such path; bad bodies refused
+CAUGHT C14 (SF-037) expenses the page doesn't count today aren't flagged: 2 failing, 9 passing
+    ✖ the plan: 99.5 → 9950 paise; '12' left out and listed; a removed person keeps their share; balances kept
+    ✖ the terminal shows counts and fingerprints only; the owner's report has the names and balances
+CAUGHT C15 (SF-038) D-18: no cap on a group's split entries: 1 failing, 32 passing
+    ✖ a group holds at most 20,000 split entries, deleted expenses included: then 409 group-full; a replay still succeeds
+CAUGHT C16 (SF-038) D-18: every read builds the answer again: 1 failing, 32 passing
+    ✖ a group's answer is built once per version and shared by every reader; the oldest goes past the byte budget
+CAUGHT C17 (SF-038) D-18: gzip even when the browser refuses it: 1 failing, 32 passing
+    ✖ a group's answer is gzipped when the browser accepts it, and the same data either way
+CAUGHT C18 (SF-038) N-5: /healthz 200 with the database unavailable: 1 failing, 8 passing
+    ✖ if the database can't be opened, the page is still served, and /healthz and the API answer 503 (N-5)
+CAUGHT C19 (SF-038) the old address never shows the notice: 1 failing, 12 passing
+    ✖ on GitHub Pages the page points to the Railway address, keeping the group
+CAUGHT C20 (SF-038) a shipped file mentions Firebase again: 1 failing, 13 passing
+    ✖ nothing shipped mentions Firebase, Firestore or gstatic, and the page talks only to its own server (SF-035, SF-038)
+CAUGHT C21 (SF-033) R3 again: count only Content-Length, not the bytes that arrive: 1 failing, 32 passing
+    ✖ bodies over 16 KB, bodies that aren't JSON and requests that don't say JSON are refused
+CAUGHT C22 (SF-033) R7 again: changes and refusals answer without no-store: 1 failing, 32 passing
+    ✖ every API answer is no-store and nosniff: reads, changes and refusals alike
+All 22 breaks caught; every file restored byte for byte.
+
+=== node docs/planning/evidence/T-09-review-breaks.mjs (this review's RB1-RB7) ===
+CAUGHT RB1 the 'moved' check takes any host ending in github.io (notgithub.io too): 1 failing, 12 passing
+    ✖ on the Railway address, localhost and any other host, the page just runs
+CAUGHT RB2 a group's shared answer is served whatever the version (stale after a change): 3 failing, 39 passing
+    ✖ offline: delete 'Tea' and add 'Taxi' wait as 2 changes; online, the server holds exactly Taxi (the T-03 probe's E2/E3)
+    ✖ a duplicate POST leaves one row, and sending it again after a delete doesn't bring it back
+    ✖ a group's answer is built once per version and shared by every reader; the oldest goes past the byte budget
+CAUGHT RB3 the bar says 'live' while changes wait: 1 failing, 9 passing
+    ✖ online with changes waiting counts them, and is never live (the T-03 review's E6)
+CAUGHT RB4 any non-empty IMPORT_TOKEN turns the import on (no 24-character minimum): 1 failing, 43 passing
+    ✖ the import endpoint: off without a long token; a wrong token looks like no such path; bad bodies refused
+CAUGHT RB5 the import takes two people with the same ID: 1 failing, 43 passing
+    ✖ the import endpoint: off without a long token; a wrong token looks like no such path; bad bodies refused
+MISSED RB6 the read-back check ignores a missing expense when the balances still agree: 0 failing, 11 passing
+MISSED RB7 the import's people cap forgets the people already in the group: 0 failing, 44 passing
+2 of 7 missed: RB6, RB7. Every file restored byte for byte.
+
+=== sha256sum -c over the receipt's 33 rows, after both break runs: lines not OK ===
+0
+
+=== push A alone: git archive HEAD + push A's 10 files, node --test "tests/*.test.js" ===
+ℹ tests 155
+ℹ pass 155
+ℹ fail 0
+page files, server/static.js, Dockerfile, .dockerignore compared with HEAD (CR removed): all 'same' (see the review receipt)
+
+=== image check, full tree (T-08-image-check.mjs) ===
+FROM line: FROM node:24.21.0-alpine
+staged 19 files: index.html, manifest.json, service-worker.js, money.js, group-code.js, sync-status.js, ledger-rules.js, ledger-client.js, outbox.js, icon-192.png, icon-512.png, apple-touch-icon.png, .well-known/assetlinks.json, server/main.js, server/server.js, server/static.js, server/db.js, server/api.js, server/live.js (+ package.json from the RUN line)
+/ → 200 text/html; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/index.html?g=goa-trip-2026 → 200 text/html; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/service-worker.js → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/money.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/group-code.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/sync-status.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/manifest.json → 200 application/json | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/icon-192.png → 200 image/png | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/.well-known/assetlinks.json → 200 application/json | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/package.json → 404
+/server/main.js → 404
+/ledger-rules.js → 200
+/docs/planning/STATE.json → 404
+/firestore.rules → 404
+/Dockerfile → 404
+/splitfamilia.db → 404
+/../package.json → 404
+/healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+PUT /api/group → 200 {"version":1}
+POST /api/people → 201 {"version":2}
+POST /api/people → 201 {"version":3}
+POST /api/expenses → 201 {"version":4}
+GET /api/group → 200 {"currency":"₹","version":4,"people":[{"id":"asha","name":"Asha"},{"id":"ben","name":"Ben"}],"expenses":[{"id":"e1","date":"2026-09-30T06:00:00.000Z","desc":"Taxi","amountPaise":10000,"paidBy":"asha","split":["asha","ben"]}]}
+database file on the stand-in volume: true; in the app folder: false
+server log:
+  SplitFamilia server: listening on port 18050; database ok.
+log mentions the group code: false
+
+=== image check, push A tree ===
+FROM line: FROM node:24.21.0-alpine
+staged 17 files: index.html, manifest.json, service-worker.js, money.js, group-code.js, sync-status.js, ledger-rules.js, icon-192.png, icon-512.png, apple-touch-icon.png, .well-known/assetlinks.json, server/main.js, server/server.js, server/static.js, server/db.js, server/api.js, server/live.js (+ package.json from the RUN line)
+/ → 200 text/html; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/index.html?g=goa-trip-2026 → 200 text/html; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/service-worker.js → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/money.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/group-code.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/sync-status.js?v=5 → 200 text/javascript; charset=utf-8 | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/manifest.json → 200 application/json | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/icon-192.png → 200 image/png | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/.well-known/assetlinks.json → 200 application/json | cache-control no-cache | nosniff | strict-origin-when-cross-origin | same bytes as the repo: true
+/package.json → 404
+/server/main.js → 404
+/ledger-rules.js → 404
+/docs/planning/STATE.json → 404
+/firestore.rules → 404
+/Dockerfile → 404
+/splitfamilia.db → 404
+/../package.json → 404
+/healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+PUT /api/group → 200 {"version":1}
+POST /api/people → 201 {"version":2}
+POST /api/people → 201 {"version":3}
+POST /api/expenses → 201 {"version":4}
+GET /api/group → 200 {"currency":"₹","version":4,"people":[{"id":"asha","name":"Asha"},{"id":"ben","name":"Ben"}],"expenses":[{"id":"e1","date":"2026-09-30T06:00:00.000Z","desc":"Taxi","amountPaise":10000,"paidBy":"asha","split":["asha","ben"]}]}
+database file on the stand-in volume: true; in the app folder: false
+server log:
+  SplitFamilia server: listening on port 18108; database ok.
+log mentions the group code: false
+
+=== browser check, first run: stopped at B6 ===
+file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projects/SplitFamilia/docs/planning/evidence/T-09-browser-check.mjs:99
+  if (res.result.exceptionDetails) throw new Error(JSON.stringify(res.result.exceptionDetails).slice(0, 300));
+                                         ^
+
+Error: {"exceptionId":1,"text":"Uncaught","lineNumber":0,"columnNumber":661,"scriptId":"5","stackTrace":{"callFrames":[{"functionName":"","scriptId":"5","url":"","lineNumber":0,"columnNumber":661}]},"exception":{"type":"object","subtype":"error","className":"TypeError","description":"TypeError: Cannot read
+    at evaluate (file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projec
+(second run: all of B1-B8, in T-09-review-browser-check-output.json)
+
+=== node --expose-gc docs/planning/evidence/T-09-read-cost-probe.mjs ===
+{
+ "A_fill": {
+  "adds": {
+   "201": 5000
+  },
+  "oneMore": [
+   409,
+   {
+    "error": "failed-precondition",
+    "field": "group-full"
+   }
+  ]
+ },
+ "A_read": {
+  "afterAChange": {
+   "rebuildReadMs": 1013,
+   "buildHoldsServerMs": [
+    430,
+    484,
+    488
+   ]
+  },
+  "expensesShown": 5000,
+  "responseBytes": 5440397,
+  "responseMB": 5.2,
+  "firstReadMs": 932,
+  "secondReadMs": 52,
+  "gzipBytes": 1350245,
+  "gzipMB": 1.3,
+  "contentEncoding": "gzip",
+  "tenUnreadGzipReads": {
+   "pageStatus": 200,
+   "pageMsMeanwhile": 30,
+   "rssMBBefore": 139,
+   "rssMBHeld": 122.2
+  }
+ },
+ "B_fill": {
+  "adds": {
+   "201": 200
+  },
+  "oneMore": [
+   409,
+   {
+    "error": "failed-precondition",
+    "field": "group-full"
+   }
+  ]
+ },
+ "B_read": {
+  "afterAChange": {
+   "rebuildReadMs": 154,
+   "buildHoldsServerMs": [
+    112,
+    114,
+    112
+   ]
+  },
+  "expensesShown": 200,
+  "responseBytes": 1512556,
+  "responseMB": 1.4,
+  "firstReadMs": 128,
+  "secondReadMs": 10,
+  "gzipBytes": 70785,
+  "gzipMB": 0.1,
+  "contentEncoding": "gzip",
+  "tenUnreadGzipReads": {
+   "pageStatus": 200,
+   "pageMsMeanwhile": 27,
+   "rssMBBefore": 146.3,
+   "rssMBHeld": 147.2
+  }
+ },
+ "databaseMB": 14.5
+}
+
+=== this review's probe, earlier runs (the final run is T-09-review-probe-output.json) ===
+Run 1 (the probe's first version, pausing new workers): completed. Its P1 'token plus a space' case imported P2's group early (Node trims a header's trailing spaces), so its P2 'before the import' row is not meaningful; every other row matches the final run. Output:
+{
+  "P1_tokens": {
+    "none": 404,
+    "wrong": 404,
+    "upperCase": 404,
+    "twoSpaces": 404,
+    "lowerScheme": 404,
+    "tokenPlusSpace": 200,
+    "shortTokenServer": 404,
+    "getWhenOn": 405,
+    "getWhenOff": 404
+  },
+  "P1_sixtyWrongTokens": [
+    404
+  ],
+  "P1_unknownCodeAfter": 404,
+  "P2_beforeImport": {
+    "currency": "₹",
+    "version": 1,
+    "people": [
+      {
+        "id": "meera1",
+        "name": "Meera"
+      },
+      {
+        "id": "kabir2",
+        "name": "Kabir"
+      }
+    ],
+    "expenses": [
+      {
+        "id": "x1",
+        "date": "2026-09-20T10:00:00.000Z",
+        "desc": "Houseboat",
+        "amountPaise": 1000001,
+        "paidBy": "meera1",
+        "split": [
+          "meera1",
+          "kabir2",
+          "ravi-gone"
+        ]
+      },
+      {
+        "id": "x2",
+        "date": "2026-09-21T10:00:00.000Z",
+        "desc": "Ferry",
+        "amountPaise": 999,
+        "paidBy": "kabir2",
+        "split": [
+          "meera1",
+          "kabir2"
+        ]
+      }
+    ]
+  },
+  "P2_firstImport": {
+    "status": 200,
+    "body": {
+      "version": 1,
+      "created": false,
+      "added": {
+        "people": 0,
+        "expenses": 0
+      }
+    }
+  },
+  "P2_readBack": {
+    "version": 1,
+    "people": 2,
+    "expenses": [
+      [
+        "x1",
+        1000001
+      ],
+      [
+        "x2",
+        999
+      ]
+    ]
+  },
+  "P2_balances": {
+    "meera1": 666168,
+    "kabir2": -332835,
+    "ravi-gone": -333333
+  },
+  "P2_check": true,
+  "P3_rerunAfterChanges": {
+    "status": 200,
+    "body": {
+      "version": 3,
+      "created": false,
+      "added": {
+        "people": 0,
+        "expenses": 0
+      }
+    },
+    "versionBefore": 3,
+    "versionAfter": 3,
+    "expenses": [
+      "x1",
+      "x3"
+    ],
+    "check": false
+  },
+  "P4_importMovesVersion": {
+    "status": 200,
+    "body": {
+      "version": 4,
+      "created": false,
+      "added": {
+        "people": 0,
+        "expenses": 1
+      }
+    },
+    "versionRead": 4,
+    "expenses": [
+      "x1",
+      "x3",
+      "x4"
+    ]
+  },
+  "R1_offline": {
+    "status": "· offline: 3 changes waiting to sync",
+    "server": null,
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [
+      "Asha",
+      "Ben"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R1_reloadedOffline": {
+    "screen": {
+      "href": "http://127.0.0.1:53743/",
+      "boot": false,
+      "join": false,
+      "moved": false,
+      "app": true,
+      "controlled": true
+    },
+    "status": "· offline: 3 changes waiting to sync",
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [
+      "Asha",
+      "Ben"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R1_online": {
+    "status": "· live",
+    "people": [
+      "Asha",
+      "Ben"
+    ],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null,
+    "server": {
+      "currency": "₹",
+      "version": 3,
+      "people": [
+        "Asha",
+        "Ben"
+      ],
+      "expenses": []
+    }
+  },
+  "R2_tabB_live": "· live",
+  "R2_otherPhoneFuel": 201,
+  "R2_offline": {
+    "A": {
+      "status": "· offline: 3 changes waiting to sync",
+      "people": [
+        "Asha",
+        "Chitra"
+      ],
+      "waitingPeople": [
+        "Chitra"
+      ],
+      "rows": [
+        "Dinner ₹90.00 (waiting)"
+      ],
+      "balances": [
+        "Chitra owes Asha₹45.00"
+      ],
+      "currency": "₹",
+      "notice": null
+    },
+    "B": {
+      "status": "· offline: 1 change waiting to sync",
+      "people": [
+        "Asha"
+      ],
+      "waitingPeople": [],
+      "rows": [],
+      "balances": [],
+      "currency": "₹",
+      "notice": null
+    }
+  },
+  "R2_online": {
+    "A": "· live",
+    "B": "· live"
+  },
+  "R2_after": {
+    "A": {
+      "status": "· live",
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "waitingPeople": [],
+      "rows": [
+        "Dinner ₹90.00",
+        "Fuel ₹60.00"
+      ],
+      "balances": [
+        "Chitra owes Ben₹30.00",
+        "Chitra owes Asha₹15.00"
+      ],
+      "currency": "₹",
+      "notice": "Couldn't remove Ben. That person is in an expense now, so they can't be removed. Delete their expenses first."
+    },
+    "B": {
+      "status": "· live",
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "waitingPeople": [],
+      "rows": [
+        "Dinner ₹90.00",
+        "Fuel ₹60.00"
+      ],
+      "balances": [
+        "Chitra owes Ben₹30.00",
+        "Chitra owes Asha₹15.00"
+      ],
+      "currency": "₹",
+      "notice": null
+    },
+    "server": {
+      "currency": "₹",
+      "version": 6,
+      "people": [
+        "Asha",
+        "Ben",
+        "Chitra"
+      ],
+      "expenses": [
+        "Fuel 6000",
+        "Dinner 9000"
+      ]
+    },
+    "sentOnce": {
+      "personDeletes": 1,
+      "expensePosts": 1,
+      "peoplePosts": 1
+    },
+    "refusals": 1
+  },
+  "R3_offline": {
+    "A": "· offline: 1 change waiting to sync",
+    "B": "· offline: 1 change waiting to sync"
+  },
+  "R3_after15s": {
+    "A": "· live",
+    "B": "· connecting…",
+    "server": {
+      "currency": "₹",
+      "version": 1,
+      "people": [],
+      "expenses": []
+    },
+    "creates": 2
+  },
+  "R3_B_reloaded": "· live",
+  "R4a_offline": {
+    "screen": {
+      "href": "http://127.0.0.1:53743/",
+      "boot": false,
+      "join": false,
+      "moved": false,
+      "app": true,
+      "controlled": true
+    },
+    "status": "· offline: changes will sync when you're back online",
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R4a_online": {
+    "status": "· live",
+    "people": [
+      "Isha",
+      "Omar"
+    ],
+    "waitingPeople": [],
+    "rows": [
+      "Tickets €10.01"
+    ],
+    "balances": [
+      "Omar owes Isha€5.00"
+    ],
+    "currency": "€",
+    "notice": null
+  },
+  "R4b_offline": {
+    "status": "· offline: 1 change waiting to sync",
+    "people": [
+      "Zed"
+    ],
+    "waitingPeople": [
+      "Zed"
+    ],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": null
+  },
+  "R4b_online": {
+    "status": "· not syncing",
+    "serverHasGroup": false,
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "₹",
+    "notice": "Couldn't add Zed. No group found with that code. Check it, or ask for the invite link."
+  },
+  "R4c_offline": {
+    "status": "· offline: 1 change waiting to sync"
+  },
+  "R4c_online": {
+    "status": "· not syncing",
+    "serverGroup": {
+      "currency": "$",
+      "version": 1,
+      "people": [],
+      "expenses": []
+    },
+    "people": [],
+    "waitingPeople": [],
+    "rows": [],
+    "balances": [],
+    "currency": "$",
+    "notice": "No group found with that code. Check it, or ask for the invite link."
+  },
+  "R5_lookalike": {
+    "href": "http://notgithub.io:53743/",
+    "boot": false,
+    "join": true,
+    "moved": false,
+    "app": false,
+    "controlled": false
+  },
+  "R7_offlineReopen": {
+    "swPause": true,
+    "runs": [
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:53743/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:53743/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:53743/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:53743/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      },
+      {
+        "app": true,
+        "controlled": true,
+        "href": "http://127.0.0.1:53743/",
+        "people": 3,
+        "status": "· offline: changes will sync when you're back online"
+      }
+    ]
+  },
+  "dialogs": [],
+  "errors": [],
+  "R6_logs": {
+    "serverLines": 73,
+    "consoleLines": 5,
+    "leaks": [],
+    "sampleServer": [
+      "SplitFamilia api: POST 404 not-found",
+      "SplitFamilia api: GET 405 invalid-argument",
+      "SplitFamilia api: GET 404 not-found",
+      "SplitFamilia api: DELETE 409 failed-precondition"
+    ],
+    "sampleConsole": [
+      "[ProtocolLaunch] handler constructed; wiring port events.",
+      "SplitFamilia: a change was refused failed-precondition",
+      "SplitFamilia: sync stopped not-found",
+      "SplitFamilia: a change was refused not-found"
+    ]
+  }
+}
+
+Run 2 (pausing new workers): hung after R4a waiting for a CDP reply (stopped by hand after about 12 minutes; the test database showed R1-R4a done, and nothing writing).
+Runs 3 and 4 (pausing new workers, with a 20 s limit per CDP reply): stopped at R3, a CDP call timed out, so no group code was read:
+file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projects/SplitFamilia/server/db.js:143
+    const row = q.group.get(code);
+                        ^
+
+TypeError: Provided value cannot be bound to SQLite parameter 1.
+    at Object.groupVersion (file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projects/SplitFamilia/server/db.js:143:25)
+    at serverGroup (file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projects/SplitFamilia/docs/planning/evidence/T-09-review-probe.mjs:248:42)
+    at file:///C:/Users/RevanParimi/OneDrive%20-%20IBM/Documents/Gen%20AI%20Projects/SplitFamilia/docs/planning/evidence/T-09-review-probe.mjs:330:71 {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+
+Node.js v24.21.0
+Run 5 (not pausing workers): completed, with the same results as the final run; no CDP timeouts.

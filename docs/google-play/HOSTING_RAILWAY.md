@@ -5,7 +5,9 @@ The web app will run as a Railway service at one HTTPS address, for example
 be live before the Android work starts (task T-05).
 
 - **What the repository does:** the files that build and serve the app (T-03, SF-011), and since
-  T-08 (SF-031 to SF-034) a small Node server with the ledger's database and API.
+  T-08 (SF-031 to SF-034) a small Node server with the ledger's database and API. Since T-09 the
+  page uses only that server: the move from Firebase is in
+  [MOVE_FROM_FIREBASE.md](MOVE_FROM_FIREBASE.md).
 - **What you do by hand:** every step marked **MANUAL ACTION REQUIRED** below. Nothing in this
   repo creates or changes anything in Railway, GitHub or Firebase.
 
@@ -17,7 +19,7 @@ free `*.up.railway.app` address), D-13 (the database: SQLite on a Railway volume
 
 | File | What it does |
 |---|---|
-| `Dockerfile` | Builds a small image from `node:24.21.0-alpine` holding only the app's files (`index.html`, `manifest.json`, `service-worker.js`, the JS modules, the icons, `.well-known/assetlinks.json`) and the server (`server/`). No docs, tests, tooling, Firebase settings or `npm install`: the server uses only Node's built-in modules. |
+| `Dockerfile` | Builds a small image from `node:24.21.0-alpine` holding only the app's files (`index.html`, `manifest.json`, `service-worker.js`, the JS modules, the icons, `.well-known/assetlinks.json`) and the server (`server/`). No docs, tests, scripts, tooling or `npm install`: the server uses only Node's built-in modules. |
 | `.dockerignore` | Lets only those files into the build, as a second guard. |
 | `server/` | The web server (T-08). It listens on `$PORT` (8080 if unset) and serves the app's files from a fixed list, with the headers below; everything else is a 404. It also answers `/healthz` and the ledger API under `/api/`, and keeps the database in the volume (section 3a). Railway handles HTTPS in front of it. |
 | `railway.json` | Railway's settings as code: build with the `Dockerfile`, check `/healthz` after each deploy, restart on failure, and redeploy only when an app or server file changes (a docs-only commit doesn't redeploy). Railway reads it from the repo; it overrides the same settings in the dashboard. |
@@ -119,6 +121,18 @@ seconds of downtime, because the old copy stops before the new one mounts the vo
 volume guide says so). From T-09, phones keep changes made during those seconds and send them
 afterwards.
 
+Since T-09, `/healthz` answers **503** when the database can't be opened (the T-08 review's
+N-5). Railway's health check then fails, and it keeps the last good deployment live instead.
+
+5. **MANUAL ACTION REQUIRED: check the volume's use once a month.** Open the volume on the
+   project canvas (or the service's **Metrics**). A family uses a few megabytes a year. The
+   server limits how fast anyone can write: 300 changes per address per 10 minutes, and at most
+   5,000 expenses and 20,000 split entries in one group. That slows a flood but doesn't cap the
+   total: one address writing flat out could add about 590 MB a day (the second T-08 review's
+   N-6). The Pro plan's volume is 50 GB and can be made bigger (Railway's docs, checked
+   2026-09-30). **VERIFY IN RAILWAY:** whether your plan can send a usage alert; the docs
+   don't mention one. If the use grows fast, tell the next session.
+
 ## 4. Check it (pending check PC-003)
 
 With `<host>` as the address from step 4:
@@ -154,6 +168,11 @@ other (a push to `main`).
 
 ## 6. Move the family's phones from GitHub Pages
 
+Since T-09 this is part of the switch-over: [MOVE_FROM_FIREBASE.md](MOVE_FROM_FIREBASE.md)
+steps 7 and 8. After push B, the page on GitHub Pages only shows "SplitFamilia has moved", with
+a button to the same group on this address. The steps as they were:
+
+
 Today the app is live at `https://revanparimi.github.io/SplitFamilia/`. The Railway address is a
 different site to a phone, so the saved group and the installed icon stay with the old address.
 The data is in Firestore, so nothing is lost.
@@ -167,20 +186,18 @@ The data is in Firestore, so nothing is lost.
    then, every push to `main` updates both addresses, and Pages also publishes everything in the
    repo, including `docs/` and `tests/`.
 
-## 7. Later: limit the Firebase key to your addresses (optional)
+## 7. The Firebase key (no longer needed)
 
-The Firebase web key in `index.html` is public by design; the Firestore rules protect the data
-(see `FIRESTORE_RULES.md`). If you later restrict the key to your own websites (Google Cloud
-console → **APIs & Services → Credentials** → the browser key → **Website restrictions**),
-**MANUAL ACTION REQUIRED:** add `https://<host>/*`, and keep the GitHub Pages address until
-Pages is off. The Android app uses the same web address, so it needs nothing extra. This counts
-as a deploy (CLAUDE.md §5).
+Until T-09 the page carried Firebase's web key. Since T-09 it has no Firebase key or setting at
+all (`npm test` checks), so there is nothing to restrict. The Firebase project itself is
+deleted at the end of the switch-over (MOVE_FROM_FIREBASE.md step 8).
 
 ## 8. Roll back
 
 - **MANUAL ACTION REQUIRED:** in Railway, open the service's **Deployments**, pick the last good
   one and choose **Redeploy**; or revert the commit on `main` and push (your word first).
-  Rolling back to the Caddy deployment (before T-08) is safe while the page still uses Firestore:
-  the volume and its database file are left as they are.
+  Rolling back to the Caddy deployment (before T-08) was safe while the page still used
+  Firestore. After T-09's switch-over, roll back only as MOVE_FROM_FIREBASE.md says: the page
+  and its data now live here.
 - Phones pick up the rolled-back files within an open or two, as with any update: the first open
   may still show the cached version while the service worker fetches the other one.

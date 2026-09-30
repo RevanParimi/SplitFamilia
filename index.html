@@ -13,7 +13,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="SplitFamilia" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
 <style>
   :root{
@@ -177,6 +176,8 @@
     padding:0;
   }
   .chip button:hover{color:var(--rust);}
+  /* Someone added on this phone whom the server doesn't have yet (SF-036). */
+  .chip.waiting{border-style:dashed;}
   .inline-form{
     display:flex;
     gap:0.5rem;
@@ -214,6 +215,7 @@
   }
   .btn.ghost:hover{border-color:var(--ink);}
   .btn:disabled{opacity:0.45;cursor:not-allowed;}
+  a.btn{display:inline-block;text-decoration:none;}
 
   /* add expense form */
   .expense-form{
@@ -489,9 +491,9 @@
       document.documentElement.classList.add("in-app");
     }
 
-    // SF-008: the module needs the Firebase SDK. If it can't load or start (for example, the
-    // first open with no connection), show a plain message and Retry, not a screen that does
-    // nothing. The module calls splitBoot.ready() once it runs, which also clears the message if
+    // SF-008: if the module or one of its imports can't load or start (for example, the first
+    // open with no connection and no service worker yet), show a plain message and Retry, not a
+    // screen that does nothing. The module calls splitBoot.ready() once it runs, which also clears the message if
     // the start was only slow.
     var started = false;
     function panel(){ return document.getElementById("boot"); }
@@ -564,6 +566,15 @@
     </div>
 
     <p class="join-note">Your group's data is stored in the cloud, not on this device<span class="web-only">, so installing the app won't lose it</span>.</p>
+  </div>
+</div>
+
+<div class="join-screen" id="moved-screen">
+  <div class="join-card">
+    <h1>SplitFamilia</h1>
+    <p class="sub">SplitFamilia has moved</p>
+    <p class="join-copy">It now has its own address. Your group comes with you: open it there, then install the app again from there.</p>
+    <a class="btn" id="moved-link">Open SplitFamilia</a>
   </div>
 </div>
 
@@ -648,32 +659,19 @@
 </div>
 
 <script type="module">
-  // ---------- Firebase ----------
-  // Fill these in from Firebase Console → Project settings → Your apps → SDK setup and configuration.
-  // The service worker keeps these two SDK files for offline starts; its SDK list must name the
-  // same version (npm test checks).
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-  import {
-    initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
-    collection, doc, addDoc, deleteDoc, setDoc, onSnapshot,
-    getDocFromServer, getDocsFromServer, query, limit
-  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-  // "?v=5" matches the service worker's cache name; bump them together (see service-worker.js).
-  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=5";
-  import { isValidGroupId, newGroupId, parseInvite } from "./group-code.js?v=5";
-  import { friendlyError, countPending, syncStatusText } from "./sync-status.js?v=5";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyCWcLYXre5DfLan0_1etxnMk9Ixey5xdsI",
-    authDomain: "splitfamilia-cf927.firebaseapp.com",
-    projectId: "splitfamilia-cf927",
-    storageBucket: "splitfamilia-cf927.firebasestorage.app",
-    messagingSenderId: "433564298612",
-    appId: "1:433564298612:web:901a2b1a9155a47104d021"
-  };
+  // The page talks only to its own server (SF-035): ledger-client.js reads the group, sends each
+  // change and keeps a live connection; outbox.js keeps the phone's copy and the changes waiting
+  // to sync (SF-036).
+  // "?v=6" matches the service worker's cache name; bump them together (see service-worker.js).
+  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=6";
+  import { isValidGroupId, newGroupId, parseInvite, movedLink } from "./group-code.js?v=6";
+  import { friendlyError, syncStatusText } from "./sync-status.js?v=6";
+  import { checkGroup, checkPerson, checkExpense, MAX_PEOPLE, MAX_SPLIT } from "./ledger-rules.js?v=6";
+  import { getGroup, sendChange, watchGroup } from "./ledger-client.js?v=6";
+  import { createOutbox, memoryStore, openBrowserStore, overlay, applyChange, forBalances, EMPTY_GROUP } from "./outbox.js?v=6";
 
   // ---------- messages (SF-009) ----------
-  // People see plain words, never Firestore's own text. The console gets at most the error's
+  // People see plain words, never the server's own text. The console gets at most an error
   // code: never what someone typed, and never a group code.
   const notice = document.getElementById("notice");
   const noticeText = document.getElementById("notice-text");
@@ -682,29 +680,6 @@
     notice.hidden = false;
   }
   document.getElementById("notice-close").addEventListener("click", function(){ notice.hidden = true; });
-
-  function errorCode(err){
-    return err && typeof err.code === "string" ? err.code : "unknown";
-  }
-  // `what` says what failed, e.g. "Couldn't save that expense."
-  function reportError(what, err){
-    console.error("SplitFamilia: " + what, errorCode(err));
-    showNotice(what + " " + friendlyError(err));
-  }
-
-  // ---------- start ----------
-  let db;
-  try{
-    const fbApp = initializeApp(firebaseConfig);
-    db = initializeFirestore(fbApp, {
-      localCache: persistentLocalCache({ tabManager: persistentMultipleTabManager() })
-    });
-  }catch(err){
-    // The start-up panel shows "Can't reach SplitFamilia" with Retry (SF-008).
-    console.error("SplitFamilia: Firebase didn't start", errorCode(err));
-    window.splitBoot.fail();
-    throw err;
-  }
 
   // From here on, anything that goes wrong without its own message gets one friendly message.
   let unexpectedShown = false;
@@ -719,6 +694,10 @@
 
   // ---------- group resolution ----------
   const GROUP_KEY = "splitsheet-group";
+
+  // On the old GitHub Pages address the page only points to its new home, with the same group
+  // (SF-038). Nothing else runs there: it has no server of its own.
+  const movedTo = movedLink(window.location.href, localStorage.getItem(GROUP_KEY));
   const BAD_LINK = "That group link isn't valid.";
   const OFFLINE_JOIN = "You're offline, so that code can't be checked yet. Connect to the internet and try again.";
 
@@ -763,29 +742,15 @@
 
   // Opens a group in this page: saves it, puts it in the address bar, starts the ledger.
   // At most one group opens per page load (F-3): a "Join" check that returns after "Start a new
-  // group" has already opened a group is ignored.
-  function openGroup(id, isNew){
+  // group" has already opened a group is ignored. `group` is the server's copy when Join just read it.
+  function openGroup(id, isNew, group){
     if(appStarted) return;
     localStorage.setItem(GROUP_KEY, id);
     const url = new URL(window.location.href);
     url.searchParams.set("g", id);
     history.replaceState(null, "", url.toString());
     groupId = id;
-    startApp(id, isNew);
-  }
-
-  // True when the server has anything under this code: the group document, a person or an
-  // expense. Asks the server, not this phone's cache, so a made-up code isn't taken as a group.
-  function groupExists(id){
-    const check = Promise.all([
-      getDocFromServer(doc(db, "groups", id)),
-      getDocsFromServer(query(collection(db, "groups", id, "people"), limit(1))),
-      getDocsFromServer(query(collection(db, "groups", id, "expenses"), limit(1)))
-    ]).then(function(r){ return r[0].exists() || !r[1].empty || !r[2].empty; });
-    const timeout = new Promise(function(resolve, reject){
-      setTimeout(function(){ reject({ code: "timeout" }); }, 15000);
-    });
-    return Promise.race([check, timeout]);
+    startApp(id, isNew, group);
   }
 
   newGroupForm.addEventListener("submit", function(ev){
@@ -796,9 +761,10 @@
       return;
     }
     showMessage(newGroupError, "");
-    openGroup(newGroupId(name), true);
+    openGroup(newGroupId(name), true, null);
   });
 
+  // "Join" asks the server whether the group exists, and keeps what it read.
   joinForm.addEventListener("submit", function(ev){
     ev.preventDefault();
     showMessage(joinAlert, "");
@@ -820,16 +786,13 @@
     joinBtn.disabled = true;
     newGroupBtn.disabled = true;
     joinBtn.textContent = "Checking…";
-    groupExists(id).then(function(found){
-      if(found) openGroup(id, false);
-      else showMessage(joinError, "No group found with that code. Check it, or ask for the invite link.");
-    }).catch(function(err){
-      if(err && err.code === "unavailable"){
-        showMessage(joinError, OFFLINE_JOIN);
-      }else{
-        if(err && err.code !== "timeout") console.error("SplitFamilia: join check failed", errorCode(err));
-        showMessage(joinError, "Couldn't check that code just now. Try again.");
-      }
+    getGroup(id).then(function(res){
+      if(res.status === 200) openGroup(id, false, res.group);
+      else if(res.status === 404) showMessage(joinError, friendlyError("not-found"));
+      else if(res.status === 0) showMessage(joinError, OFFLINE_JOIN);
+      else if(res.status === 429) showMessage(joinError, friendlyError("resource-exhausted"));
+      else if(res.status === 400) showMessage(joinError, BAD_LINK);
+      else showMessage(joinError, "Couldn't check that code just now. Try again.");
     }).finally(function(){
       joinBtn.disabled = false;
       newGroupBtn.disabled = false;
@@ -858,35 +821,30 @@
   });
 
   let appStarted = false;
-  if(!groupId){
+  if(movedTo){
+    document.getElementById("moved-link").href = movedTo;
+    document.getElementById("moved-screen").style.display = "flex";
+  }else if(!groupId){
     joinScreen.style.display = "flex";
     if(resolved.error) showMessage(joinAlert, resolved.error);
   }else{
-    startApp(groupId, false);
+    startApp(groupId, false, null);
   }
   window.splitBoot.ready();
 
-  function startApp(gid, isNew){
+  async function startApp(gid, isNew, joined){
     if(appStarted) return;
     appStarted = true;
     joinScreen.style.display = "none";
     appShell.style.display = "";
     document.getElementById("group-name").textContent = gid;
 
-    const groupDocRef = doc(db, "groups", gid);
-    const peopleCol = collection(db, "groups", gid, "people");
-    const expensesCol = collection(db, "groups", gid, "expenses");
-
-    // A new group gets its group document at once, so "Join" finds it before anyone is added.
-    if(isNew){
-      setDoc(groupDocRef, { currency: "₹" }, { merge: true }).catch(function(e){ reportError("Couldn't create the group.", e); });
-    }
-
+    // What the page shows: the phone's copy of the server's group, with this phone's waiting
+    // changes on top (overlay in outbox.js). Balances include the waiting changes.
+    let copy = null;
     let people = [];
     let expenses = [];
     let currency = "₹";
-    // Expenses this phone added that the server hasn't confirmed yet (SF-009).
-    let unsyncedExpenses = new Set();
 
     function fmtPaise(paise){
       return currency + formatPaise(paise);
@@ -932,7 +890,8 @@
       }
       people.forEach(function(p){
         const chip = document.createElement("div");
-        chip.className = "chip";
+        chip.className = p.waiting ? "chip waiting" : "chip";
+        if(p.waiting) chip.title = "waiting to sync";
         const span = document.createElement("span");
         span.textContent = p.name;
         const btn = document.createElement("button");
@@ -1015,7 +974,7 @@
         meta.textContent = "paid by " + personName(exp.paidBy) + " · split: " + splitNames;
         mid.appendChild(desc);
         mid.appendChild(meta);
-        if(unsyncedExpenses.has(exp.id)){
+        if(exp.waiting){
           const waiting = document.createElement("div");
           waiting.className = "ledger-sync";
           waiting.textContent = "waiting to sync";
@@ -1090,14 +1049,212 @@
       });
     }
 
-    // ---------- mutations (each is its own atomic Firestore write) ----------
+    // ---------- sync (SF-035, SF-036) ----------
 
-    // Offline, a write waits in this phone's queue and its promise settles only once the server
-    // answers, so these messages appear only when the server refuses a change.
+    // "live" only when the live connection is up, the server's copy has been read on it, and no
+    // change waits (SF-009, SF-036). Deletes waiting count like any change (F-5).
+    const statusEl = document.getElementById("group-status");
+    let streamLive = false;
+    let heard = false;
+    let failed = false;
+    const store = (window.indexedDB && await openBrowserStore(window.indexedDB)) || memoryStore();
+
+    function updateStatus(){
+      statusEl.textContent = "· " + syncStatusText({
+        online: navigator.onLine,
+        heard: heard,
+        fromCache: !streamLive,
+        pending: outbox.count(gid),
+        failed: failed
+      });
+    }
+
+    function render(){
+      const view = overlay(copy, outbox.changes(), gid);
+      people = view.people;
+      expenses = forBalances(view.expenses);
+      currency = view.currency;
+      updateStatus();
+      renderAll();
+    }
+
+    function keepCopy(){
+      store.putCopy(gid, copy).catch(function(){ /* the page still shows it; only the offline copy is older */ });
+    }
+
+    // A change the server refused: one plain message saying which, never the server's text.
+    function refusedText(change, body){
+      const err = { code: body && body.error, field: body && body.field };
+      const what = {
+        "group": "Couldn't change the currency.",
+        "person": "Couldn't add " + change.name + ".",
+        "person-delete": "Couldn't remove " + (change.name || "that person") + ".",
+        "expense": "Couldn't save the expense “" + change.desc + "”.",
+        "expense-delete": "Couldn't delete the expense “" + (change.desc || "") + "”."
+      }[change.kind] || "Couldn't save a change.";
+      return what + " " + friendlyError(err, change.kind);
+    }
+
+    // A code the server doesn't know stops syncing for good, unless this phone is creating that
+    // group and its "create" is still waiting to be sent.
+    let waitingForCreate = false;
+    function creating(){
+      return outbox.changes(gid).some(function(c){ return c.kind === "group" && c.create === true; });
+    }
+    function notFound(){
+      if(creating()){
+        waitingForCreate = true;
+        return;
+      }
+      if(failed) return;
+      failed = true;
+      if(watch) watch.stop();
+      console.error("SplitFamilia: sync stopped", "not-found");
+      showNotice(friendlyError("not-found"));
+      updateStatus();
+    }
+
+    const outbox = createOutbox({
+      store: store,
+      send: function(change){ return sendChange(change); },
+      lock: navigator.locks ? function(fn){ return navigator.locks.request("splitfamilia-outbox", fn); } : undefined,
+      onConfirmed: function(change, body){
+        if(change.code !== gid) return;
+        // The server has it now: it moves from "waiting" into the copy. The answer's version is
+        // the group's after this change, so if nothing else changed in between the copy matches it.
+        const base = copy || EMPTY_GROUP;
+        const next = applyChange(base, change);
+        if(body && Number.isSafeInteger(body.version) && body.version === base.version + 1) next.version = body.version;
+        copy = next;
+        keepCopy();
+        if(change.kind === "group" && change.create === true && waitingForCreate){
+          waitingForCreate = false;
+          startWatch();
+        }
+      },
+      onRefused: function(change, body){
+        console.error("SplitFamilia: a change was refused", (body && body.error) || "unknown");
+        if(change.code !== gid) return;
+        showNotice(refusedText(change, body));
+        if(body && body.error === "not-found") notFound();
+      },
+      onChange: render
+    });
+
+    // Sends what waits; if the server can't take it now, tries again later (5 s, doubling up to
+    // a minute, or when the server says).
+    let retryTimer = null;
+    let retryWait = 5000;
+    function sent(result){
+      if(result.state === "wait"){
+        const wait = result.retryAfter ? result.retryAfter * 1000 : retryWait;
+        retryWait = Math.min(retryWait * 2, 60000);
+        if(retryTimer === null) retryTimer = setTimeout(kick, wait);
+      }else{
+        retryWait = 5000;
+      }
+      updateStatus();
+    }
+    function kick(){
+      if(retryTimer !== null){
+        clearTimeout(retryTimer);
+        retryTimer = null;
+      }
+      outbox.flush().then(sent);
+    }
+    function queue(change){
+      outbox.add(change).then(kick, function(){
+        showNotice("Couldn't keep that change on this phone. Try again.");
+      });
+    }
+
+    // Reads the whole group. A read that started before a newer copy arrived is dropped.
+    let fetching = false;
+    let fetchAgain = false;
+    function refresh(){
+      if(fetching){
+        fetchAgain = true;
+        return;
+      }
+      fetching = true;
+      getGroup(gid).then(function(res){
+        if(res.status === 200){
+          if(!copy || res.group.version >= copy.version){
+            copy = res.group;
+            keepCopy();
+          }
+          heard = true;
+        }else if(res.status === 404){
+          notFound();
+        }
+      }).finally(function(){
+        fetching = false;
+        if(fetchAgain){
+          fetchAgain = false;
+          refresh();
+        }
+        render();
+      });
+    }
+
+    // The live connection (SF-034): after each (re)connect the page reads the whole group once,
+    // so a missed update can't leave it stale; then again whenever the version moves.
+    let watch = null;
+    let firstEvent = true;
+    function startWatch(){
+      failed = false;
+      firstEvent = true;
+      watch = watchGroup({
+        code: gid,
+        onState: function(state, detail){
+          streamLive = state === "live";
+          if(state === "connecting" || state === "retrying"){
+            heard = false;
+            firstEvent = true;
+          }
+          if(state === "stopped"){
+            if(detail === "not-found") notFound();
+            else{
+              failed = true;
+              showNotice(BAD_LINK);
+            }
+          }
+          updateStatus();
+        },
+        onVersion: function(version){
+          if(firstEvent){
+            firstEvent = false;
+            kick(); // the server can be reached: send what waits
+            refresh();
+          }else if(!copy || version !== copy.version){
+            refresh();
+          }
+        }
+      });
+    }
+
+    window.addEventListener("online", function(){
+      if(watch && !failed) watch.reconnectNow();
+      kick();
+    });
+    window.addEventListener("offline", updateStatus);
+
+    // ---------- changes (each waits in the outbox until the server confirms it) ----------
+
     function addPerson(name){
       name = name.trim();
       if(!name) return;
-      addDoc(peopleCol, { name: name }).catch(function(e){ reportError("Couldn't add that person.", e); });
+      if(people.length >= MAX_PEOPLE){
+        alert(friendlyError({ code: "failed-precondition", field: "group-full" }, "person"));
+        return;
+      }
+      const change = { kind: "person", code: gid, id: crypto.randomUUID(), name: name };
+      const problem = checkPerson({ id: change.id, name: change.name });
+      if(problem){
+        alert(friendlyError({ code: "invalid-argument", field: problem }, "person"));
+        return;
+      }
+      queue(change);
     }
 
     function removePerson(id){
@@ -1106,21 +1263,28 @@
         alert("Can't remove someone who appears in an expense. Delete their expenses first.");
         return;
       }
-      deleteDoc(doc(peopleCol, id)).catch(function(e){ reportError("Couldn't remove that person.", e); });
+      queue({ kind: "person-delete", code: gid, id: id, name: personName(id) });
     }
 
-    function addExpense(desc, amount, paidBy, split){
-      addDoc(expensesCol, {
-        date: new Date().toISOString(),
-        desc: desc,
-        amount: amount,
-        paidBy: paidBy,
-        split: split
-      }).catch(function(e){ reportError("Couldn't save that expense.", e); });
+    function addExpense(desc, amountPaise, paidBy, split){
+      if(split.length > MAX_SPLIT){
+        alert("An expense can be split among at most " + MAX_SPLIT + " people.");
+        return false;
+      }
+      const body = { id: crypto.randomUUID(), date: new Date().toISOString(), desc: desc, amountPaise: amountPaise, paidBy: paidBy, split: split };
+      // The same checks the server makes, so nothing it would refuse is sent (F-6).
+      const problem = checkExpense(body, people.map(function(p){ return p.id; }));
+      if(problem){
+        alert(friendlyError({ code: "invalid-argument", field: problem }, "expense"));
+        return false;
+      }
+      queue(Object.assign({ kind: "expense", code: gid }, body));
+      return true;
     }
 
     function removeExpense(id){
-      deleteDoc(doc(expensesCol, id)).catch(function(e){ reportError("Couldn't delete that expense.", e); });
+      const exp = expenses.find(function(e){ return e.id === id; });
+      queue({ kind: "expense-delete", code: gid, id: id, desc: exp ? exp.desc : "" });
     }
 
     // ---------- events ----------
@@ -1135,7 +1299,12 @@
 
     document.getElementById("currency-input").addEventListener("change", function(ev){
       const v = ev.target.value.trim() || "₹";
-      setDoc(groupDocRef, { currency: v }, { merge: true }).catch(function(e){ reportError("Couldn't change the currency.", e); });
+      if(checkGroup({ currency: v })){
+        alert(friendlyError("invalid-argument"));
+        renderCurrency();
+        return;
+      }
+      queue({ kind: "group", code: gid, currency: v });
     });
 
     document.getElementById("add-expense-form").addEventListener("submit", function(ev){
@@ -1154,70 +1323,31 @@
       if(!paidBy){ alert("Add at least one person first."); return; }
       if(checked.length === 0){ alert("Pick at least one person to split with."); return; }
 
-      // Stored as a decimal number of rupees, as before: 9950 paise → 99.5.
-      addExpense(desc, amount.paise / 100, paidBy, checked);
+      // Sent as whole paise: ₹99.50 → 9950.
+      if(!addExpense(desc, amount.paise, paidBy, checked)) return;
 
       document.getElementById("exp-desc").value = "";
       document.getElementById("exp-amount").value = "";
     });
 
-    // ---------- live sync ----------
-
-    // The status says "live" only when the server has confirmed what's on screen (SF-009). Each
-    // listener also hears about metadata changes: data coming from this phone's cache, and
-    // changes the server hasn't confirmed yet.
-    const statusEl = document.getElementById("group-status");
-    const latest = { people: null, expenses: null, group: null };
-    let failed = false;
-    function updateStatus(){
-      const snaps = [latest.people, latest.expenses, latest.group].filter(Boolean);
-      statusEl.textContent = "· " + syncStatusText({
-        online: navigator.onLine,
-        heard: snaps.length === 3,
-        fromCache: snaps.some(function(s){ return s.metadata.fromCache; }),
-        pending: snaps.reduce(function(n, s){ return n + countPending(s); }, 0),
-        failed: failed
-      });
-    }
-    window.addEventListener("online", updateStatus);
-    window.addEventListener("offline", updateStatus);
-
-    // A listener that fails has stopped for good; its message is shown once.
-    function listenFailed(err){
-      if(!failed){
-        console.error("SplitFamilia: sync stopped", errorCode(err));
-        showNotice(friendlyError(err));
+    // ---------- start ----------
+    // The phone's copy first, so an offline open shows the group at once; then the live connection.
+    copy = joined || await store.getCopy(gid).catch(function(){ return null; });
+    if(joined) keepCopy();
+    await outbox.load();
+    // A new group is created with its currency straight away (or as soon as there's a connection).
+    // The live connection waits until the server has it, or it would find no such group.
+    if(isNew){
+      try{
+        await outbox.add({ kind: "group", code: gid, currency: "₹", create: true });
+      }catch(e){
+        showNotice("Couldn't keep that change on this phone. Try again.");
       }
-      failed = true;
-      updateStatus();
     }
-    const withMetadata = { includeMetadataChanges: true };
-
-    onSnapshot(peopleCol, withMetadata, function(snap){
-      latest.people = snap;
-      people = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
-      updateStatus();
-      renderAll();
-    }, listenFailed);
-
-    onSnapshot(expensesCol, withMetadata, function(snap){
-      latest.expenses = snap;
-      expenses = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
-      unsyncedExpenses = new Set(snap.docs.filter(function(d){ return d.metadata.hasPendingWrites; }).map(function(d){ return d.id; }));
-      updateStatus();
-      renderAll();
-    }, listenFailed);
-
-    onSnapshot(groupDocRef, withMetadata, function(snap){
-      latest.group = snap;
-      const data = snap.data();
-      currency = (data && data.currency) || "₹";
-      updateStatus();
-      renderAll();
-    }, listenFailed);
-
-    updateStatus();
-    renderAll();
+    render();
+    if(creating()) waitingForCreate = true;
+    else startWatch();
+    kick();
   }
 
   // ---------- PWA install ----------

@@ -14,16 +14,17 @@ today's line numbers differ; the commit reference never moves.
 T-03 (reviewed and accepted 2026-09-30; live on GitHub Pages and Railway since
 2026-09-29) addresses the SF-007 to SF-011 rows:
 
-- `firestore.rules` (15 of 15 emulator tests pass). **The rules aren't deployed yet**: that is
-  the owner's step in [FIRESTORE_RULES.md](FIRESTORE_RULES.md);
+- `firestore.rules` (15 of 15 emulator tests pass). They were never deployed, and T-09 removed
+  them with the rest of Firebase: the switch-over makes Firestore read-only, then the owner
+  deletes the project ([MOVE_FROM_FIREBASE.md](MOVE_FROM_FIREBASE.md));
 - offline start and a start-up failure panel;
 - honest sync status and plain error messages. A delete not yet confirmed isn't counted (T-03
   review F-5, fixed in SF-022);
 - the SplitFamilia name;
 - Railway hosting ([HOSTING_RAILWAY.md](HOSTING_RAILWAY.md)).
 
-T-08 (implemented 2026-09-30; not yet reviewed or deployed) changes three rows below. SF-021
-must re-check each:
+T-08 (reviewed and accepted 2026-09-30; deployed on Railway as `a8bffb8` the same day) changes
+three rows below. SF-021 must re-check each:
 - **"No own backend", "Production CORS: Not applicable" and "Environment variables":** the app
   now has its own server with a ledger API (`server/`). The page doesn't call it until T-09.
   - The API sends no CORS headers, so only the app's own pages can use it from a browser; a
@@ -32,6 +33,15 @@ must re-check each:
     `RAILWAY_ENVIRONMENT`). None of them is a secret.
 - **Database configuration:** a SQLite database on a Railway volume, which the owner creates
   (HOSTING_RAILWAY.md section 3a). The API applies the same limits the Firestore rules did.
+
+T-09 (implemented 2026-09-30; not yet reviewed or switched over) changes these for SF-021:
+- **Firebase:** the page loads no Firebase SDK and holds no Firebase config or key; the repo has
+  no rules, `firebase.json` or Firebase dependency (`npm test` checks). The only other site the
+  page contacts is Google Fonts (until SF-025).
+- **Environment variables:** `IMPORT_TOKEN` is a secret, set in Railway only for the move and
+  removed after it (MOVE_FROM_FIREBASE.md steps 2 and 6). It is never committed or logged.
+- **Local storage:** the phone keeps a copy of its group and its waiting changes in IndexedDB
+  (`outbox.js`); `localStorage` still holds only the current group's code.
 
 A row counts as fixed only once its task is reviewed and deployed. SF-021 re-checks every row.
 
