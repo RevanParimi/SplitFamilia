@@ -4,13 +4,30 @@
 
 **0. The plan is approved** (`plan_status: approved`). "Continue" means the next step below.
 
-**1. Run due `pending_checks`.** **PC-004 is due:** T-01 to T-03 were pushed to `main` on
-2026-09-29 about 16:40 IST (GitHub Pages). If its result isn't recorded yet, do step 1 (fetch the
-live files) and ask the owner for step 2 (open the family group on the phone). PC-002 (after the
+**1. Run due `pending_checks`.** **PC-004 is half done:** commit `6f3b3fe` (T-01 to T-03) was
+pushed to `main` at 16:39 IST on 2026-09-29, and step 1 passed at 16:41 IST (the live site serves
+v5, byte-identical to the commit). Ask the owner for step 2 (open the family group on the phone)
+and record it.
+**PC-003 is mostly done:** the Railway service is live at **`https://splitfamilia.up.railway.app`**
+(renamed by the owner; recorded in T-05's note). Steps 1, 2 and 5 pass there, and a new test group
+reached "· live". Still to ask: step 3 with the family group's own invite link, and step 4 (add
+and delete a test expense).
+
+**UI design (SF-028):** the owner designed the look in Claude Design from
+`docs/design/CLAUDE_DESIGN_PROMPT.md` (prompt 1, then follow-up 2: more colour, fewer options).
+"SplitFamilia Prototype v2" is approved, palette **indigo-saffron**. The export is in the repo
+(2026-09-30): `docs/design/DESIGN_NOTES.md` (the spec),
+`docs/design/prototype/SplitFamilia-Prototype-v2.html` (a React bundle for viewing only) and
+`docs/design/playstore-mockups/` (mock-ups plus a feature graphic with transparency), with
+Claude Design's editable sources in `docs/design/source/`; `docs/design/README.md` explains the
+folder. SF-028's
+and SF-015's cards say how T-04 uses them. Store screenshots still come from the real app. PC-002 (after the
 owner's rules deploy) and PC-003 (after the first Railway deploy) wait on owner actions. Ask the
 owner only if they say they did one.
 
-**2. No open decisions.** D-11 was answered on 2026-09-29: the owner installed Java 21 (Temurin).
+**2. One open decision, not blocking:** D-12 (move the app's files into `web/` for a tidier
+repo, only after the phones leave GitHub Pages). No task waits on it. `README.md` is now the
+repo's map (2026-09-30).
 
 **3. Next: a fresh-session review of T-03** (all five stories, SF-007 to SF-011), with
 [REVIEW.md](REVIEW.md), from [evidence/T-03-implementation.md](evidence/T-03-implementation.md).
@@ -113,6 +130,13 @@ review. If the review requests changes, they ship in a later push (the owner's w
     script to the scratchpad and run it.
 
 ## Last session
+
+- **2026-09-29 16:45 IST to 2026-09-30 (same chat, after the push of `6f3b3fe`):** the owner set
+  up Railway (`splitfamilia.up.railway.app`, PC-003 steps 1, 2 and 5 pass), designed the new UI
+  in Claude Design (saved in `docs/design/`, palette indigo-saffron, SF-028 and SF-015 cards
+  updated), and asked for a tidier repo: `README.md` became the repo map, and moving the app into
+  `web/` is D-12. All of it committed and pushed on the owner's word ("commit and push",
+  2026-09-30); docs only, no app file changed.
 
 - **2026-09-29, about 16:36–16:45 IST (same chat):** the owner said "commit and push". Staged
   tree scanned first: only the public Firebase web key and Google's placeholder address; one

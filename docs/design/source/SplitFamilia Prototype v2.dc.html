@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--bg:#FFFFFF;--surface:#F6F5F2;--line:#E7E4DE;--line-strong:#8E877D;--ink:#1C1A18;--ink-soft:#56514B;--ink-faint:#6E6860;--good:#157347;--good-soft:#E5F4EB;--owe:#C0392B;--owe-soft:#FDECE9;--brand:#4F46E5;--brand-press:#4038C9;--brand-soft:#ECEBFE;--accent:#F4A51C;--accent-soft:#FFF3D9;--accent-ink:#8A5300;--font-head:"Plus Jakarta Sans",system-ui,sans-serif;--font:"Inter",system-ui,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;height:100%}
+body{background:#ECEAE6;color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus{outline:none}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+input::placeholder{color:var(--ink-faint);opacity:1}
+a{color:var(--brand)}
+a:hover{color:var(--ink)}
+@keyframes sf-fade{from{opacity:0}to{opacity:1}}
+@keyframes sf-up{from{transform:translateY(32px);opacity:0}to{transform:none;opacity:1}}
+@keyframes sf-bar{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+@keyframes sf-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes sf-spin{to{transform:rotate(360deg)}}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="display:{{ rootDisplay }}; flex-wrap:wrap; gap:24px; padding:{{ rootPad }}; justify-content:center; align-items:flex-start; min-height:100%; height:{{ rootH }}; background:{{ rootBg }}; font-variant-numeric:tabular-nums">
+
+<sc-if value="{{ chrome }}" hint-placeholder-val="{{ true }}">
+<nav aria-label="Prototype screens" style="flex:none; width:268px; max-width:100%; background:var(--bg); border:1px solid var(--line); border-radius:16px; padding:18px 14px 14px; font-size:13px">
+  <div style="padding:0 6px 12px; border-bottom:1px solid var(--line); margin-bottom:12px">
+    <div style="font-family:var(--font-head); font-size:18px; font-weight:800">SplitFamilia v2</div>
+    <div style="color:var(--ink-soft)">Simpler, friendlier · every state</div>
+  </div>
+  <div style="padding:0 6px 6px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)">Frame width</div>
+  <div style="display:flex; gap:4px; padding:0 2px 14px">
+    <sc-for list="{{ widths }}" as="w" hint-placeholder-count="4">
+      <button onClick="{{ w.onClick }}" aria-pressed="{{ w.active }}" style="flex:1; min-height:36px; border:1px solid var(--line); border-radius:8px; background:{{ w.bg }}; color:{{ w.color }}; font-size:12px; font-weight:600">{{ w.label }}</button>
+    </sc-for>
+  </div>
+  <sc-for list="{{ presetGroups }}" as="grp" hint-placeholder-count="6">
+    <div style="margin-bottom:10px">
+      <div style="padding:4px 6px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint)">{{ grp.g }}</div>
+      <sc-for list="{{ grp.items }}" as="it" hint-placeholder-count="3">
+        <button onClick="{{ it.onClick }}" style="display:block; width:100%; text-align:left; min-height:34px; padding:6px 8px; border:0; border-radius:8px; background:{{ it.bg }}; color:{{ it.color }}; font-weight:{{ it.weight }}; font-size:13px">{{ it.label }}</button>
+      </sc-for>
+    </div>
+  </sc-for>
+  <div style="border-top:1px solid var(--line); margin-top:6px; padding:12px 6px 2px; display:flex; flex-direction:column; gap:6px">
+    <a href="Design Notes.dc.html" style="font-weight:600">Design notes →</a>
+    <a href="Play Store Screenshots.dc.html" style="font-weight:600">Play Store screenshots →</a>
+    <a href="SplitFamilia Prototype.dc.html" style="color:var(--ink-soft)">Previous version (v1)</a>
+  </div>
+</nav>
+</sc-if>
+
+<div style="position:relative; flex:none; width:{{ frameW }}; max-width:100%; height:{{ frameH }}; overflow:hidden; background:var(--bg); border-radius:{{ frameRadius }}; box-shadow:{{ frameShadow }}">
+<div ref="{{ scrollerRef }}" style="position:absolute; inset:0; overflow-y:auto; overflow-x:hidden; scrollbar-width:{{ scrollbarW }}">
+
+<sc-if value="{{ isLoading }}">
+  <div role="status" aria-live="polite" style="min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; padding:24px; text-align:center">
+    <div style="display:flex; align-items:center; gap:12px">
+      <span aria-hidden="true" style="width:40px; height:40px; border-radius:14px; background:var(--brand); position:relative; overflow:hidden"><span style="position:absolute; right:-10px; bottom:-10px; width:30px; height:30px; border-radius:50%; background:var(--accent)"></span></span>
+      <span style="font-family:var(--font-head); font-size:30px; font-weight:800; letter-spacing:-0.02em">SplitFamilia</span>
+    </div>
+    <div style="width:120px; height:4px; background:var(--brand-soft); border-radius:4px; overflow:hidden"><div style="width:40%; height:100%; border-radius:4px; background:var(--brand); animation:sf-bar 1.3s ease-in-out infinite"></div></div>
+    <p style="margin:0; font-size:14px; color:var(--ink-faint)">Loading…</p>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isFailed }}">
+  <div style="min-height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px; text-align:center">
+    <div style="display:flex; align-items:center; gap:12px">
+      <span aria-hidden="true" style="width:40px; height:40px; border-radius:14px; background:var(--brand); position:relative; overflow:hidden"><span style="position:absolute; right:-10px; bottom:-10px; width:30px; height:30px; border-radius:50%; background:var(--accent)"></span></span>
+      <span style="font-family:var(--font-head); font-size:30px; font-weight:800; letter-spacing:-0.02em">SplitFamilia</span>
+    </div>
+    <div role="alert" style="display:flex; flex-direction:column; align-items:center; gap:18px; margin-top:28px; max-width:300px">
+      <span aria-hidden="true" style="width:56px; height:56px; border-radius:50%; background:var(--surface); display:grid; place-items:center; color:var(--ink-soft)"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20"></path><path d="M8.5 16.5a5 5 0 0 1 7 0"></path><path d="M5 12.9a10 10 0 0 1 5.2-2.8"></path><path d="M19 12.9a10 10 0 0 0-2.2-1.6"></path><path d="M12 20h.01"></path></svg></span>
+      <p style="margin:0; font-size:16px; line-height:1.5; color:var(--ink-soft); text-wrap:pretty">Can't reach SplitFamilia. Check your connection.</p>
+      <button onClick="{{ retry }}" style="min-height:52px; min-width:160px; padding:0 24px; border:0; border-radius:16px; background:var(--brand); color:#fff; font-weight:700; font-size:16px" style-hover="background:var(--brand-press)">Retry</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ isWelcome }}">
+  <main style="max-width:480px; min-height:100%; margin:0 auto; display:flex; flex-direction:column; padding:calc(env(safe-area-inset-top) + 36px) max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 24px) max(20px, env(safe-area-inset-left))">
+    <div style="display:flex; align-items:center; gap:12px">
+      <span aria-hidden="true" style="flex:none; width:40px; height:40px; border-radius:14px; background:var(--brand); position:relative; overflow:hidden"><span style="position:absolute; right:-10px; bottom:-10px; width:30px; height:30px; border-radius:50%; background:var(--accent)"></span></span>
+      <h1 style="margin:0; font-family:var(--font-head); font-size:30px; line-height:1.1; font-weight:800; letter-spacing:-0.02em">SplitFamilia</h1>
+    </div>
+    <p style="margin:10px 0 0; font-size:16px; color:var(--ink-soft)">a running ledger for shared costs</p>
+
+    <sc-if value="{{ hasGroups }}">
+      <section aria-labelledby="sf-yg" style="margin-top:32px">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px">
+          <h2 id="sf-yg" style="margin:0; font-family:var(--font-head); font-size:18px; font-weight:800">Your groups</h2>
+          <button onClick="{{ toggleEditGroups }}" style="min-height:44px; padding:0 12px; margin-right:-12px; border:0; border-radius:12px; background:none; color:var(--brand); font-weight:600; font-size:14px" style-hover="background:var(--brand-soft)">{{ editGroupsLabel }}</button>
+        </div>
+        <sc-if value="{{ editGroups }}"><p style="margin:0 0 10px; font-size:13px; line-height:1.45; color:var(--ink-soft); text-wrap:pretty">Removing a group only takes it off this device. The group itself isn't deleted, and its invite link still works.</p></sc-if>
+        <ul style="list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:18px; overflow:hidden">
+          <sc-for list="{{ groupsList }}" as="g" hint-placeholder-count="3">
+            <li style="display:flex; align-items:center; border-top:{{ g.border }}">
+              <button onClick="{{ g.open }}" disabled="{{ editGroups }}" style="flex:1; min-width:0; display:flex; align-items:center; gap:14px; text-align:left; min-height:72px; padding:12px 12px 12px 14px; border:0; background:none; cursor:{{ g.cursor }}" style-hover="background:var(--surface)">
+                <span aria-hidden="true" style="flex:none; width:44px; height:44px; border-radius:14px; display:grid; place-items:center; background:var(--brand-soft); color:var(--brand); font-family:var(--font-head); font-weight:800; font-size:18px">{{ g.initial }}</span>
+                <span style="flex:1; min-width:0">
+                  <span style="display:block; font-size:16px; font-weight:600; line-height:1.35; overflow-wrap:anywhere">{{ g.name }}</span>
+                  <span style="display:block; font-size:13px; color:var(--ink-soft); margin-top:2px">Opened {{ g.opened }}</span>
+                </span>
+                <sc-if value="{{ g.showChevron }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg></sc-if>
+              </button>
+              <sc-if value="{{ editGroups }}"><button onClick="{{ g.remove }}" aria-label="Remove {{ g.name }} from this device" style="flex:none; min-height:44px; margin-right:10px; padding:0 12px; border:1px solid var(--owe); border-radius:12px; background:var(--bg); color:var(--owe); font-size:13px; font-weight:600; line-height:1.2; max-width:132px; text-align:center" style-hover="background:var(--owe-soft)">Remove from this device</button></sc-if>
+            </li>
+          </sc-for>
+        </ul>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ noGroups }}">
+      <div style="margin-top:32px; padding:24px 20px; border-radius:22px; background:var(--accent-soft)">
+        <div aria-hidden="true" style="display:flex; margin-bottom:16px">
+          <span style="width:44px; height:44px; border-radius:50%; background:#FFE3D8; color:#9C3514; border:3px solid var(--accent-soft); display:grid; place-items:center; font-family:var(--font-head); font-weight:800">A</span>
+          <span style="width:44px; height:44px; margin-left:-10px; border-radius:50%; background:#D6F1EA; color:#0B5E55; border:3px solid var(--accent-soft); display:grid; place-items:center; font-family:var(--font-head); font-weight:800">B</span>
+          <span style="width:44px; height:44px; margin-left:-10px; border-radius:50%; background:#E3E1FF; color:#4133B8; border:3px solid var(--accent-soft); display:grid; place-items:center; font-family:var(--font-head); font-weight:800">C</span>
+        </div>
+        <p style="margin:0; font-family:var(--font-head); font-size:20px; line-height:1.25; font-weight:800; color:var(--ink)">Share costs, not headaches.</p>
+        <p style="margin:6px 0 0; font-size:15px; line-height:1.5; color:var(--ink-soft); text-wrap:pretty">Start a group for a trip or an occasion. Everyone logs what they paid, and SplitFamilia shows who owes whom.</p>
+      </div>
+    </sc-if>
+
+    <div style="flex:1; min-height:32px"></div>
+    <div style="display:flex; flex-direction:column; gap:10px">
+      <button onClick="{{ openNewGroup }}" style="min-height:56px; border:0; border-radius:16px; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:700" style-hover="background:var(--brand-press)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Start a new group</button>
+      <button onClick="{{ openJoin }}" style="min-height:56px; border:1.5px solid var(--brand); border-radius:16px; background:var(--bg); color:var(--brand); display:flex; align-items:center; justify-content:center; gap:8px; font-size:16px; font-weight:700" style-hover="background:var(--brand-soft)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"></path><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"></path></svg>Join with a link</button>
+    </div>
+  </main>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+  <header style="background:var(--brand); color:#fff; padding:calc(env(safe-area-inset-top) + 8px) max(16px, env(safe-area-inset-right)) 18px max(20px, env(safe-area-inset-left))">
+    <div style="max-width:{{ homeMax }}; margin:0 auto">
+      <div style="display:flex; align-items:center; gap:8px; min-height:52px">
+        <button onClick="{{ openMenu }}" aria-label="{{ menuAria }}" style="flex:1; min-width:0; min-height:48px; display:flex; align-items:center; gap:6px; padding:4px 0; border:0; background:none; color:#fff; text-align:left">
+          <h1 style="margin:0; min-width:0; font-family:var(--font-head); font-size:26px; line-height:1.2; font-weight:800; letter-spacing:-0.015em; overflow-wrap:anywhere">{{ groupName }}</h1>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="m6 9 6 6 6-6"></path></svg>
+        </button>
+        <sc-if value="{{ syncQuiet }}"><span role="status" title="{{ syncText }}" style="flex:none; width:44px; height:44px; display:grid; place-items:center"><span aria-hidden="true" style="width:10px; height:10px; border-radius:50%; background:#fff; box-shadow:0 0 0 3px rgba(255,255,255,.28); animation:{{ syncAnim }}"></span><span style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)">Sync status: {{ syncText }}</span></span></sc-if>
+        <button onClick="{{ openMenu }}" aria-label="Group menu" style="flex:none; width:44px; height:44px; border:0; border-radius:50%; background:rgba(255,255,255,.16); color:#fff; display:grid; place-items:center" style-hover="background:rgba(255,255,255,.26)"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"></circle><circle cx="12" cy="12" r="2"></circle><circle cx="19" cy="12" r="2"></circle></svg></button>
+      </div>
+      <sc-if value="{{ syncLoud }}"><div role="status" aria-live="polite" style="display:inline-flex; align-items:center; gap:8px; max-width:100%; margin-top:2px; padding:5px 12px 5px 10px; border-radius:999px; background:{{ syncBg }}; color:{{ syncColor }}; font-size:13px; line-height:1.35; font-weight:600"><span aria-hidden="true" style="flex:none; width:8px; height:8px; border-radius:50%; background:{{ syncDot }}"></span><span>{{ syncText }}</span></div></sc-if>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:12px">
+        <sc-if value="{{ hasPeople }}">
+          <button onClick="{{ openPeople }}" aria-label="{{ peopleAria }}" style="display:flex; align-items:center; min-height:44px; padding:0; border:0; background:none">
+            <sc-for list="{{ headAvatars }}" as="h" hint-placeholder-count="4"><span aria-hidden="true" style="flex:none; width:36px; height:36px; margin-left:{{ h.ml }}; border-radius:50%; border:2px solid var(--brand); display:grid; place-items:center; background:{{ h.bg }}; color:{{ h.fg }}; font-family:var(--font-head); font-weight:800; font-size:14px">{{ h.i }}</span></sc-for>
+          </button>
+        </sc-if>
+        <button onClick="{{ openPeopleAdd }}" aria-label="Add a person" style="flex:none; width:44px; height:44px; border:2px dashed rgba(255,255,255,.7); border-radius:50%; background:none; color:#fff; display:grid; place-items:center" style-hover="background:rgba(255,255,255,.14)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg></button>
+        <span style="font-size:14px; font-weight:500; color:#fff">{{ peopleCountText }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div style="display:grid; grid-template-columns:{{ homeCols }}; column-gap:32px; max-width:{{ homeMax }}; margin:0 auto; padding:0 max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 120px) max(20px, env(safe-area-inset-left))">
+    <div style="min-width:0">
+      <sc-if value="{{ showGuide }}">
+        <section aria-labelledby="sf-guide" style="margin-top:20px; padding:20px; border-radius:22px; background:var(--accent-soft)">
+          <div style="display:flex; align-items:center; gap:10px">
+            <span style="font-size:13px; font-weight:700; color:var(--accent-ink)">Step {{ stepNum }} of 3</span>
+            <span aria-hidden="true" style="display:flex; gap:4px">
+              <sc-for list="{{ stepDots }}" as="d" hint-placeholder-count="3"><span style="width:22px; height:5px; border-radius:3px; background:{{ d.bg }}"></span></sc-for>
+            </span>
+          </div>
+          <h2 id="sf-guide" style="margin:10px 0 0; font-family:var(--font-head); font-size:21px; line-height:1.25; font-weight:800">{{ stepTitle }}</h2>
+          <p style="margin:6px 0 0; font-size:15px; line-height:1.5; color:var(--ink-soft); text-wrap:pretty">{{ stepBody }}</p>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-top:16px">
+            <button onClick="{{ stepGo }}" style="min-height:48px; padding:0 20px; border:0; border-radius:14px; background:var(--ink); color:#fff; font-size:15px; font-weight:700" style-hover="background:#35312D">{{ stepAction }}</button>
+            <sc-if value="{{ stepSkippable }}"><button onClick="{{ skipInvite }}" style="min-height:48px; padding:0 14px; border:0; border-radius:14px; background:none; color:var(--accent-ink); font-size:15px; font-weight:600">Not now</button></sc-if>
+          </div>
+        </section>
+      </sc-if>
+
+      <sc-if value="{{ showBalances }}" hint-placeholder-val="{{ true }}">
+        <section aria-labelledby="sf-bal" style="margin-top:24px">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:8px; margin-bottom:10px">
+            <h2 id="sf-bal" style="margin:0; font-family:var(--font-head); font-size:18px; font-weight:800">Balances</h2>
+            <sc-if value="{{ hasBalances }}"><span style="font-size:13px; color:var(--ink-faint)">Tap one to record a payment</span></sc-if>
+          </div>
+          <sc-if value="{{ settled }}">
+            <div role="status" style="display:flex; align-items:center; gap:14px; padding:18px; border-radius:20px; background:var(--good-soft)">
+              <span aria-hidden="true" style="flex:none; width:48px; height:48px; border-radius:50%; background:var(--good); color:#fff; display:grid; place-items:center"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.5 13.5a4 4 0 0 0 7 0"></path><path d="M9 9.5h.01M15 9.5h.01"></path></svg></span>
+              <span><span style="display:block; font-family:var(--font-head); font-size:20px; font-weight:800; color:var(--good)">All settled up.</span><span style="display:block; font-size:14px; color:var(--ink-soft)">Nobody owes anybody.</span></span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ hasBalances }}" hint-placeholder-val="{{ true }}">
+            <ul style="list-style:none; margin:0; padding:0; border:1px solid var(--line); border-radius:20px; overflow:hidden">
+              <sc-for list="{{ balances }}" as="b" hint-placeholder-count="2">
+                <li style="border-top:{{ b.border }}">
+                  <button onClick="{{ b.pay }}" aria-label="{{ b.aria }}" style="width:100%; display:flex; align-items:center; gap:12px; min-height:64px; padding:12px 12px 12px 14px; border:0; background:var(--bg); text-align:left" style-hover="background:var(--surface)">
+                    <span aria-hidden="true" style="flex:none; width:36px; height:36px; border-radius:50%; display:grid; place-items:center; background:{{ b.av.bg }}; color:{{ b.av.fg }}; font-family:var(--font-head); font-weight:800; font-size:14px">{{ b.av.i }}</span>
+                    <span style="flex:1; min-width:0; font-size:16px; line-height:1.4; overflow-wrap:anywhere"><strong style="font-weight:600">{{ b.from }}</strong> owes <strong style="font-weight:600">{{ b.to }}</strong></span>
+                    <span style="flex:none; font-size:16px; font-weight:700; color:var(--owe); white-space:nowrap; text-align:right">{{ b.amount }}</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none"><path d="m9 6 6 6-6 6"></path></svg>
+                  </button>
+                </li>
+              </sc-for>
+            </ul>
+          </sc-if>
+        </section>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ hasExpenses }}" hint-placeholder-val="{{ true }}">
+      <section ref="{{ ledgerRef }}" aria-labelledby="sf-exp" style="margin-top:28px; min-width:0">
+        <h2 id="sf-exp" style="margin:0 0 4px; font-family:var(--font-head); font-size:18px; font-weight:800">Expenses</h2>
+        <ol style="list-style:none; margin:0; padding:0">
+          <sc-for list="{{ ledger }}" as="r" hint-placeholder-count="5">
+            <li style="border-bottom:1px solid var(--line)">
+              <button onClick="{{ r.open }}" aria-label="{{ r.aria }}" style="width:100%; display:grid; grid-template-columns:40px minmax(0,1fr) auto; column-gap:12px; align-items:center; min-height:68px; padding:12px 6px; margin:0 -6px; border:0; border-radius:14px; background:none; text-align:left" style-hover="background:var(--surface)">
+                <span aria-hidden="true" style="position:relative; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:{{ r.av.bg }}; color:{{ r.av.fg }}; font-family:var(--font-head); font-weight:800; font-size:15px">{{ r.av.i }}<sc-if value="{{ r.isPayment }}"><span style="position:absolute; right:-3px; bottom:-3px; width:20px; height:20px; border-radius:50%; background:var(--good); border:2px solid var(--bg); color:#fff; display:grid; place-items:center"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span></sc-if></span>
+                <span style="min-width:0">
+                  <span style="display:block; font-size:16px; line-height:1.35; font-weight:600; color:{{ r.titleColor }}; overflow-wrap:anywhere; text-wrap:pretty">{{ r.title }}</span>
+                  <span style="display:block; margin-top:2px; font-size:13px; line-height:1.4; color:var(--ink-soft); overflow-wrap:anywhere">{{ r.meta }}</span>
+                  <sc-if value="{{ r.pending }}"><span style="display:inline-flex; align-items:center; gap:5px; margin-top:5px; padding:1px 9px 1px 7px; border-radius:999px; background:var(--surface); font-size:12px; font-weight:500; line-height:1.6; color:var(--ink-soft)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>waiting to sync</span></sc-if>
+                </span>
+                <span style="font-size:15px; font-weight:700; text-align:right; white-space:nowrap; color:{{ r.amtColor }}">{{ r.amount }}</span>
+              </button>
+            </li>
+          </sc-for>
+        </ol>
+      </section>
+    </sc-if>
+  </div>
+</sc-if>
+</div>
+
+<sc-if value="{{ showAddBar }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute; left:0; right:0; bottom:0; z-index:10; display:flex; justify-content:center; padding:12px max(20px, env(safe-area-inset-right)) calc(env(safe-area-inset-bottom) + 14px) max(20px, env(safe-area-inset-left)); background:linear-gradient(rgba(255,255,255,0), #fff 30%)">
+    <button onClick="{{ openAdd }}" style="width:100%; max-width:560px; min-height:56px; border:0; border-radius:18px; background:var(--brand); color:#fff; display:flex; align-items:center; justify-content:center; gap:8px; font-size:17px; font-weight:700; box-shadow:0 8px 24px rgba(28,26,24,.18)" style-hover="background:var(--brand-press)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>Add expense</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ hasMessage }}">
+  <div role="alert" style="position:absolute; left:12px; right:12px; bottom:{{ msgBottom }}; z-index:40; max-width:560px; margin:0 auto; display:flex; align-items:flex-start; gap:10px; padding:10px 4px 10px 14px; border-radius:16px; background:var(--owe-soft); border:1px solid var(--owe); color:var(--owe); box-shadow:0 8px 28px rgba(28,26,24,.14); animation:sf-up .22s ease">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:13px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>
+    <p style="flex:1; min-width:0; margin:0; padding:10px 0; font-size:14px; line-height:1.45; font-weight:600; text-wrap:pretty">{{ message }}</p>
+    <button onClick="{{ closeMessage }}" aria-label="Dismiss message" style="flex:none; width:44px; height:44px; border:0; border-radius:12px; background:none; color:var(--owe); display:grid; place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ anySheet }}">
+  <div onClick="{{ onScrim }}" style="position:absolute; inset:0; z-index:20; display:flex; flex-direction:column; justify-content:{{ sheetJustify }}; align-items:center; padding:{{ sheetPad }}; background:rgba(28,26,24,.42); animation:sf-fade .18s ease">
+    <div role="dialog" aria-modal="true" aria-labelledby="sf-sheet-title" style="width:100%; max-width:{{ sheetMax }}; max-height:94%; display:flex; flex-direction:column; background:var(--bg); border-radius:{{ sheetRadius }}; box-shadow:0 -10px 40px rgba(28,26,24,.2); animation:sf-up .26s cubic-bezier(.2,.8,.2,1)">
+      <div style="flex:none; padding:8px 8px 0 20px">
+        <div aria-hidden="true" style="width:40px; height:5px; margin:0 auto 4px; border-radius:3px; background:var(--line)"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px">
+          <h2 id="sf-sheet-title" style="margin:0; min-width:0; font-family:var(--font-head); font-size:22px; line-height:1.25; font-weight:800; overflow-wrap:anywhere">{{ sheetTitle }}</h2>
+          <button type="button" onClick="{{ closeSheet }}" aria-label="Close" style="flex:none; width:44px; height:44px; border:0; border-radius:50%; background:var(--surface); color:var(--ink-soft); display:grid; place-items:center"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"></path></svg></button>
+        </div>
+      </div>
+
+      <sc-if value="{{ isMenu }}">
+        <div style="overflow-y:auto; padding:8px 12px calc(env(safe-area-inset-bottom) + 16px)">
+          <button onClick="{{ openPeople }}" style="width:100%; display:flex; align-items:center; gap:14px; min-height:64px; padding:10px 8px; border:0; border-radius:16px; background:none; text-align:left" style-hover="background:var(--surface)">
+            <span aria-hidden="true" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:grid; place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0"></path><path d="M16 4.5a3.5 3.5 0 0 1 0 7"></path><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"></path></svg></span>
+            <span style="flex:1; min-width:0"><span style="display:block; font-size:16px; font-weight:600">People</span><span style="display:block; font-size:13px; color:var(--ink-soft); overflow-wrap:anywhere">{{ peopleNames }}</span></span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--ink-faint)" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"></path></svg>
+          </button>
+          <button onClick="{{ copyLink }}" style="width:100%; display:flex; align-items:center; gap:14px; min-height:64px; padding:10px 8px; border:0; border-radius:16px; background:none; text-align:left" style-hover="background:var(--surface)">
+            <span aria-hidden="true" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:grid; place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"></path><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"></path></svg></span>
+            <span style="flex:1; min-width:0"><span aria-live="polite" style="display:block; font-size:16px; font-weight:600">{{ copyLabel }}</span><span style="display:block; font-size:13px; color:var(--ink-soft)">Send it to everyone in the group</span></span>
+          </button>
+          <label for="sf-cur" style="display:flex; align-items:center; gap:14px; min-height:64px; padding:10px 8px; border-radius:16px; cursor:text">
+            <span aria-hidden="true" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--brand-soft); color:var(--brand); display:grid; place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10M7 9.5h10M10 5c4.5 0 4.5 9-1 9H7l7 6"></path></svg></span>
+            <span style="flex:1; min-width:0"><span style="display:block; font-size:16px; font-weight:600">Currency symbol</span><span style="display:block; font-size:13px; color:var(--ink-soft)">Shown before every amount</span></span>
+            <input id="sf-cur" type="text" maxlength="3" value="{{ currency }}" onChange="{{ onCurrency }}" style="flex:none; width:60px; height:48px; text-align:center; border:1px solid var(--line-strong); border-radius:12px; background:var(--bg); font-size:18px; font-weight:700">
+          </label>
+          <button onClick="{{ goWelcome }}" style="width:100%; display:flex; align-items:center; gap:14px; min-height:64px; padding:10px 8px; border:0; border-radius:16px; background:none; text-align:left" style-hover="background:var(--surface)">
+            <span aria-hidden="true" style="flex:none; width:44px; height:44px; border-radius:50%; background:var(--surface); color:var(--ink-soft); display:grid; place-items:center"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"></path><path d="M4 7h16"></path><path d="m16 21 4-4-4-4"></path><path d="M20 17H4"></path></svg></span>
+            <span style="flex:1; min-width:0"><span style="display:block; font-size:16px; font-weight:600">Switch group</span><span style="display:block; font-size:13px; color:var(--ink-soft)">Your other groups on this device</span></span>
+          </button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isPeopleSheet }}">
+        <div style="overflow-y:auto; padding:4px 20px calc(env(safe-area-inset-bottom) + 20px)">
+          <sc-if value="{{ noPeople }}"><p style="margin:8px 0 0; font-size:15px; color:var(--ink-soft); text-wrap:pretty">No one here yet. Add everyone who's sharing costs, one at a time.</p></sc-if>
+          <ul style="list-style:none; margin:4px 0 0; padding:0">
+            <sc-for list="{{ peopleList }}" as="p" hint-placeholder-count="4">
+              <li style="border-bottom:1px solid var(--line); padding:6px 0">
+                <div style="display:flex; align-items:center; gap:12px; min-height:52px">
+                  <span aria-hidden="true" style="flex:none; width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background:{{ p.av.bg }}; color:{{ p.av.fg }}; font-family:var(--font-head); font-weight:800; font-size:15px">{{ p.av.i }}</span>
+                  <span style="flex:1; min-width:0; font-size:16px; font-weight:600; overflow-wrap:anywhere">{{ p.name }}</span>
+                  <button onClick="{{ p.remove }}" aria-label="Remove {{ p.name }}" aria-describedby="{{ p.describedBy }}" style="flex:none; min-height:44px; padding:0 14px; border:0; border-radius:12px; background:none; color:var(--owe); font-size:14px; font-weight:600" style-hover="background:var(--owe-soft)">Remove</button>
+                </div>
+                <sc-if value="{{ p.blocked }}"><p id="sf-person-err" role="alert" style="display:flex; gap:8px; align-items:flex-start; margin:4px 0 6px; padding:10px 12px; border-radius:12px; background:var(--owe-soft); font-size:14px; line-height:1.45; color:var(--owe); text-wrap:pretty"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg><span>Can't remove someone who appears in an expense. Delete their expenses first.</span></p></sc-if>
+              </li>
+            </sc-for>
+          </ul>
+          <form onSubmit="{{ addPerson }}" novalidate="" style="margin-top:20px">
+            <label for="sf-person" style="display:block; font-size:14px; font-weight:600; margin-bottom:6px">Add a person</label>
+            <div style="display:flex; gap:8px">
+              <input ref="{{ personInputRef }}" id="sf-person" type="text" maxlength="60" autocomplete="off" value="{{ newPerson }}" onChange="{{ onNewPerson }}" placeholder="Name" style="flex:1; min-width:0; min-height:52px; padding:0 16px; font-size:16px; background:var(--bg); border:1px solid var(--line-strong); border-radius:14px">
+              <button type="submit" style="flex:none; min-height:52px; min-width:76px; padding:0 18px; border:0; border-radius:14px; background:var(--brand); color:#fff; font-weight:700; font-size:15px" style-hover="background:var(--brand-press)">Add</button>
+            </div>
+          </form>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isNewGroup }}">
+        <form onSubmit="{{ startGroup }}" novalidate="" style="flex:1; min-height:0; display:flex; flex-direction:column">
+          <div style="overflow-y:auto; padding:8px 20px 20px">
+            <label for="sf-newname" style="display:block; font-size:14px; font-weight:600; margin-bottom:6px">Group name</label>
+            <input id="sf-newname" type="text" maxlength="60" autocomplete="off" value="{{ newName }}" onChange="{{ onNewName }}" placeholder="e.g. Weekend away" aria-invalid="{{ newInvalid }}" aria-describedby="sf-newname-err" style="width:100%; min-height:52px; padding:0 16px; font-size:16px; background:var(--bg); border:1px solid {{ newBorder }}; border-radius:14px">
+            <sc-if value="{{ newErr }}"><p id="sf-newname-err" style="display:flex; gap:6px; align-items:flex-start; margin:8px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ newErr }}</p></sc-if>
+            <p style="margin:10px 0 0; font-size:14px; color:var(--ink-soft); text-wrap:pretty">Name it after the trip or the occasion. Next you'll add the people.</p>
+          </div>
+          <div style="flex:none; padding:12px 20px calc(env(safe-area-inset-bottom) + 14px)"><button type="submit" style="width:100%; min-height:56px; border:0; border-radius:16px; background:var(--brand); color:#fff; font-size:16px; font-weight:700" style-hover="background:var(--brand-press)">Start group</button></div>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{ isJoin }}">
+        <form onSubmit="{{ joinGroup }}" novalidate="" style="flex:1; min-height:0; display:flex; flex-direction:column">
+          <div style="overflow-y:auto; padding:8px 20px 20px">
+            <label for="sf-joincode" style="display:block; font-size:14px; font-weight:600; margin-bottom:6px">Invite link or code</label>
+            <input id="sf-joincode" type="text" autocomplete="off" autocapitalize="none" spellcheck="false" value="{{ joinValue }}" onChange="{{ onJoin }}" readonly="{{ joinBusy }}" placeholder="Paste it here" aria-invalid="{{ joinInvalid }}" aria-describedby="sf-join-err" style="width:100%; min-height:52px; padding:0 16px; font-size:15px; background:var(--bg); border:1px solid {{ joinBorder }}; border-radius:14px; text-overflow:ellipsis">
+            <sc-if value="{{ joinErr }}"><p id="sf-join-err" role="alert" style="display:flex; gap:6px; align-items:flex-start; margin:8px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ joinErr }}</p></sc-if>
+            <p style="margin:10px 0 0; font-size:14px; color:var(--ink-soft); text-wrap:pretty">Someone in the group can send it from their group menu.</p>
+          </div>
+          <div style="flex:none; padding:12px 20px calc(env(safe-area-inset-bottom) + 14px)"><button type="submit" disabled="{{ joinBusy }}" style="width:100%; min-height:56px; border:0; border-radius:16px; background:var(--brand); color:#fff; font-size:16px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:10px; opacity:{{ busyOpacity }}" style-hover="background:var(--brand-press)"><sc-if value="{{ joinBusy }}"><span aria-hidden="true" style="width:16px; height:16px; border:2.5px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:sf-spin .8s linear infinite"></span></sc-if><span role="status">{{ joinLabel }}</span></button></div>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{ expenseSheet }}">
+        <form onSubmit="{{ saveExpense }}" novalidate="" style="flex:1; min-height:0; display:flex; flex-direction:column">
+          <div style="flex:1; min-height:0; overflow-y:auto; padding:4px 20px 20px">
+            <sc-if value="{{ noPeopleForm }}">
+              <div role="alert" style="margin-top:8px; padding:16px; border-radius:16px; background:var(--owe-soft); color:var(--owe)">
+                <p style="display:flex; gap:8px; align-items:flex-start; margin:0; font-size:15px; font-weight:600"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:4px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>Add at least one person first.</p>
+                <button type="button" onClick="{{ goPeople }}" style="margin:10px 0 0 24px; min-height:44px; padding:0 16px; border:0; border-radius:12px; background:var(--owe); color:#fff; font-weight:700; font-size:14px">Add people</button>
+              </div>
+            </sc-if>
+            <div style="margin-top:12px">
+              <div style="display:flex; justify-content:space-between; align-items:baseline; gap:8px"><label for="sf-desc" style="font-size:14px; font-weight:600">What was it for?</label><span aria-hidden="true" style="font-size:12px; color:var(--ink-faint)">{{ descCount }}</span></div>
+              <input id="sf-desc" type="text" maxlength="200" autocomplete="off" value="{{ fDesc }}" onChange="{{ onDesc }}" placeholder="Dinner, tickets, groceries…" aria-invalid="{{ descInvalid }}" aria-describedby="sf-desc-err" style="margin-top:6px; width:100%; min-height:52px; padding:0 16px; font-size:16px; background:var(--bg); border:1px solid {{ descBorder }}; border-radius:14px">
+              <sc-if value="{{ eDesc }}"><p id="sf-desc-err" style="display:flex; gap:6px; align-items:flex-start; margin:6px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ eDesc }}</p></sc-if>
+            </div>
+            <div style="margin-top:16px">
+              <label for="sf-amt" style="display:block; font-size:14px; font-weight:600">Amount</label>
+              <div style="position:relative; margin-top:6px">
+                <span aria-hidden="true" style="position:absolute; left:16px; top:0; bottom:0; display:flex; align-items:center; font-size:22px; font-weight:600; color:var(--ink-soft)">{{ currency }}</span>
+                <input id="sf-amt" type="text" inputmode="decimal" autocomplete="off" value="{{ fAmt }}" onChange="{{ onAmt }}" placeholder="0.00" aria-invalid="{{ amtInvalid }}" aria-describedby="sf-amt-err" style="width:100%; min-height:60px; padding:0 16px 0 52px; font-family:var(--font-head); font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; text-align:right; background:var(--bg); border:1px solid {{ amtBorder }}; border-radius:14px">
+              </div>
+              <sc-if value="{{ eAmt }}"><p id="sf-amt-err" style="display:flex; gap:6px; align-items:flex-start; margin:6px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ eAmt }}</p></sc-if>
+            </div>
+
+            <sc-if value="{{ hasPeopleForm }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:18px; border-top:1px solid var(--line)">
+                <div style="display:flex; align-items:center; gap:12px; min-height:60px; border-bottom:1px solid var(--line)">
+                  <label for="sf-paid" style="flex:none; font-size:15px; color:var(--ink-soft)">Paid by</label>
+                  <span aria-hidden="true" style="flex:none; margin-left:auto; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:{{ payerAv.bg }}; color:{{ payerAv.fg }}; font-family:var(--font-head); font-weight:800; font-size:13px">{{ payerAv.i }}</span>
+                  <div style="position:relative; min-width:0; display:flex; align-items:center; min-height:44px; padding:0 30px 0 4px">
+                    <span aria-hidden="true" style="font-size:16px; font-weight:700; overflow-wrap:anywhere">{{ payerName }}</span>
+                    <select id="sf-paid" value="{{ fPaidBy }}" onChange="{{ onPaidBy }}" style="position:absolute; inset:0; width:100%; opacity:0; font-size:16px; cursor:pointer">
+                      <sc-for list="{{ paidOptions }}" as="o" hint-placeholder-count="4"><option value="{{ o.id }}" selected="{{ o.selected }}">{{ o.name }}</option></sc-for>
+                    </select>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="position:absolute; right:4px; top:13px; pointer-events:none"><path d="m6 9 6 6 6-6"></path></svg>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:12px; min-height:60px; padding:6px 0; border-bottom:{{ splitRowBorder }}">
+                  <span style="flex:1; min-width:0; font-size:15px; line-height:1.4; color:var(--ink-soft)">Split equally among <strong style="color:var(--ink); font-weight:700; overflow-wrap:anywhere">{{ splitSummary }}</strong></span>
+                  <button type="button" onClick="{{ toggleSplit }}" aria-expanded="{{ splitOpen }}" aria-controls="sf-split" style="flex:none; min-height:44px; padding:0 14px; border:0; border-radius:12px; background:var(--brand-soft); color:var(--brand); font-size:14px; font-weight:700">{{ splitToggleLabel }}</button>
+                </div>
+                <sc-if value="{{ splitOpen }}">
+                  <fieldset id="sf-split" aria-describedby="sf-split-err" style="border:0; padding:10px 0 0; margin:0; min-width:0">
+                    <legend style="position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0)">Split equally among</legend>
+                    <label style="display:flex; align-items:center; gap:12px; min-height:52px; padding:0 14px; border-radius:14px; background:{{ everyoneBg }}; cursor:pointer">
+                      <input type="checkbox" checked="{{ everyoneChecked }}" onChange="{{ toggleEveryone }}" style="flex:none; width:22px; height:22px; margin:0; accent-color:var(--brand)">
+                      <span style="flex:1; font-size:15px; font-weight:700">Everyone</span>
+                      <span style="font-size:13px; color:var(--ink-soft)">{{ splitCount }}</span>
+                    </label>
+                    <sc-for list="{{ splitPeople }}" as="sp" hint-placeholder-count="4">
+                      <label style="display:flex; align-items:center; gap:12px; min-height:52px; padding:0 14px; border-radius:14px; cursor:pointer" style-hover="background:var(--surface)">
+                        <input type="checkbox" checked="{{ sp.checked }}" onChange="{{ sp.toggle }}" style="flex:none; width:22px; height:22px; margin:0; accent-color:var(--brand)">
+                        <span aria-hidden="true" style="flex:none; width:30px; height:30px; border-radius:50%; display:grid; place-items:center; background:{{ sp.av.bg }}; color:{{ sp.av.fg }}; font-family:var(--font-head); font-weight:800; font-size:13px">{{ sp.av.i }}</span>
+                        <span style="flex:1; min-width:0; font-size:15px; overflow-wrap:anywhere">{{ sp.name }}</span>
+                      </label>
+                    </sc-for>
+                  </fieldset>
+                </sc-if>
+                <sc-if value="{{ eSplit }}"><p id="sf-split-err" style="display:flex; gap:6px; align-items:flex-start; margin:8px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ eSplit }}</p></sc-if>
+                <sc-if value="{{ hasShare }}"><p style="margin:12px 0 0; font-size:14px; color:var(--ink-soft)">{{ shareHint }}</p></sc-if>
+              </div>
+            </sc-if>
+          </div>
+          <div style="flex:none; display:flex; gap:10px; padding:12px 20px calc(env(safe-area-inset-bottom) + 14px); border-top:1px solid var(--line)">
+            <sc-if value="{{ isEdit }}"><button type="button" onClick="{{ askDelete }}" style="flex:none; min-height:56px; padding:0 20px; border:1.5px solid var(--owe); border-radius:16px; background:var(--bg); color:var(--owe); font-size:16px; font-weight:700" style-hover="background:var(--owe-soft)">Delete</button></sc-if>
+            <button type="submit" style="flex:1; min-height:56px; border:0; border-radius:16px; background:var(--brand); color:#fff; font-size:16px; font-weight:700" style-hover="background:var(--brand-press)">{{ saveLabel }}</button>
+          </div>
+        </form>
+      </sc-if>
+
+      <sc-if value="{{ paySheet }}">
+        <form onSubmit="{{ savePay }}" novalidate="" style="flex:1; min-height:0; display:flex; flex-direction:column">
+          <div style="flex:1; min-height:0; overflow-y:auto; padding:4px 20px 20px">
+            <div style="display:flex; align-items:center; justify-content:center; gap:14px; margin-top:12px; padding:18px 12px; border-radius:20px; background:var(--good-soft)">
+              <span style="display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0; max-width:40%"><span aria-hidden="true" style="width:52px; height:52px; border-radius:50%; display:grid; place-items:center; background:{{ payFromAv.bg }}; color:{{ payFromAv.fg }}; font-family:var(--font-head); font-weight:800; font-size:20px">{{ payFromAv.i }}</span><span style="font-size:15px; font-weight:700; text-align:center; overflow-wrap:anywhere">{{ payFrom }}</span></span>
+              <span style="display:flex; flex-direction:column; align-items:center; gap:2px; color:var(--good); font-size:13px; font-weight:700">paid<svg width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h21M17 4l7 6-7 6"></path></svg></span>
+              <span style="display:flex; flex-direction:column; align-items:center; gap:6px; min-width:0; max-width:40%"><span aria-hidden="true" style="width:52px; height:52px; border-radius:50%; display:grid; place-items:center; background:{{ payToAv.bg }}; color:{{ payToAv.fg }}; font-family:var(--font-head); font-weight:800; font-size:20px">{{ payToAv.i }}</span><span style="font-size:15px; font-weight:700; text-align:center; overflow-wrap:anywhere">{{ payTo }}</span></span>
+            </div>
+            <div style="margin-top:18px">
+              <label for="sf-pamt" style="display:block; font-size:14px; font-weight:600">Amount</label>
+              <div style="position:relative; margin-top:6px">
+                <span aria-hidden="true" style="position:absolute; left:16px; top:0; bottom:0; display:flex; align-items:center; font-size:22px; font-weight:600; color:var(--ink-soft)">{{ currency }}</span>
+                <input id="sf-pamt" type="text" inputmode="decimal" autocomplete="off" value="{{ pAmt }}" onChange="{{ onPAmt }}" aria-invalid="{{ pAmtInvalid }}" aria-describedby="sf-pamt-note" style="width:100%; min-height:60px; padding:0 16px 0 52px; font-family:var(--font-head); font-size:26px; font-weight:800; font-variant-numeric:tabular-nums; text-align:right; background:var(--bg); border:1px solid {{ pAmtBorder }}; border-radius:14px">
+              </div>
+              <sc-if value="{{ ePAmt }}"><p style="display:flex; gap:6px; align-items:flex-start; margin:6px 0 0; font-size:14px; color:var(--owe)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="flex:none; margin-top:3px"><circle cx="12" cy="12" r="9"></circle><path d="M12 8v5M12 16h.01"></path></svg>{{ ePAmt }}</p></sc-if>
+              <sc-if value="{{ payFull }}"><p id="sf-pamt-note" style="margin:6px 0 0; font-size:14px; line-height:1.45; color:var(--ink-soft); text-wrap:pretty">{{ payFullText }}</p></sc-if>
+            </div>
+            <p style="margin:18px 0 0; font-size:14px; line-height:1.5; color:var(--ink-soft); text-wrap:pretty">This only records a payment made outside the app. SplitFamilia never moves money.</p>
+          </div>
+          <div style="flex:none; display:flex; gap:10px; padding:12px 20px calc(env(safe-area-inset-bottom) + 14px); border-top:1px solid var(--line)">
+            <sc-if value="{{ payIsEdit }}"><button type="button" onClick="{{ askDelete }}" style="flex:none; min-height:56px; padding:0 20px; border:1.5px solid var(--owe); border-radius:16px; background:var(--bg); color:var(--owe); font-size:16px; font-weight:700" style-hover="background:var(--owe-soft)">Delete</button></sc-if>
+            <button type="submit" style="flex:1; min-height:56px; border:0; border-radius:16px; background:var(--brand); color:#fff; font-size:16px; font-weight:700" style-hover="background:var(--brand-press)">{{ payLabel }}</button>
+          </div>
+        </form>
+      </sc-if>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ confirmOpen }}">
+  <div style="position:absolute; inset:0; z-index:30; display:flex; align-items:center; justify-content:center; padding:24px; background:rgba(28,26,24,.5); animation:sf-fade .15s ease">
+    <div role="alertdialog" aria-modal="true" aria-labelledby="sf-cf-title" aria-describedby="sf-cf-body" style="width:100%; max-width:380px; padding:24px 20px 16px; border-radius:24px; background:var(--bg); box-shadow:0 16px 48px rgba(28,26,24,.28); animation:sf-up .2s ease">
+      <h2 id="sf-cf-title" style="margin:0; font-family:var(--font-head); font-size:20px; line-height:1.3; font-weight:800; overflow-wrap:anywhere; text-wrap:pretty">{{ confirmTitle }}</h2>
+      <p id="sf-cf-body" style="margin:8px 0 0; font-size:15px; line-height:1.5; color:var(--ink-soft); text-wrap:pretty">{{ confirmBody }}</p>
+      <div style="display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; margin-top:22px">
+        <button onClick="{{ cancelConfirm }}" style="min-height:48px; padding:0 20px; border:0; border-radius:14px; background:var(--surface); font-size:15px; font-weight:700">Cancel</button>
+        <button onClick="{{ doConfirm }}" style="min-height:48px; padding:0 20px; border:0; border-radius:14px; background:var(--owe); color:#fff; font-size:15px; font-weight:700" style-hover="background:#A32F23">{{ confirmAction }}</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;default&quot;:&quot;home&quot;,&quot;options&quot;:[&quot;loading&quot;,&quot;failed&quot;,&quot;welcome&quot;,&quot;welcome-empty&quot;,&quot;welcome-edit&quot;,&quot;newgroup&quot;,&quot;join&quot;,&quot;join-checking&quot;,&quot;join-error&quot;,&quot;group-blocked&quot;,&quot;step-people&quot;,&quot;step-expense&quot;,&quot;step-invite&quot;,&quot;home&quot;,&quot;settled&quot;,&quot;save-failed&quot;,&quot;menu&quot;,&quot;people&quot;,&quot;people-blocked&quot;,&quot;confirm-person&quot;,&quot;add&quot;,&quot;add-change&quot;,&quot;add-errors&quot;,&quot;add-nopeople&quot;,&quot;edit&quot;,&quot;confirm-expense&quot;,&quot;pay&quot;,&quot;sync-online&quot;,&quot;sync-connecting&quot;,&quot;sync-pending&quot;,&quot;sync-offline&quot;,&quot;sync-offline-pending&quot;,&quot;sync-failed&quot;,&quot;shot-people&quot;,&quot;shot-add&quot;,&quot;shot-ledger&quot;],&quot;tsType&quot;:&quot;string&quot;},&quot;bare&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const PALETTES = {
+  'teal-coral':     {brand:'#0F766E', press:'#0B5F58', soft:'#E3F3F0', accent:'#F07A5A', accentSoft:'#FFE9E2', accentInk:'#9A3A20'},
+  'indigo-saffron': {brand:'#4F46E5', press:'#4038C9', soft:'#ECEBFE', accent:'#F4A51C', accentSoft:'#FFF3D9', accentInk:'#8A5300'},
+  'green-mango':    {brand:'#16734A', press:'#0F5C3A', soft:'#E4F3EA', accent:'#F9A825', accentSoft:'#FFF2D6', accentInk:'#855000'}
+};
+const AV = [['#FFE3D8','#9C3514'],['#D6F1EA','#0B5E55'],['#E3E1FF','#4133B8'],['#FFEDC2','#7F5200'],['#FBDDEB','#9B1C57'],['#DAEAFE','#1E4FB8']];
+const PEOPLE = [{id:'a',name:'Asha',c:0},{id:'b',name:'Ben',c:1},{id:'c',name:'Chitra',c:2},{id:'d',name:'Dev',c:3}];
+const GOA = [
+  {id:'e1',date:'2025-12-30T18:00',desc:'Deposit for the stay',amount:1200000,paidBy:'a',split:['a','b','d']},
+  {id:'e2',date:'2026-09-27T10:15',desc:'Cab from the airport',amount:135000,paidBy:'d',split:['a','b','d']},
+  {id:'e3',date:'2026-09-28T21:00',desc:'Dinner',amount:120000,paidBy:'b',split:['a','b','d']},
+  {id:'e4',date:'2026-09-28T22:30',kind:'payment',amount:10000,paidBy:'b',split:['a']},
+  {id:'e5',date:'2026-09-29T11:00',desc:'Groceries and fruit for the week',amount:246000,paidBy:'a',split:['a','b','d']},
+  {id:'e6',date:'2026-09-29T16:40',desc:'Ice cream',amount:36000,paidBy:'d',split:['a','b','d']}
+];
+const DIWALI = [
+  {id:'w1',date:'2026-09-20T19:00',desc:'Sweets, diyas and flowers',amount:240000,paidBy:'c',split:['a','b','c','d']},
+  {id:'w2',date:'2026-09-21T09:00',kind:'payment',amount:60000,paidBy:'a',split:['c']},
+  {id:'w3',date:'2026-09-22T12:30',kind:'payment',amount:60000,paidBy:'b',split:['c']},
+  {id:'w4',date:'2026-09-24T18:10',kind:'payment',amount:60000,paidBy:'d',split:['c']}
+];
+const GROUPS = [{id:'goa',name:'Goa trip',opened:'2 minutes ago'},{id:'diwali',name:'Diwali party 2026',opened:'yesterday'},{id:'ooty',name:'Ooty weekend',opened:'on 12 Aug'}];
+const THIS_YEAR = 2026, MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'], MAX_PAISE = 1000000000;
+const clone = a => a.map(x => Object.assign({}, x, {split:x.split.slice()}));
+const fmt = (p, cur) => cur + (p/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const plain = p => (p/100).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const listNames = n => n.length <= 1 ? (n[0] || 'no one yet') : n.slice(0,-1).join(', ') + ' and ' + n[n.length-1];
+function parseAmt(raw, cur){
+  let s = String(raw || '').trim().replace(/[,\s]/g,''); if(cur) s = s.split(cur).join('');
+  if(s === '') return {error:'Enter an amount.'};
+  if(/^-/.test(s)) return {error:'Enter an amount greater than 0.'};
+  const m = s.match(/^(\d*)(?:\.(\d*))?$/);
+  if(!m || (m[1] === '' && !m[2])) return {error:'Enter a number, like 250 or 99.50.'};
+  const f = m[2] || ''; if(f.length > 2) return {error:'Use at most 2 decimal places.'};
+  const paise = parseInt(m[1] || '0',10)*100 + parseInt((f+'00').slice(0,2),10);
+  if(paise > MAX_PAISE) return {error:'The largest amount allowed is ' + fmt(MAX_PAISE, cur) + '.'};
+  if(paise === 0) return {error:'Enter an amount greater than 0.'};
+  return {paise};
+}
+function balances(people, exps){
+  const b = {}; people.forEach(p => b[p.id] = 0);
+  exps.forEach(e => { const n = e.split.length; if(!n) return; const base = Math.floor(e.amount/n), rem = e.amount - base*n;
+    b[e.paidBy] = (b[e.paidBy]||0) + e.amount; e.split.forEach((id,i) => { b[id] = (b[id]||0) - (base + (i < rem ? 1 : 0)); }); });
+  const cr = [], dr = [];
+  Object.keys(b).forEach(k => { if(b[k] > 0) cr.push({id:k,v:b[k]}); else if(b[k] < 0) dr.push({id:k,v:-b[k]}); });
+  cr.sort((x,y)=>y.v-x.v); dr.sort((x,y)=>y.v-x.v);
+  const out = []; let i = 0, j = 0;
+  while(i < dr.length && j < cr.length){ const v = Math.min(dr[i].v, cr[j].v); if(v > 0) out.push({from:dr[i].id,to:cr[j].id,amount:v});
+    dr[i].v -= v; cr[j].v -= v; if(dr[i].v === 0) i++; if(cr[j].v === 0) j++; }
+  return out;
+}
+function base(){
+  return { screen:'home', groupId:'goa', groupName:'Goa trip', people:PEOPLE.slice(), expenses:clone(GOA), currency:'₹', invited:true,
+    conn:'online', sheet:null, form:null, pay:null, confirm:null, personErr:null, message:null, newPerson:'',
+    joinValue:'', joinState:'idle', joinErr:'', newName:'', newErr:'', groups:GROUPS.map(g=>Object.assign({},g)), editGroups:false, copied:false };
+}
+const PRESETS = [
+  {g:'Start-up', items:[['loading','Loading'],['failed','Can’t reach server']]},
+  {g:'Welcome', items:[['welcome','Your groups'],['welcome-empty','First time (empty)'],['welcome-edit','Remove from this device'],['newgroup','Start a new group'],['join','Join with a link'],['join-checking','Join: Checking…'],['join-error','Join: invalid link'],['group-blocked','Message: can’t be opened']]},
+  {g:'New group, step by step', items:[['step-people','1 · Add people'],['step-expense','2 · First expense'],['step-invite','3 · Invite others']]},
+  {g:'Group home', items:[['home','Balances owed'],['settled','All settled up'],['save-failed','Message: couldn’t save']]},
+  {g:'Group menu', items:[['menu','Group menu'],['people','People'],['people-blocked','Can’t remove a person'],['confirm-person','Remove person']]},
+  {g:'Expenses', items:[['add','Add expense'],['add-change','Add: change split'],['add-errors','Add: errors'],['add-nopeople','Add: no people'],['edit','Edit expense'],['confirm-expense','Delete expense'],['pay','Record payment']]},
+  {g:'Sync status', items:[['sync-online','live (dot)'],['sync-connecting','connecting… (dot)'],['sync-pending','3 changes waiting to sync'],['sync-offline','offline'],['sync-offline-pending','offline: 3 waiting'],['sync-failed','not syncing']]}
+];
+
+class Component extends DCLogic {
+  rootRef = React.createRef(); scrollerRef = React.createRef(); ledgerRef = React.createRef(); personInputRef = React.createRef();
+  state = Object.assign({width:390, preset:'home'}, base());
+  timers = [];
+  later(fn, ms){ this.timers.push(setTimeout(fn, ms)); }
+  applyPalette(){
+    const p = PALETTES['indigo-saffron'], el = this.rootRef.current; if(!el) return;
+    [['--brand',p.brand],['--brand-press',p.press],['--brand-soft',p.soft],['--accent',p.accent],['--accent-soft',p.accentSoft],['--accent-ink',p.accentInk]].forEach(([k,v]) => el.style.setProperty(k, v));
+  }
+  componentDidMount(){ this.applyPalette(); this.applyPreset(this.props.screen ?? 'home'); }
+  componentDidUpdate(pp){ this.applyPalette(); if(this.props.screen && pp.screen !== this.props.screen) this.applyPreset(this.props.screen); }
+  componentWillUnmount(){ this.timers.forEach(clearTimeout); }
+
+  lastPayer(exps, people){ const e = exps.filter(x => x.kind !== 'payment').sort((a,b) => new Date(b.date) - new Date(a.date))[0];
+    return e && people.some(p => p.id === e.paidBy) ? e.paidBy : (people[0] ? people[0].id : ''); }
+  blankForm(s){ return {mode:'add', id:null, desc:'', amount:'', paidBy:this.lastPayer(s.expenses, s.people), split:s.people.map(p=>p.id), splitOpen:false, errors:{}}; }
+  formFor(e){ return {mode:'edit', id:e.id, desc:e.desc, amount:plain(e.amount), paidBy:e.paidBy, split:e.split.slice(), splitOpen:false, errors:{}}; }
+  scrollTo(where){ const go = () => { const sc = this.scrollerRef.current; if(!sc) return;
+    const el = where === 'ledger' ? this.ledgerRef.current : null; sc.scrollTop = el ? Math.max(0, el.offsetTop - 8) : 0; };
+    requestAnimationFrame(go); if(where) [150, 500].forEach(ms => this.later(go, ms)); }
+  focusPerson(){ setTimeout(() => this.personInputRef.current && this.personInputRef.current.focus(), 250); }
+
+  applyPreset(id){
+    this.timers.forEach(clearTimeout); this.timers = [];
+    const s = base(); let scroll = null;
+    const e3 = s.expenses.find(e => e.id === 'e3');
+    const pend = () => s.expenses.forEach(e => { if(['e4','e5','e6'].includes(e.id)) e.pending = true; });
+    const ooty = ppl => Object.assign(s, {groupId:'ooty', groupName:'Ooty weekend', people:ppl, expenses:[], invited:false});
+    switch(id){
+      case 'loading': s.screen = 'loading'; break;
+      case 'failed': s.screen = 'failed'; break;
+      case 'welcome': s.screen = 'welcome'; break;
+      case 'welcome-empty': s.screen = 'welcome'; s.groups = []; break;
+      case 'welcome-edit': s.screen = 'welcome'; s.editGroups = true; break;
+      case 'newgroup': s.screen = 'welcome'; s.sheet = 'newgroup'; break;
+      case 'join': s.screen = 'welcome'; s.sheet = 'join'; break;
+      case 'join-checking': s.screen = 'welcome'; s.sheet = 'join'; s.joinValue = 'https://splitfamilia.app/?g=goa-trip-8k2p4q'; s.joinState = 'checking'; break;
+      case 'join-error': s.screen = 'welcome'; s.sheet = 'join'; s.joinValue = 'splitfamilia.app/?g=goa'; s.joinErr = "That group link isn't valid."; break;
+      case 'group-blocked': s.screen = 'welcome'; s.message = "This group can't be opened. Check the invite link."; break;
+      case 'step-people': ooty([]); break;
+      case 'step-expense': ooty([PEOPLE[0], PEOPLE[1], PEOPLE[3]]); break;
+      case 'step-invite': ooty([PEOPLE[0], PEOPLE[1], PEOPLE[3]]); s.expenses = [{id:'o1',date:'2026-09-29T12:00',desc:'Train tickets',amount:270000,paidBy:'a',split:['a','b','d']}]; break;
+      case 'settled': Object.assign(s, {groupId:'diwali', groupName:'Diwali party 2026', expenses:clone(DIWALI)}); break;
+      case 'save-failed': s.conn = 'connecting'; s.message = "Couldn't save that expense. Can't reach the server right now. Check your connection and try again."; break;
+      case 'menu': s.sheet = 'menu'; break;
+      case 'people': case 'shot-people': s.sheet = 'people'; break;
+      case 'people-blocked': s.sheet = 'people'; s.personErr = 'b'; break;
+      case 'confirm-person': s.sheet = 'people'; s.confirm = {kind:'person', id:'c'}; break;
+      case 'add': s.sheet = 'expense'; s.form = this.blankForm(s); break;
+      case 'add-change': s.sheet = 'expense'; s.form = Object.assign(this.blankForm(s), {desc:'Cab to the station', amount:'640', split:['a','b','d'], splitOpen:true}); break;
+      case 'shot-add': s.sheet = 'expense'; s.form = Object.assign(this.blankForm(s), {desc:'Dinner', amount:'1,200'}); break;
+      case 'add-errors': s.sheet = 'expense'; s.form = Object.assign(this.blankForm(s), {amount:'12.5.0', split:[], splitOpen:true, errors:{desc:'Add a description.', amount:'Enter a number, like 250 or 99.50.', split:'Pick at least one person to split with.'}}); break;
+      case 'add-nopeople': ooty([]); s.sheet = 'expense'; s.form = this.blankForm(s); break;
+      case 'edit': s.sheet = 'expense'; s.form = this.formFor(e3); break;
+      case 'confirm-expense': s.sheet = 'expense'; s.form = this.formFor(e3); s.confirm = {kind:'expense', id:'e3'}; break;
+      case 'pay': s.sheet = 'pay'; s.pay = {from:'b', to:'a', amount:plain(449000), full:449000, editId:null, error:''}; break;
+      case 'shot-ledger': s.expenses.forEach(e => { if(e.id === 'e6') e.pending = true; }); scroll = 'ledger'; break;
+      default:
+        if(id.startsWith('sync-')){ const k = id.slice(5);
+          if(k === 'pending'){ s.conn = 'online'; pend(); } else { s.conn = k.replace('-pending',''); if(k.endsWith('pending')) pend(); } }
+    }
+    this.setState(Object.assign(s, {preset:id}), () => this.scrollTo(scroll));
+  }
+
+  syncInfo(){
+    const c = this.state.conn, n = this.state.expenses.filter(e => e.pending).length, ch = n === 1 ? '1 change' : n + ' changes';
+    const white = {bg:'rgba(255,255,255,.18)', color:'#fff', dot:'#fff'};
+    if(c === 'failed') return {loud:true, text:'not syncing', bg:'var(--owe-soft)', color:'var(--owe)', dot:'var(--owe)'};
+    if(c === 'connecting') return {loud:false, text:'connecting…', anim:'sf-pulse 1.2s ease-in-out infinite'};
+    if(c === 'offline') return Object.assign({loud:true, text: n ? 'offline: ' + ch + ' waiting to sync' : "offline: changes will sync when you're back online"}, white, {dot:'transparent'});
+    if(n) return Object.assign({loud:true, text: ch + ' waiting to sync'}, white);
+    return {loud:false, text:'live', anim:'none'};
+  }
+  person(id){ return this.state.people.find(x => x.id === id); }
+  name(id){ const p = this.person(id); return p ? p.name : 'Removed person'; }
+  av(id){ const p = this.person(id); if(!p) return {i:'?', bg:'#ECEAE6', fg:'#56514B'}; const c = AV[p.c % AV.length]; return {i:p.name.trim().charAt(0).toUpperCase(), bg:c[0], fg:c[1]}; }
+  used(id){ return this.state.expenses.some(e => e.paidBy === id || e.split.includes(id)); }
+  settleLater(ids){ if(this.state.conn === 'online') this.later(() => this.setState(s => ({expenses: s.expenses.map(e => ids.includes(e.id) ? Object.assign({}, e, {pending:false}) : e)})), 1500); }
+  openGroup(g, fresh){
+    const data = g.id === 'diwali' ? {people:PEOPLE.slice(), expenses:clone(DIWALI), invited:true} : g.id === 'goa' ? {people:PEOPLE.slice(), expenses:clone(GOA), invited:true} : {people:[], expenses:[], invited:false};
+    this.setState(s => Object.assign({screen:'home', sheet:null, groupId:g.id, groupName:g.name, conn:'connecting', message:null, personErr:null, editGroups:false, joinValue:'', newName:'',
+      groups:[Object.assign({}, g, {opened:'just now'})].concat(s.groups.filter(x => x.id !== g.id))}, data), () => this.scrollTo(null));
+    this.later(() => this.setState({conn:'online'}), 1100);
+  }
+  setForm(patch, clearErr){ this.setState(s => ({form:Object.assign({}, s.form, patch, clearErr ? {errors:Object.assign({}, s.form.errors, {[clearErr]:''})} : {})})); }
+
+  renderVals(){
+    const st = this.state, cur = st.currency || '₹';
+    const bare = !!this.props.bare, tablet = !bare && st.width >= 700;
+    const sync = this.syncInfo();
+    const bal = balances(st.people, st.expenses);
+    const f = st.form || {desc:'', amount:'', split:[], paidBy:'', errors:{}}, err = f.errors || {};
+    const nSplit = f.split.length, allOn = st.people.length > 0 && nSplit === st.people.length;
+    const amtParse = parseAmt(f.amount, cur);
+    const errBorder = x => x ? 'var(--owe)' : 'var(--line-strong)';
+    const nP = st.people.length, nE = st.expenses.length;
+    const step = nP < 2 ? 1 : nE === 0 ? 2 : !st.invited ? 3 : 0;
+    const close = () => this.setState({sheet:null, form:null, pay:null, personErr:null});
+    const copyLink = () => { try{ navigator.clipboard && navigator.clipboard.writeText('https://splitfamilia.app/?g=goa-trip-8k2p4q'); }catch(e){} this.setState({copied:true, invited:true}); this.later(() => this.setState({copied:false}), 1600); };
+    const openAdd = () => this.setState(s => ({sheet:'expense', form:this.blankForm(s)}));
+    const openPeople = () => { this.setState({sheet:'people', personErr:null}); };
+    const openPeopleAdd = () => { this.setState({sheet:'people', personErr:null}); this.focusPerson(); };
+
+    const ledger = st.expenses.slice().sort((a,b) => new Date(b.date) - new Date(a.date)).map(e => {
+      const d = new Date(e.date), isPay = e.kind === 'payment', y = d.getFullYear();
+      const date = d.getDate() + ' ' + MONTHS[d.getMonth()] + (y !== THIS_YEAR ? ' ' + y : '');
+      const title = isPay ? this.name(e.paidBy) + ' paid ' + this.name(e.split[0]) : e.desc;
+      const who = e.split.length === nP && nP > 1 ? 'split among everyone' : e.split.length === 1 ? 'for ' + this.name(e.split[0]) : 'split among ' + e.split.length;
+      return { av:this.av(e.paidBy), title, meta: isPay ? date + ' · payment' : date + ' · paid by ' + this.name(e.paidBy) + ' · ' + who,
+        amount:fmt(e.amount, cur), isPayment:isPay, pending:!!e.pending, titleColor: isPay ? 'var(--good)' : 'var(--ink)',
+        amtColor: e.pending ? 'var(--ink-faint)' : isPay ? 'var(--good)' : 'var(--ink)',
+        aria:'Edit ' + title + ', ' + fmt(e.amount, cur) + ', ' + date + (e.pending ? ', waiting to sync' : ''),
+        open: () => isPay ? this.setState({sheet:'pay', pay:{from:e.paidBy, to:e.split[0], amount:plain(e.amount), full:null, editId:e.id, error:''}})
+                          : this.setState({sheet:'expense', form:this.formFor(e)}) };
+    });
+
+    let confirmTitle = '', confirmBody = '', confirmAction = '';
+    if(st.confirm){
+      if(st.confirm.kind === 'expense'){ const e = st.expenses.find(x => x.id === st.confirm.id);
+        const label = e ? (e.kind === 'payment' ? this.name(e.paidBy) + ' paid ' + this.name(e.split[0]) : e.desc) : '';
+        confirmTitle = 'Delete ‘' + label + '’ (' + (e ? fmt(e.amount, cur) : '') + ')?'; confirmBody = 'It comes off the list for everyone in the group, and balances update.'; confirmAction = 'Delete'; }
+      else { confirmTitle = 'Remove ' + this.name(st.confirm.id) + ' from the group?'; confirmBody = 'Their name comes off the People list for everyone in the group.'; confirmAction = 'Remove'; }
+    }
+    const pay = st.pay || {};
+    const STEPS = {
+      1: {title:"Who's sharing costs?", body:"Add the people in this group first. You can add more at any time.", action: nP === 1 ? 'Add another person' : 'Add people', go:openPeopleAdd},
+      2: {title:'Add the first expense', body:"Say what it was for and how much. It's split equally, and the balance works itself out.", action:'Add expense', go:openAdd},
+      3: {title:'Invite your group', body:'Send everyone the invite link so they can see the balance and add expenses too.', action: st.copied ? 'Copied' : 'Copy invite link', go:copyLink}
+    };
+    const S = STEPS[step] || {};
+    const sheetTitles = {menu:st.groupName, people:'People', newgroup:'Start a new group', join:'Join with a link', expense: f.mode === 'edit' ? 'Edit expense' : 'Add expense', pay: pay.editId ? 'Edit payment' : 'Record payment'};
+
+    return {
+      rootRef:this.rootRef, scrollerRef:this.scrollerRef, ledgerRef:this.ledgerRef, personInputRef:this.personInputRef,
+      chrome:!bare, rootDisplay: bare ? 'block' : 'flex', rootPad: bare ? '0' : '24px', rootBg: bare ? 'var(--bg)' : '#ECEAE6', rootH: bare ? '100%' : 'auto',
+      frameW: bare ? '100%' : st.width + 'px', frameH: bare ? '100%' : (tablet ? '1000px' : '820px'),
+      frameRadius: bare ? '0' : '24px', frameShadow: bare ? 'none' : '0 0 0 1px rgba(28,26,24,.06), 0 18px 50px rgba(28,26,24,.16)',
+      presetGroups: PRESETS.map(g => ({g:g.g, items:g.items.map(([id,label]) => ({label, onClick:() => this.applyPreset(id),
+        bg: st.preset === id ? 'var(--ink)' : 'transparent', color: st.preset === id ? '#fff' : 'var(--ink)', weight: st.preset === id ? 600 : 400}))})),
+      widths: [360,390,412,768].map(w => ({label:String(w), active:st.width === w, bg: st.width === w ? 'var(--ink)' : 'var(--bg)', color: st.width === w ? '#fff' : 'var(--ink)', onClick:() => this.setState({width:w})})),
+
+      isLoading: st.screen === 'loading', isFailed: st.screen === 'failed', isWelcome: st.screen === 'welcome', isHome: st.screen === 'home',
+      retry: () => { this.setState({screen:'loading', preset:'loading'}); this.later(() => this.setState({screen:'welcome', preset:'welcome'}), 1400); },
+
+      hasGroups: st.groups.length > 0, noGroups: st.groups.length === 0, editGroups: st.editGroups, editGroupsLabel: st.editGroups ? 'Done' : 'Edit',
+      toggleEditGroups: () => this.setState(s => ({editGroups:!s.editGroups})),
+      groupsList: st.groups.map((g,i) => ({ name:g.name, opened:g.opened, initial:g.name.trim().charAt(0).toUpperCase(), border: i ? '1px solid var(--line)' : '0',
+        showChevron: !st.editGroups, cursor: st.editGroups ? 'default' : 'pointer', open: () => this.openGroup(g),
+        remove: () => this.setState(s => { const groups = s.groups.filter(x => x.id !== g.id); return {groups, editGroups: groups.length > 0 && s.editGroups}; }) })),
+      openNewGroup: () => this.setState({sheet:'newgroup', newErr:''}), openJoin: () => this.setState({sheet:'join', joinErr:''}),
+      newName: st.newName, onNewName: e => this.setState({newName:e.target.value, newErr:''}), newErr: st.newErr, newInvalid: !!st.newErr, newBorder: errBorder(st.newErr),
+      startGroup: e => { e.preventDefault(); const n = st.newName.trim(); if(!n) return this.setState({newErr:'Give the group a name.'});
+        this.openGroup({id:'new-' + Date.now(), name:n.slice(0,60), opened:'just now'}); },
+      joinValue: st.joinValue, onJoin: e => this.setState({joinValue:e.target.value, joinErr:''}), joinErr: st.joinErr, joinInvalid: !!st.joinErr, joinBorder: errBorder(st.joinErr),
+      joinBusy: st.joinState === 'checking', joinLabel: st.joinState === 'checking' ? 'Checking…' : 'Join', busyOpacity: st.joinState === 'checking' ? .7 : 1,
+      joinGroup: e => { e.preventDefault(); if(st.joinState === 'checking') return; const v = st.joinValue.trim();
+        if(!v) return this.setState({joinErr:'Paste an invite link or code.'});
+        this.setState({joinState:'checking', joinErr:''});
+        this.later(() => { const ok = /[?&]g=[a-z0-9-]{8,}/i.test(v) || (/^[a-z0-9]+(-[a-z0-9]+)+$/i.test(v) && v.length >= 10);
+          this.setState({joinState:'idle'}); if(ok) this.openGroup(GROUPS[0]); else this.setState({joinErr:"That group link isn't valid."}); }, 1500); },
+
+      groupName: st.groupName, menuAria: st.groupName + ', open group menu',
+      openMenu: () => this.setState({sheet:'menu'}),
+      goWelcome: () => this.setState({screen:'welcome', sheet:null, message:null, preset:'welcome'}),
+      syncQuiet: !sync.loud, syncLoud: sync.loud, syncText: sync.text, syncBg: sync.bg, syncColor: sync.color, syncDot: sync.dot, syncAnim: sync.anim || 'none',
+      hasPeople: nP > 0, peopleAria: 'People: ' + st.people.map(p => p.name).join(', '),
+      headAvatars: st.people.slice(0,5).map((p,i) => Object.assign(this.av(p.id), {ml: i ? '-8px' : '0'})).concat(nP > 5 ? [{i:'+' + (nP-5), bg:'#fff', fg:'var(--ink)', ml:'-8px'}] : []),
+      peopleCountText: nP === 0 ? 'Add people' : nP === 1 ? '1 person' : nP + ' people',
+      openPeople, openPeopleAdd,
+      copyLabel: st.copied ? 'Copied' : 'Copy invite link', copyLink,
+      currency: cur, onCurrency: e => this.setState({currency:e.target.value.slice(0,3)}),
+      peopleNames: nP ? st.people.map(p => p.name).join(', ') : 'No one yet',
+      homeCols: tablet ? 'minmax(0,1fr) minmax(0,1.25fr)' : 'minmax(0,1fr)', homeMax: tablet ? '1040px' : '640px',
+
+      showGuide: step > 0, stepNum: step, stepTitle: S.title, stepBody: S.body, stepAction: S.action, stepGo: S.go, stepSkippable: step === 3,
+      stepDots: [1,2,3].map(k => ({bg: k <= step ? 'var(--accent)' : 'rgba(28,26,24,.12)'})),
+      skipInvite: () => this.setState({invited:true}),
+      showBalances: nP >= 2 && nE > 0 && st.preset !== 'shot-ledger', settled: bal.length === 0, hasBalances: bal.length > 0,
+      balances: bal.map((t,i) => ({ av:this.av(t.from), from:this.name(t.from), to:this.name(t.to), amount:fmt(t.amount, cur), border: i ? '1px solid var(--line)' : '0',
+        aria: this.name(t.from) + ' owes ' + this.name(t.to) + ' ' + fmt(t.amount, cur) + '. Record payment',
+        pay: () => this.setState({sheet:'pay', pay:{from:t.from, to:t.to, amount:plain(t.amount), full:t.amount, editId:null, error:''}}) })),
+      hasExpenses: nE > 0, ledger,
+      showAddBar: st.screen === 'home', openAdd,
+
+      anySheet: !!st.sheet, sheetTitle: sheetTitles[st.sheet] || '', closeSheet: close, onScrim: e => { if(e.target === e.currentTarget) close(); },
+      sheetJustify: tablet ? 'center' : 'flex-end', sheetMax: tablet ? '560px' : '100%', sheetRadius: tablet ? '24px' : '24px 24px 0 0', sheetPad: tablet ? '32px' : '0',
+      isMenu: st.sheet === 'menu', isPeopleSheet: st.sheet === 'people', isNewGroup: st.sheet === 'newgroup', isJoin: st.sheet === 'join',
+
+      peopleList: st.people.map(p => ({ name:p.name, av:this.av(p.id), blocked: st.personErr === p.id, describedBy: st.personErr === p.id ? 'sf-person-err' : undefined,
+        remove: () => this.used(p.id) ? this.setState({personErr:p.id}) : this.setState({personErr:null, confirm:{kind:'person', id:p.id}}) })),
+      noPeople: nP === 0, newPerson: st.newPerson, onNewPerson: e => this.setState({newPerson:e.target.value}),
+      addPerson: e => { e.preventDefault(); const n = st.newPerson.trim(); if(!n) return;
+        this.setState(s => { const used = s.people.map(p => p.c); let c = 0; while(used.includes(c) && c < 5) c++; if(used.includes(c)) c = s.people.length % 6;
+          return {people: s.people.concat({id:'p' + Date.now(), name:n.slice(0,60), c}), newPerson:'', personErr:null}; }); this.focusPerson(); },
+
+      expenseSheet: st.sheet === 'expense', isEdit: f.mode === 'edit', saveLabel: f.mode === 'edit' ? 'Save' : 'Add expense',
+      fDesc: f.desc, descCount: f.desc.length + '/200', onDesc: e => this.setForm({desc:e.target.value}, 'desc'),
+      eDesc: err.desc || '', descInvalid: !!err.desc, descBorder: errBorder(err.desc),
+      fAmt: f.amount, onAmt: e => this.setForm({amount:e.target.value}, 'amount'), eAmt: err.amount || '', amtInvalid: !!err.amount, amtBorder: errBorder(err.amount),
+      noPeopleForm: nP === 0, hasPeopleForm: nP > 0,
+      goPeople: () => { this.setState({sheet:'people', form:null}); this.focusPerson(); },
+      paidOptions: st.people.map(p => ({id:p.id, name:p.name, selected: p.id === f.paidBy})), scrollbarW: bare ? 'none' : 'auto', payerName: this.name(f.paidBy), fPaidBy: f.paidBy, payerAv: this.av(f.paidBy), onPaidBy: e => this.setForm({paidBy:e.target.value}),
+      splitSummary: allOn ? (nP === 1 ? this.name(st.people[0].id) : 'everyone') : listNames(st.people.filter(p => f.split.includes(p.id)).map(p => p.name)),
+      splitOpen: !!f.splitOpen, splitToggleLabel: f.splitOpen ? 'Done' : 'Change', splitRowBorder: f.splitOpen ? '1px solid var(--line)' : '0',
+      toggleSplit: () => this.setForm({splitOpen:!f.splitOpen}),
+      everyoneChecked: allOn, everyoneBg: allOn ? 'var(--brand-soft)' : 'var(--surface)', splitCount: nSplit + ' of ' + nP,
+      toggleEveryone: () => this.setForm({split: allOn ? [] : st.people.map(p => p.id)}, 'split'),
+      splitPeople: st.people.map(p => ({ name:p.name, av:this.av(p.id), checked: f.split.includes(p.id),
+        toggle: () => this.setState(s => { const sp = s.form.split.includes(p.id) ? s.form.split.filter(x => x !== p.id) : s.people.map(x => x.id).filter(x => x === p.id || s.form.split.includes(x));
+          return {form:Object.assign({}, s.form, {split:sp, errors:Object.assign({}, s.form.errors, {split:''})})}; }) })),
+      eSplit: err.split || '',
+      hasShare: nSplit > 0 && !!amtParse.paise, shareHint: amtParse.paise ? fmt(Math.floor(amtParse.paise / Math.max(nSplit,1)), cur) + ' each' : '',
+      saveExpense: e => { e.preventDefault(); const fm = st.form, errors = {};
+        if(!fm.desc.trim()) errors.desc = 'Add a description.';
+        const a = parseAmt(fm.amount, cur); if(a.error) errors.amount = a.error;
+        if(nP === 0){ this.setState({form:Object.assign({}, fm, {errors})}); return; }
+        if(fm.split.length === 0) errors.split = 'Pick at least one person to split with.';
+        if(Object.keys(errors).length){ this.setState({form:Object.assign({}, fm, {errors, splitOpen: fm.splitOpen || !!errors.split})}); return; }
+        const id = fm.id || 'x' + Date.now();
+        const rec = {id, date: fm.mode === 'edit' ? st.expenses.find(x => x.id === id).date : new Date().toISOString(), desc:fm.desc.trim(), amount:a.paise, paidBy:fm.paidBy, split:fm.split.slice(), pending:true};
+        this.setState(s => ({sheet:null, form:null, expenses: fm.mode === 'edit' ? s.expenses.map(x => x.id === id ? rec : x) : s.expenses.concat(rec)}), () => this.scrollTo('ledger'));
+        this.settleLater([id]); },
+      askDelete: () => this.setState({confirm:{kind:'expense', id: st.sheet === 'pay' ? pay.editId : f.id}}),
+
+      paySheet: st.sheet === 'pay', payFrom: this.name(pay.from), payTo: this.name(pay.to), payFromAv: this.av(pay.from), payToAv: this.av(pay.to),
+      pAmt: pay.amount || '', onPAmt: e => { const v = e.target.value; this.setState(s => ({pay:Object.assign({}, s.pay, {amount:v, error:''})})); },
+      ePAmt: pay.error || '', pAmtInvalid: !!pay.error, pAmtBorder: errBorder(pay.error),
+      payFull: !!pay.full && !pay.error, payFullText: pay.full ? 'That\u2019s everything ' + this.name(pay.from) + ' owes. Change it for a part payment.' : '',
+      payIsEdit: !!pay.editId, payLabel: pay.editId ? 'Save' : 'Record payment',
+      savePay: e => { e.preventDefault(); const a = parseAmt(pay.amount, cur); if(a.error) return this.setState({pay:Object.assign({}, pay, {error:a.error})});
+        const id = pay.editId || 'y' + Date.now();
+        const rec = {id, kind:'payment', date: pay.editId ? st.expenses.find(x => x.id === id).date : new Date().toISOString(), amount:a.paise, paidBy:pay.from, split:[pay.to], pending:true};
+        this.setState(s => ({sheet:null, pay:null, expenses: pay.editId ? s.expenses.map(x => x.id === id ? rec : x) : s.expenses.concat(rec)}), () => this.scrollTo(null));
+        this.settleLater([id]); },
+
+      confirmOpen: !!st.confirm, confirmTitle, confirmBody, confirmAction,
+      cancelConfirm: () => this.setState({confirm:null}),
+      doConfirm: () => { const c = st.confirm;
+        if(c.kind === 'expense') this.setState(s => ({confirm:null, sheet:null, form:null, pay:null, expenses:s.expenses.filter(x => x.id !== c.id)}));
+        else this.setState(s => ({confirm:null, people:s.people.filter(x => x.id !== c.id)})); },
+
+      hasMessage: !!st.message, message: st.message || '', closeMessage: () => this.setState({message:null}),
+      msgBottom: st.screen === 'home' ? 'calc(env(safe-area-inset-bottom) + 92px)' : 'calc(env(safe-area-inset-bottom) + 16px)'
+    };
+  }
+}
+</script>
+</body>
+</html>

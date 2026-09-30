@@ -14,6 +14,9 @@
   `.dockerignore`, `Caddyfile`, `railway.json` and `.well-known/assetlinks.json`. A new file the
   page needs must be added to the `Dockerfile` and `.dockerignore` too; `npm test` checks. Owner
   steps: `docs/google-play/HOSTING_RAILWAY.md`.
+- **Repo map:** `README.md` lists every top-level file and folder and why the app's files sit at
+  the top level. Keep it current when a file is added or moved. The approved UI design is in
+  `docs/design/` (see its README).
 - **Firestore rules (SF-007):** `firestore.rules` and `firebase.json`; owner steps in
   `docs/google-play/FIRESTORE_RULES.md`. The rules repeat the app's limits (`npm test` checks).
 - **Data:** Firebase Firestore, loaded from the gstatic CDN. Money is stored as a decimal

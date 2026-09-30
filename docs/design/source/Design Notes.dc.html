@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#FFFFFF;color:#1C1A18;font-family:"Inter",sans-serif;font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:#0F766E}
+a:hover{color:#1C1A18}
+code{font-family:ui-monospace,Menlo,monospace;font-size:13px}
+</style>
+</helmet>
+<main style="max-width:880px; margin:0 auto; padding:48px 20px 80px">
+  <p style="margin:0; font-size:13px; font-weight:700; color:#6E6860; letter-spacing:.06em; text-transform:uppercase">SplitFamilia · v2</p>
+  <h1 style="margin:6px 0 8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:40px; line-height:1.1; font-weight:800; letter-spacing:-0.02em">Design notes</h1>
+  <p style="margin:0; max-width:640px; color:#56514B; text-wrap:pretty">Friendlier and simpler. White background, one rounded sans for headings, one brand colour plus a warm accent, and a colour for each person. Each screen has one obvious main action, and everything else is one tap away. See the <a href="SplitFamilia Prototype v2.dc.html">v2 prototype</a> and the <a href="Play Store Screenshots.dc.html">Play Store assets</a>.</p>
+
+  <h2 style="margin:44px 0 6px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Principles</h2>
+  <ul style="margin:0; padding-left:20px; color:#56514B; display:grid; gap:6px">
+    <li><b style="color:#1C1A18">One main action per screen.</b> Welcome: Start / Join. Group home: Add expense. Sheets: one filled button in the footer.</li>
+    <li><b style="color:#1C1A18">Home shows only what you check:</b> group name, sync dot, people avatars, balances, expenses. Invite link, currency, switch group and people management live in the group menu (tap the name or ⋯).</li>
+    <li><b style="color:#1C1A18">Tap the thing itself.</b> Tap a balance to record a payment; tap an expense to edit it; tap the avatars to manage people.</li>
+    <li><b style="color:#1C1A18">Guide new groups:</b> a single card walks through 1 Add people → 2 First expense → 3 Invite your group, with one button each. It replaces the balances until there are 2+ people and an expense.</li>
+    <li><b style="color:#1C1A18">Quiet sync.</b> A small white dot when live or connecting (pulsing). Words only for "offline: …", "N changes waiting to sync" and "not syncing".</li>
+  </ul>
+
+  <h2 style="margin:44px 0 6px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Colour</h2>
+  <p style="margin:0 0 14px; color:#56514B; text-wrap:pretty">Only <code>--brand*</code> and <code>--accent*</code> change between palettes. Meaning colours and person colours are fixed. Contrast is against white unless noted.</p>
+  <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:10px">
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#FFFFFF; border-bottom:1px solid #E7E4DE"></div><div style="padding:8px 12px"><code>--bg</code><div style="font-size:13px; color:#56514B">#FFFFFF · page, sheets</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#F6F5F2"></div><div style="padding:8px 12px"><code>--surface</code><div style="font-size:13px; color:#56514B">#F6F5F2 · hover, quiet fills</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#1C1A18"></div><div style="padding:8px 12px"><code>--ink</code><div style="font-size:13px; color:#56514B">#1C1A18 · text 17:1</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#56514B"></div><div style="padding:8px 12px"><code>--ink-soft</code><div style="font-size:13px; color:#56514B">#56514B · secondary 7.8:1</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#6E6860"></div><div style="padding:8px 12px"><code>--ink-faint</code><div style="font-size:13px; color:#56514B">#6E6860 · hints 5.3:1</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#8E877D"></div><div style="padding:8px 12px"><code>--line-strong</code><div style="font-size:13px; color:#56514B">#8E877D · input borders 3.6:1</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#157347"></div><div style="padding:8px 12px"><code>--good</code> / <code>--good-soft</code><div style="font-size:13px; color:#56514B">#157347 / #E5F4EB · settled, payments 5.9:1</div></div></div>
+    <div style="border:1px solid #E7E4DE; border-radius:14px; overflow:hidden"><div style="height:40px; background:#C0392B"></div><div style="padding:8px 12px"><code>--owe</code> / <code>--owe-soft</code><div style="font-size:13px; color:#56514B">#C0392B / #FDECE9 · owes, errors, delete 5.4:1</div></div></div>
+  </div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; margin-top:12px">
+    <div style="padding:14px; border:1px solid #E7E4DE; border-radius:14px"><div style="display:flex; gap:6px; margin-bottom:8px"><span style="width:32px; height:32px; border-radius:10px; background:#0F766E"></span><span style="width:32px; height:32px; border-radius:10px; background:#E3F3F0"></span><span style="width:32px; height:32px; border-radius:10px; background:#F07A5A"></span><span style="width:32px; height:32px; border-radius:10px; background:#FFE9E2"></span></div><b>Teal + coral</b><div style="font-size:13px; color:#56514B">brand #0F766E (white 5.5:1) · accent #F07A5A, decorative only · accent text #9A3A20 on #FFE9E2 (6.3:1)</div></div>
+    <div style="padding:14px; border:1px solid #E7E4DE; border-radius:14px"><div style="display:flex; gap:6px; margin-bottom:8px"><span style="width:32px; height:32px; border-radius:10px; background:#4F46E5"></span><span style="width:32px; height:32px; border-radius:10px; background:#ECEBFE"></span><span style="width:32px; height:32px; border-radius:10px; background:#F4A51C"></span><span style="width:32px; height:32px; border-radius:10px; background:#FFF3D9"></span></div><b>Indigo + saffron</b><div style="font-size:13px; color:#56514B">brand #4F46E5 (white 6.3:1) · accent #F4A51C · accent text #8A5300 on #FFF3D9 (5.8:1)</div></div>
+    <div style="padding:14px; border:1px solid #E7E4DE; border-radius:14px"><div style="display:flex; gap:6px; margin-bottom:8px"><span style="width:32px; height:32px; border-radius:10px; background:#16734A"></span><span style="width:32px; height:32px; border-radius:10px; background:#E4F3EA"></span><span style="width:32px; height:32px; border-radius:10px; background:#F9A825"></span><span style="width:32px; height:32px; border-radius:10px; background:#FFF2D6"></span></div><b>Green + mango</b><div style="font-size:13px; color:#56514B">brand #16734A (white 5.9:1) · accent #F9A825 · accent text #855000 on #FFF2D6 (6.0:1)</div></div>
+  </div>
+  <p style="margin:16px 0 6px; font-weight:600">Person colours (assigned in order, reused after 6)</p>
+  <div style="display:flex; flex-wrap:wrap; gap:8px">
+    <span style="width:44px; height:44px; border-radius:50%; background:#FFE3D8; color:#9C3514; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">A</span>
+    <span style="width:44px; height:44px; border-radius:50%; background:#D6F1EA; color:#0B5E55; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">B</span>
+    <span style="width:44px; height:44px; border-radius:50%; background:#E3E1FF; color:#4133B8; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">C</span>
+    <span style="width:44px; height:44px; border-radius:50%; background:#FFEDC2; color:#7F5200; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">D</span>
+    <span style="width:44px; height:44px; border-radius:50%; background:#FBDDEB; color:#9B1C57; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">E</span>
+    <span style="width:44px; height:44px; border-radius:50%; background:#DAEAFE; color:#1E4FB8; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800">F</span>
+  </div>
+  <p style="margin:6px 0 0; font-size:13px; color:#56514B">Each initial passes 5.5:1 on its tint. Avatars are decorative (<code>aria-hidden</code>); the name is always written next to them.</p>
+
+  <h2 style="margin:44px 0 10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Type</h2>
+  <div style="border:1px solid #E7E4DE; border-radius:16px; overflow:hidden">
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px; border-bottom:1px solid #E7E4DE"><span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:800; letter-spacing:-0.015em">Goa trip</span><code style="color:#56514B">Jakarta 800 · 26–30 · group name, wordmark</code></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px; border-bottom:1px solid #E7E4DE"><span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:18px; font-weight:800">Balances</span><code style="color:#56514B">Jakarta 800 · 18 section · 22 sheet title</code></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px; border-bottom:1px solid #E7E4DE"><span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:26px; font-weight:800; font-variant-numeric:tabular-nums">₹1,200.00</span><code style="color:#56514B">Jakarta 800 · 26 · amount inputs</code></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px; border-bottom:1px solid #E7E4DE"><span style="font-size:16px; font-weight:600">Groceries and fruit</span><code style="color:#56514B">Inter 400–700 · 16 · body, rows, inputs</code></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px; border-bottom:1px solid #E7E4DE"><span style="font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; color:#C0392B">₹4,490.00</span><code style="color:#56514B">Inter 700 · 15–16 · list amounts, tnum</code></div>
+    <div style="display:grid; grid-template-columns:minmax(0,1fr) auto; gap:16px; align-items:baseline; padding:14px 16px"><span style="font-size:13px; color:#56514B">29 Sep · paid by Asha · split among 3</span><code style="color:#56514B">Inter 400 · 13 · meta (minimum)</code></div>
+  </div>
+  <p style="margin:10px 0 0; font-size:14px; color:#56514B; text-wrap:pretty">Two families: Plus Jakarta Sans and Inter. Amounts are right-aligned, <code>tabular-nums</code>, never wrap, and grouped en-IN. Names and descriptions use <code>overflow-wrap:anywhere</code>.</p>
+
+  <h2 style="margin:44px 0 10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Spacing and corners</h2>
+  <p style="margin:0; font-size:14px; color:#56514B">Spacing on a 4px base: <code>4 · 8 · 12 · 16 · 20 · 24 · 32</code>. Page gutter 20 + safe-area. Corners: <code>12</code> small buttons · <code>14</code> inputs · <code>16–18</code> main buttons · <code>20–22</code> cards · <code>24</code> sheet top and dialogs · pill for avatars and status.</p>
+
+  <h2 style="margin:44px 0 10px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Components</h2>
+  <div style="display:grid; gap:12px">
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Buttons</b><div style="display:flex; flex-wrap:wrap; gap:8px; margin:10px 0"><span style="min-height:56px; padding:0 22px; display:flex; align-items:center; border-radius:16px; background:#0F766E; color:#fff; font-weight:700">Add expense</span><span style="min-height:56px; padding:0 22px; display:flex; align-items:center; border-radius:16px; border:1.5px solid #0F766E; color:#0F766E; font-weight:700">Join with a link</span><span style="min-height:44px; padding:0 14px; display:flex; align-items:center; border-radius:12px; background:#E3F3F0; color:#0F766E; font-weight:700; font-size:14px">Change</span><span style="min-height:56px; padding:0 20px; display:flex; align-items:center; border-radius:16px; border:1.5px solid #C0392B; color:#C0392B; font-weight:700">Delete</span></div><div style="font-size:14px; color:#56514B">Filled brand for the one main action, outline brand for the alternative, soft brand for inline "Change", red outline for Delete (filled red only inside a confirmation). Minimum 44px, main actions 56px. Focus: 3px brand outline.</div></div>
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Header</b><div style="font-size:14px; color:#56514B; margin-top:4px">Brand-coloured band: the group name (tap it to open the menu) with a chevron, sync dot, ⋯ button, then the avatar row with a dashed + and "4 people". White text passes on all three brand colours.</div></div>
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Rows</b><div style="font-size:14px; color:#56514B; margin-top:4px"><b style="color:#1C1A18">Balance</b>: payer avatar, "Ben owes Asha", red amount, chevron. The whole row records a payment. <b style="color:#1C1A18">Expense</b>: payer avatar, description, "29 Sep · paid by Asha · split among 3", amount. <b style="color:#1C1A18">Payment</b>: avatar with a green arrow badge, green "Ben paid Asha", "· payment". <b style="color:#1C1A18">Unsynced</b>: grey "waiting to sync" tag, faint amount. <b style="color:#1C1A18">Menu row</b>: 44px icon circle, label and one-line hint, 64px tall.</div></div>
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Sheets</b><div style="font-size:14px; color:#56514B; margin-top:4px">One bottom-sheet shell (24px top corners, 42% scrim, handle, title, round close) used for Group menu, People, Start a group, Join, Add/Edit expense and Record payment. The footer holds the one main button above the safe area. At 700px and wider, sheets become centred 560px panels. In Add expense, only two fields take typing: Paid by starts on the latest payer, and the split is one line with "Change" that opens the checkboxes. An error on the split opens them automatically.</div></div>
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Guide card</b><div style="font-size:14px; color:#56514B; margin-top:4px">Accent-soft card: "Step N of 3" with a three-dash progress bar, a title, one sentence and one dark button. Step 3 also offers "Not now".</div></div>
+    <div style="padding:16px; border:1px solid #E7E4DE; border-radius:18px"><b>Dialogs and messages</b><div style="font-size:14px; color:#56514B; margin-top:4px">Confirmations are centred <code>alertdialog</code>s that name the item: "Delete 'Dinner' (₹1,200.00)?", "Remove Chitra from the group?". The message bar is red-soft with <code>role="alert"</code> and a 44px dismiss, floating above the Add expense button. Field errors sit under their field with <code>aria-invalid</code> and <code>aria-describedby</code>.</div></div>
+  </div>
+
+  <h2 style="margin:44px 0 8px; font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800">Where everything moved</h2>
+  <ul style="margin:0; padding-left:20px; color:#56514B; display:grid; gap:4px">
+    <li>Copy invite link, Currency, Switch group → group menu (name or ⋯). Copy invite link is also step 3 of the guide.</li>
+    <li>Add or remove people → People sheet (tap the avatars, or +). The blocked-removal message shows inline under that person.</li>
+    <li>Record payment → tap a balance. Edit or delete → tap an expense.</li>
+    <li>Remove from this device → "Edit" next to Your groups.</li>
+    <li>Join paste field → the "Join with a link" sheet.</li>
+  </ul>
+</main>
+</x-dc>
+</body>
+</html>

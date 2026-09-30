@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+:root{--brand:#4F46E5;--brand-soft:#ECEBFE;--accent:#F4A51C;--accent-soft:#FFF3D9;--accent-ink:#8A5300}
+body{margin:0;background:#DCD9D3;font-family:"Inter",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#0F766E}
+a:hover{color:#1C1A18}
+</style>
+</helmet>
+<section style="padding:48px 56px">
+  <h1 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:32px; font-weight:800; color:#1C1A18">SplitFamilia · Play Store assets</h1>
+  <p style="margin:6px 0 32px; font-size:15px; color:#56514B">Six phone screenshots at 1080 × 1920 (9:16) and the 1024 × 500 feature graphic, in the indigo + saffron palette. The phones are the live <a href="SplitFamilia Prototype v2.dc.html">v2 prototype</a>.</p>
+  <div style="display:flex; flex-wrap:wrap; gap:48px; align-items:flex-start">
+
+    <div data-screen-label="01 Welcome" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--brand-soft)">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#1C1A18; text-wrap:balance">Every trip and occasion, sorted.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:#56514B">Holidays, weddings, festivals, weekends away.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(28,26,24,.18)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="welcome" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="02 People" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--accent-soft)">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#1C1A18; text-wrap:balance">Add everyone who's sharing.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:var(--accent-ink)">No sign-up. Just send the invite link.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(28,26,24,.18)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="shot-people" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="03 Add expense" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:var(--brand)">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#fff; text-wrap:balance">Log a cost in seconds.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:#fff">Type what and how much. That's it.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(0,0,0,.28)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="shot-add" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="04 Expenses" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:#F6F5F2">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#1C1A18; text-wrap:balance">One list everyone can see.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:#56514B">Newest first, synced for the whole group.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(28,26,24,.18)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="shot-ledger" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="05 Balances" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:#FDECE9">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#1C1A18; text-wrap:balance">Who owes whom, at a glance.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:#A32F23">Simplified to the fewest payments.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(28,26,24,.18)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="home" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="06 Settled" style="position:relative; width:1080px; height:1920px; overflow:hidden; background:#E5F4EB">
+      <div style="padding:120px 96px 0">
+        <h2 style="margin:0; font-family:'Plus Jakarta Sans',sans-serif; font-size:86px; line-height:1.05; letter-spacing:-0.03em; font-weight:800; color:#1C1A18; text-wrap:balance">And then, all settled up.</h2>
+        <p style="margin:28px 0 0; font-size:38px; line-height:1.35; color:#157347">Record payments you make outside the app.</p>
+      </div>
+      <div style="position:absolute; left:91px; top:500px; width:898px; height:1420px; overflow:hidden; border-radius:64px 64px 0 0; background:#fff; box-shadow:0 30px 80px rgba(28,26,24,.18)">
+        <div style="width:390px; height:617px; transform:scale(2.3026); transform-origin:0 0"><dc-import name="SplitFamilia Prototype v2" screen="settled" bare="{{ true }}" style="display:block; width:390px; height:617px" hint-size="390px,617px"></dc-import></div>
+      </div>
+    </div>
+
+    <div data-screen-label="Feature graphic" style="position:relative; width:1024px; height:500px; overflow:hidden; background:var(--brand); display:grid; grid-template-columns:1fr 430px; align-items:center; gap:36px; padding:0 60px 0 72px">
+      <span aria-hidden="true" style="position:absolute; right:-80px; top:-120px; width:420px; height:420px; border-radius:50%; background:var(--accent); opacity:.9"></span>
+      <div style="position:relative">
+        <div style="font-family:'Plus Jakarta Sans',sans-serif; font-size:76px; line-height:1; letter-spacing:-0.03em; font-weight:800; color:#fff">SplitFamilia</div>
+        <p style="margin:18px 0 0; font-size:28px; line-height:1.35; color:#fff">a running ledger for shared costs</p>
+      </div>
+      <div style="position:relative; display:flex; flex-direction:column; gap:14px">
+        <div style="background:#fff; border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.25); overflow:hidden">
+          <div style="display:flex; align-items:center; gap:14px; padding:18px 22px; border-bottom:1px solid #E7E4DE">
+            <span style="width:44px; height:44px; border-radius:50%; background:#D6F1EA; color:#0B5E55; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:18px">B</span>
+            <span style="flex:1; font-size:21px; color:#1C1A18"><b style="font-weight:600">Ben</b> owes <b style="font-weight:600">Asha</b></span>
+            <span style="font-size:21px; font-weight:700; color:#C0392B; font-variant-numeric:tabular-nums">₹4,490.00</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:14px; padding:18px 22px">
+            <span style="width:44px; height:44px; border-radius:50%; background:#FFEDC2; color:#7F5200; display:grid; place-items:center; font-family:'Plus Jakarta Sans',sans-serif; font-weight:800; font-size:18px">D</span>
+            <span style="flex:1; font-size:21px; color:#1C1A18"><b style="font-weight:600">Dev</b> owes <b style="font-weight:600">Asha</b></span>
+            <span style="font-size:21px; font-weight:700; color:#C0392B; font-variant-numeric:tabular-nums">₹4,080.00</span>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:14px; margin-left:56px; padding:16px 22px; background:#E5F4EB; border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.25)">
+          <span style="width:40px; height:40px; border-radius:50%; background:#157347; display:grid; place-items:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"></circle><path d="M8.5 13.5a4 4 0 0 0 7 0"></path><path d="M9 9.5h.01M15 9.5h.01"></path></svg></span>
+          <span style="font-family:'Plus Jakarta Sans',sans-serif; font-size:24px; font-weight:800; color:#157347">All settled up.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const P = {
+  'teal-coral':     {name:'teal + coral', brand:'#0F766E', soft:'#E3F3F0', accent:'#F07A5A', accentSoft:'#FFE9E2', accentInk:'#9A3A20'},
+  'indigo-saffron': {name:'indigo + saffron', brand:'#4F46E5', soft:'#ECEBFE', accent:'#F4A51C', accentSoft:'#FFF3D9', accentInk:'#8A5300'},
+  'green-mango':    {name:'green + mango', brand:'#16734A', soft:'#E4F3EA', accent:'#F9A825', accentSoft:'#FFF2D6', accentInk:'#855000'}
+};
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  key(){ return 'indigo-saffron'; }
+  apply(){ const p = P[this.key()], el = this.rootRef.current; if(!el) return;
+    [['--brand',p.brand],['--brand-soft',p.soft],['--accent',p.accent],['--accent-soft',p.accentSoft],['--accent-ink',p.accentInk]].forEach(([k,v]) => el.style.setProperty(k,v)); }
+  componentDidMount(){ this.apply(); }
+  componentDidUpdate(){ this.apply(); }
+  renderVals(){ return { rootRef:this.rootRef, palette:this.key(), paletteName:P[this.key()].name }; }
+}
+</script>
+</body>
+</html>
