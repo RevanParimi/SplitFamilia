@@ -1,0 +1,386 @@
+{
+  "emulator": "127.0.0.1:8080",
+  "project": "demo-splitfamilia",
+  "E1_online": {
+    "gid": "review-trip-wescwu53d2",
+    "ids": {
+      "Chitra": "HBIeSSuZjrh3oPUCeIPi",
+      "Asha": "d35QErMBzKOzKAWu9mo8",
+      "Ben": "eLRr4zE4JAslSultzDGK"
+    },
+    "liveAfterStartMs": 3824,
+    "liveAfterWritesMs": 3,
+    "screen": {
+      "status": "· live",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Tea paid by Chitra · split: Chitra, Asha, Ben ₹0.05 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Ben owes Asha ₹33.34",
+        "Chitra owes Asha ₹33.31"
+      ]
+    },
+    "storedPeople": [
+      {
+        "id": "HBIeSSuZjrh3oPUCeIPi",
+        "name": "Chitra"
+      },
+      {
+        "id": "d35QErMBzKOzKAWu9mo8",
+        "name": "Asha"
+      },
+      {
+        "id": "eLRr4zE4JAslSultzDGK",
+        "name": "Ben"
+      }
+    ],
+    "storedExpenses": [
+      {
+        "id": "5tjivgAquAzArXIbG5Dv",
+        "date": "2026-09-30T01:23:26.526Z",
+        "desc": "Dinner",
+        "amount": 100,
+        "paidBy": "d35QErMBzKOzKAWu9mo8",
+        "split": [
+          "HBIeSSuZjrh3oPUCeIPi",
+          "d35QErMBzKOzKAWu9mo8",
+          "eLRr4zE4JAslSultzDGK"
+        ]
+      },
+      {
+        "id": "gTdOPlVynTo3du3L6XaB",
+        "date": "2026-09-30T01:23:27.048Z",
+        "desc": "Tea",
+        "amount": 0.05,
+        "paidBy": "HBIeSSuZjrh3oPUCeIPi",
+        "split": [
+          "HBIeSSuZjrh3oPUCeIPi",
+          "d35QErMBzKOzKAWu9mo8",
+          "eLRr4zE4JAslSultzDGK"
+        ]
+      }
+    ],
+    "groupDoc": {
+      "currency": {
+        "stringValue": "₹"
+      }
+    }
+  },
+  "E2_offline": {
+    "onLine": false,
+    "offlineIdle": {
+      "status": "· offline: changes will sync when you're back online",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Tea paid by Chitra · split: Chitra, Asha, Ben ₹0.05 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Ben owes Asha ₹33.34",
+        "Chitra owes Asha ₹33.31"
+      ]
+    },
+    "afterOfflineDelete": {
+      "status": "· offline: changes will sync when you're back online",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Chitra owes Asha ₹33.34",
+        "Ben owes Asha ₹33.33"
+      ]
+    },
+    "afterOfflineAdd": {
+      "status": "· offline: 1 change waiting to sync",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Taxi paid by Ben · split: Chitra, Ben waiting to sync ₹50.00 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Chitra owes Asha ₹58.34",
+        "Ben owes Asha ₹8.33"
+      ]
+    },
+    "storedWhileOffline": [
+      "Dinner",
+      "Tea"
+    ]
+  },
+  "E3_backOnline": {
+    "liveAgainMs": 326,
+    "screen": {
+      "status": "· live",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Taxi paid by Ben · split: Chitra, Ben ₹50.00 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Chitra owes Asha ₹58.34",
+        "Ben owes Asha ₹8.33"
+      ]
+    },
+    "storedExpenses": [
+      {
+        "id": "5tjivgAquAzArXIbG5Dv",
+        "date": "2026-09-30T01:23:26.526Z",
+        "desc": "Dinner",
+        "amount": 100,
+        "paidBy": "d35QErMBzKOzKAWu9mo8",
+        "split": [
+          "HBIeSSuZjrh3oPUCeIPi",
+          "d35QErMBzKOzKAWu9mo8",
+          "eLRr4zE4JAslSultzDGK"
+        ]
+      },
+      {
+        "id": "bOZg9b0OZoMuoxpHzmDL",
+        "date": "2026-09-30T01:23:31.403Z",
+        "desc": "Taxi",
+        "amount": 50,
+        "paidBy": "eLRr4zE4JAslSultzDGK",
+        "split": [
+          "HBIeSSuZjrh3oPUCeIPi",
+          "eLRr4zE4JAslSultzDGK"
+        ]
+      }
+    ],
+    "statusLogSinceFirstOpen": [
+      {
+        "t": "· connecting…",
+        "ms": 724
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 2835
+      },
+      {
+        "t": "· live",
+        "ms": 6456
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 6559
+      },
+      {
+        "t": "· live",
+        "ms": 6680
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 6970
+      },
+      {
+        "t": "· live",
+        "ms": 7055
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 7383
+      },
+      {
+        "t": "· live",
+        "ms": 7453
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 7831
+      },
+      {
+        "t": "· live",
+        "ms": 7935
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 8348
+      },
+      {
+        "t": "· live",
+        "ms": 8422
+      },
+      {
+        "t": "· offline: changes will sync when you're back online",
+        "ms": 9413
+      },
+      {
+        "t": "· offline: 1 change waiting to sync",
+        "ms": 12701
+      },
+      {
+        "t": "· 1 change waiting to sync",
+        "ms": 13939
+      },
+      {
+        "t": "· live",
+        "ms": 14113
+      }
+    ]
+  },
+  "E6_onlineButUnreachable": {
+    "before": "· live",
+    "afterDelete": [
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live",
+      "· live"
+    ],
+    "afterAdd": [
+      "· 1 change waiting to sync",
+      "· 1 change waiting to sync",
+      "· 1 change waiting to sync",
+      "· 1 change waiting to sync",
+      "· 1 change waiting to sync"
+    ],
+    "storedDuringDelete": [
+      "Dinner",
+      "Taxi"
+    ],
+    "ledgerDuringDelete": [
+      "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+    ],
+    "liveAgainMs": 4374,
+    "storedAfter": [
+      "Dinner",
+      "Snacks"
+    ],
+    "screenAfter": {
+      "status": "· live",
+      "notice": null,
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Snacks paid by Asha · split: Asha ₹10.00 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Chitra owes Asha ₹33.34",
+        "Ben owes Asha ₹33.33"
+      ]
+    }
+  },
+  "E4a_nameTooLong": {
+    "screen": {
+      "status": "· live",
+      "notice": "Couldn't add that person. This group can't be opened. Check the invite link.",
+      "people": [
+        "Chitra",
+        "Asha",
+        "Ben"
+      ],
+      "ledger": [
+        "30 Sept Snacks paid by Asha · split: Asha ₹10.00 ×",
+        "30 Sept Dinner paid by Asha · split: Chitra, Asha, Ben ₹100.00 ×"
+      ],
+      "balances": [
+        "Chitra owes Asha ₹33.34",
+        "Ben owes Asha ₹33.33"
+      ]
+    },
+    "storedPeople": 3,
+    "console": [
+      "error: SplitFamilia: Couldn't add that person. permission-denied"
+    ],
+    "typedTextInConsole": false
+  },
+  "E4b_split51": {
+    "people": 51,
+    "splitSize": 51,
+    "justAfterLedger": [
+      "30 Sept Snacks paid by Asha · split: Ash",
+      "30 Sept Dinner paid by Asha · split: Chi"
+    ],
+    "later": {
+      "status": "· live",
+      "notice": "Couldn't save that expense. This group can't be opened. Check the invite link.",
+      "ledger": [
+        "30 Sept Snacks paid by Asha · split: Ash",
+        "30 Sept Dinner paid by Asha · split: Chi"
+      ]
+    },
+    "storedExpenses": [
+      "Dinner",
+      "Snacks"
+    ],
+    "console": [
+      "error: SplitFamilia: Couldn't save that expense. permission-denied"
+    ]
+  },
+  "E5_reopen": {
+    "liveOnReopenMs": 2,
+    "statusLog": [
+      {
+        "t": "· connecting…",
+        "ms": 70
+      },
+      {
+        "t": "· live",
+        "ms": 295
+      }
+    ],
+    "controlled": true,
+    "cache": {
+      "splitsheet-v5": [
+        "/group-code.js?v=5",
+        "/icon-192.png",
+        "/icon-512.png",
+        "/index.html",
+        "/manifest.json",
+        "/money.js?v=5",
+        "/sync-status.js?v=5",
+        "www.gstatic.com/firebasejs/12.17.1/firebase-app.js",
+        "www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+      ]
+    }
+  },
+  "errors": [],
+  "dialogs": [],
+  "realFirestoreRequestsTried": 0
+}

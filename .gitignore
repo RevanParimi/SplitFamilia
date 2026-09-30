@@ -36,6 +36,9 @@ captures/
 .externalNativeBuild/
 .cxx/
 
+# The server's local database (SF-032); on Railway it lives on the volume, not in the repo
+/data/
+
 # Firebase tools and emulators
 .firebase/
 firebase-debug*.log

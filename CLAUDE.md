@@ -10,26 +10,48 @@
   `service-worker.js` (a PWA; its cache is named `splitsheet-vN`, the page imports the modules
   as `./name.js?v=N` with the same N, and it also keeps the two versioned Firebase SDK files so
   the app starts offline). No build step.
-- **Hosting files (SF-011):** `Dockerfile` (Caddy on Alpine, only the app's files),
-  `.dockerignore`, `Caddyfile`, `railway.json` and `.well-known/assetlinks.json`. A new file the
-  page needs must be added to the `Dockerfile` and `.dockerignore` too; `npm test` checks. Owner
-  steps: `docs/google-play/HOSTING_RAILWAY.md`.
+- **Server (T-08, SF-031 to SF-034):** `server/` runs on Node 24 with built-in modules only
+  (`node:http`, `node:sqlite`; nothing to install).
+  - It serves the app's files from a fixed list (`server/static.js`), `/healthz`, the ledger API
+    under `/api/` and live updates (an event stream per open page).
+  - The group code travels in the `X-Group-Code` header, never in a URL. The server logs at most
+    a method, a status and an error code.
+  - The data is in SQLite (`server/db.js`): whole paise; deletes only mark a row deleted; a
+    repeated ID is ignored. The file is on the Railway volume, or in `data/` locally
+    (git-ignored).
+  - `ledger-rules.js` holds the limits; the page will share it from T-09. `ledger-client.js` is
+    the page's live-update reader, also used from T-09. **Until T-09 the page still uses
+    Firestore.**
+- **Hosting files (SF-011, SF-031):** `Dockerfile` (`node:24.21.0-alpine`, only the app's files
+  and `server/`), `.dockerignore`, `railway.json` (health check `/healthz`) and
+  `.well-known/assetlinks.json`. A new file the page or the server needs must be added to the
+  `Dockerfile` and `.dockerignore`, and a new page file to `server/static.js`; `npm test` checks.
+  Owner steps: `docs/google-play/HOSTING_RAILWAY.md`.
 - **Repo map:** `README.md` lists every top-level file and folder and why the app's files sit at
   the top level. Keep it current when a file is added or moved. The approved UI design is in
   `docs/design/` (see its README).
 - **Firestore rules (SF-007):** `firestore.rules` and `firebase.json`; owner steps in
   `docs/google-play/FIRESTORE_RULES.md`. The rules repeat the app's limits (`npm test` checks).
-- **Data:** Firebase Firestore, loaded from the gstatic CDN. Money is stored as a decimal
+- **Data:** Firebase Firestore, loaded from the gstatic CDN, **until T-09**. From 2026-09-30 the
+  owner's direction is to move the database to Railway too, with no dependency on Firebase: a
+  small Node server with SQLite on a Railway volume (T-08, T-09; decision D-13). After T-09's
+  switch-over, Firebase is removed from the repo and the owner deletes the project. Money is stored as a decimal
   `amount` in rupees and read as integer paise. The browser's `localStorage` keeps only the
   current group (`splitsheet-group`). A group can also come from the URL (`?g=<code>`).
-- **Run it:** `python -m http.server 8000` in this folder, then open http://localhost:8000. A
-  service worker needs `http://localhost` or HTTPS, not `file://`.
-- **Tests:** `npm test`, which runs `node --test "tests/*.test.js"`. It needs Node 22 or later
-  (run on Node 24.21), and no `npm install`, network or Firestore. `tests/money.test.js` covers
-  `money.js`, `tests/group-code.test.js` covers `group-code.js`, `tests/sync-status.test.js`
-  covers `sync-status.js`, `tests/service-worker.test.js` runs the real worker against a fake
-  cache and network, and `tests/wiring.test.js` checks the page's imports against the service
-  worker, the `Dockerfile` and the Firestore rules.
+- **Run it:** `npm start` (the server, as on Railway: page, API and `/healthz` on
+  http://localhost:8080, database in `data/`; restart it after editing a page file), or
+  `python -m http.server 8000` for the page alone. A service worker needs `http://localhost` or
+  HTTPS, not `file://`.
+- **Tests:** `npm test`, which runs `node --test "tests/*.test.js"`. It needs Node 24 (for
+  `node:sqlite`; run on Node 24.21), and no `npm install`, network or Firestore.
+  - `tests/money.test.js`, `tests/group-code.test.js`, `tests/sync-status.test.js` and
+    `tests/ledger-rules.test.js` cover the pure modules.
+  - `tests/service-worker.test.js` runs the real worker against a fake cache and network.
+  - `tests/server-*.test.js` run the real server in-process on 127.0.0.1, with a temporary
+    database (`tests/helpers/test-server.js`): files, database, API and live updates.
+  - `tests/wiring.test.js` checks the page's imports against the service worker, and the
+    server's file list, the `Dockerfile`, `ledger-rules.js` and the Firestore rules against each
+    other.
 - **Rules tests:** `npm run test:rules` runs `tests/rules/` on the Firestore emulator (project
   `demo-splitfamilia`). It needs `npm install` and Java 21.
 - **Owner's time zone:** IST (UTC+05:30). Write every date and time with its zone.
@@ -37,9 +59,9 @@
   (`com.splitfamilia.app`). The owner's brief is saved verbatim in
   `docs/planning/brief/2026-09-28-google-play-release-brief.md`.
   - There is no Android project yet. SF-012 wraps the hosted PWA in a Trusted Web Activity.
-  - The web app will be hosted on **Railway**, like `../StockAgent-main` (SF-011's files are
-    ready; the owner creates the service). Until then, production is GitHub Pages
-    (`https://revanparimi.github.io/SplitFamilia/`), which a push to `main` also deploys.
+  - The web app is hosted on **Railway** (`https://splitfamilia.up.railway.app`), like
+    `../StockAgent-main`. GitHub Pages (`https://revanparimi.github.io/SplitFamilia/`) still
+    serves an older copy until the phones move (T-09); a push to `main` updates both.
 - **Product direction:** ship with good features and a good-looking UI, then keep improving after
   the Play release. Aim for solid, not high-end. Because the app is a TWA, web deploys update the
   Android app without a new Play upload.

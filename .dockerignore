@@ -1,15 +1,22 @@
-# Only the app's own files go to the Docker build (SF-011). Everything else stays out,
-# including docs/, tests/, node_modules/, android/, firebase settings and any key or .env file.
+# Only the app's own files go to the Docker build (SF-011, SF-031). Everything else stays out,
+# including docs/, tests/, node_modules/, data/ (a local database), android/, firebase settings
+# and any key or .env file.
 # Keep this list and the Dockerfile's COPY lines in step (tests/wiring.test.js checks both).
 *
-!Caddyfile
 !index.html
 !manifest.json
 !service-worker.js
 !money.js
 !group-code.js
 !sync-status.js
+!ledger-rules.js
 !icon-192.png
 !icon-512.png
 !apple-touch-icon.png
 !.well-known/assetlinks.json
+!server/main.js
+!server/server.js
+!server/static.js
+!server/db.js
+!server/api.js
+!server/live.js

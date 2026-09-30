@@ -47,7 +47,7 @@ service cloud.firestore {
         && stringOfLength(data.desc, 1, 200)
         && data.amount is number && data.amount > 0 && data.amount <= 10000000
         && stringOfLength(data.paidBy, 1, 100)
-        && data.split is list && data.split.size() >= 1 && data.split.size() <= 50;
+        && data.split is list && data.split.size() >= 1 && data.split.size() <= 100;
     }
 
     match /groups/{gid} {

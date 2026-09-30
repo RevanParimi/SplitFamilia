@@ -98,7 +98,7 @@ test("allowed: add an expense exactly as the app writes it, at the edges of each
   await assertSucceeds(addDoc(expenses(GROUP), expense({ desc: "d".repeat(200) })));
   await assertSucceeds(addDoc(expenses(GROUP), expense({ desc: "च".repeat(200) })));
   await assertSucceeds(addDoc(expenses(GROUP), expense({ split: ["asha"] })));
-  await assertSucceeds(addDoc(expenses(GROUP), expense({ split: ids(50) })));
+  await assertSucceeds(addDoc(expenses(GROUP), expense({ split: ids(100) })));
   await assertSucceeds(addDoc(expenses(NEW_GROUP), expense()));
 });
 
@@ -157,7 +157,7 @@ test("denied: an expense that isn't ledger-shaped", async function(){
     { amount: "lots" }, { amount: "300" }, { amount: 0 }, { amount: -5 }, { amount: 10000000.01 },
     { amount: NaN }, { amount: Infinity }, { amount: undefined },
     { desc: "" }, { desc: "d".repeat(201) }, { desc: 5 }, { desc: undefined },
-    { split: [] }, { split: ids(51) }, { split: "asha" }, { split: undefined },
+    { split: [] }, { split: ids(101) }, { split: "asha" }, { split: undefined },
     { paidBy: "" }, { paidBy: 5 }, { paidBy: undefined },
     { date: 20260929 }, { date: "" }, { date: undefined },
     { note: "extra field" }

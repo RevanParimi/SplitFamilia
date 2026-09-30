@@ -4,36 +4,40 @@ The web app will run as a Railway service at one HTTPS address, for example
 `https://splitfamilia.up.railway.app`. The Android app (SF-012) opens that address, so it must
 be live before the Android work starts (task T-05).
 
-- **What the repository does** (done in T-03, SF-011): the files that build and serve the app.
+- **What the repository does:** the files that build and serve the app (T-03, SF-011), and since
+  T-08 (SF-031 to SF-034) a small Node server with the ledger's database and API.
 - **What you do by hand:** every step marked **MANUAL ACTION REQUIRED** below. Nothing in this
   repo creates or changes anything in Railway, GitHub or Firebase.
 
 Decisions behind this: D-3 (Railway, like StockAgent), D-5 (a push to `main` deploys), D-10 (the
-free `*.up.railway.app` address). See `docs/planning/STATE.json`.
+free `*.up.railway.app` address), D-13 (the database: SQLite on a Railway volume). See
+`docs/planning/STATE.json`.
 
 ## 1. What is in the repository
 
 | File | What it does |
 |---|---|
-| `Dockerfile` | Builds a small image from `caddy:2.11.4-alpine` holding only the app's files: `index.html`, `manifest.json`, `service-worker.js`, the three JS modules, the icons and `.well-known/assetlinks.json`. No docs, tests, tooling or Firebase settings. |
-| `.dockerignore` | Lets only those files (and the `Caddyfile`) into the build, as a second guard. |
-| `Caddyfile` | The web server's settings: listens on `$PORT` (8080 if unset), serves `/.well-known/…`, compresses responses, and sets the headers below. Railway handles HTTPS in front of it. |
-| `railway.json` | Railway's settings as code: build with the `Dockerfile`, check `/` after each deploy, restart on failure, and redeploy only when an app file changes (a docs-only commit doesn't redeploy). Railway reads it from the repo; it overrides the same settings in the dashboard. |
+| `Dockerfile` | Builds a small image from `node:24.21.0-alpine` holding only the app's files (`index.html`, `manifest.json`, `service-worker.js`, the JS modules, the icons, `.well-known/assetlinks.json`) and the server (`server/`). No docs, tests, tooling, Firebase settings or `npm install`: the server uses only Node's built-in modules. |
+| `.dockerignore` | Lets only those files into the build, as a second guard. |
+| `server/` | The web server (T-08). It listens on `$PORT` (8080 if unset) and serves the app's files from a fixed list, with the headers below; everything else is a 404. It also answers `/healthz` and the ledger API under `/api/`, and keeps the database in the volume (section 3a). Railway handles HTTPS in front of it. |
+| `railway.json` | Railway's settings as code: build with the `Dockerfile`, check `/healthz` after each deploy, restart on failure, and redeploy only when an app or server file changes (a docs-only commit doesn't redeploy). Railway reads it from the repo; it overrides the same settings in the dashboard. |
 | `.well-known/assetlinks.json` | Tells Android that the SplitFamilia app (`com.splitfamilia.app`) may open this site full screen. Its two fingerprints are placeholders for now (see section 5). |
 
 Headers on every file: `Cache-Control: no-cache` (a phone checks for a new version each time it
 opens the app; an unchanged file costs a quick "not modified"), `X-Content-Type-Options: nosniff`
 and `Referrer-Policy: strict-origin-when-cross-origin`. `assetlinks.json` is sent as
-`application/json`.
+`application/json`. Text files are gzipped for browsers that ask. These are the same headers the
+Caddy server sent before T-08.
 
-`npm test` checks that the image ships every file the service worker caches, and that no shipped
-file has an `http://` or `localhost` address.
+`npm test` checks that the server serves exactly the files the service worker caches (plus the
+worker, the iPhone icon and `assetlinks.json`), that the image ships them and every server file,
+and that no shipped file has an `http://` or `localhost` address.
 
-How it was tested (T-03): the real Caddy server with this `Caddyfile`, on exactly the files the
-`Dockerfile` copies. Every header above was present, and `docs/`, `tests/`, `package.json` and
-the rules returned 404. Docker isn't installed on the development machine, so **the image itself
-was not built**. Railway's first build is the first real build; if it fails, its build log says
-why.
+How it was tested (T-08): `npm test` runs the real server in-process, and
+`docs/planning/evidence/T-08-image-check.mjs` stages exactly what the `Dockerfile` copies and
+starts it as the image would. Docker isn't installed on the development machine, so **the image
+itself was not built**; Railway's next build is its first real build. If it fails, its build log
+says why, and the last good deployment stays live (the health check never passes).
 
 ## 2. Before you start
 
@@ -63,8 +67,57 @@ setting nearby.
    If that name is taken, pick another without your own name in it.
    - Tell the next session the exact address. It is built into the Android app and into every
      invite link, so it should not change after the Play release (D-10).
-5. Wait for the deploy to finish. The build log should end with Caddy starting, and the health
-   check on `/` should pass.
+5. Wait for the deploy to finish. The deploy log should show
+   `SplitFamilia server: listening on port 8080; database ok.`, and the health check on
+   `/healthz` should pass.
+
+## 3a. The database: region, volume and backups (T-08)
+
+The server keeps every group in one SQLite file. Railway only keeps a file across deploys if it
+is on a **volume**. Without one, the database is wiped by each deploy. In T-08 nothing is stored
+there yet (the page still uses Firestore until T-09), so a missing volume costs nothing now. It
+**must** be in place before T-09's switch-over. Doing it before the T-08 push is simplest.
+
+Railway's screens change from time to time. **VERIFY IN RAILWAY** the exact menu names below.
+
+1. **MANUAL ACTION REQUIRED: pick the region first.** In the service's **Settings → Deploy →
+   Regions**, choose **Southeast Asia (Singapore)**, the closest to India. A volume stays in the
+   region it was made in, so set this before step 2. (Done on 2026-09-30: the service panel shows
+   "Southeast Asia".)
+2. **MANUAL ACTION REQUIRED: add a volume.** Railway's volume guide (checked 2026-09-30) gives
+   two ways:
+   - right-click an empty part of the project canvas (the dotted area) and choose the volume
+     option;
+   - or press **Ctrl+K** (the command palette) and type "volume".
+
+   Railway then asks which service to connect it to: choose **SplitFamilia**. Set the **mount
+   path** to **`/data`**. Railway then gives the service the variables `RAILWAY_VOLUME_NAME` and
+   `RAILWAY_VOLUME_MOUNT_PATH`, and the server puts `splitfamilia.db` there. Don't set them
+   yourself. Railway redeploys the service to mount the volume. The volume shows on the canvas
+   under the service.
+3. **MANUAL ACTION REQUIRED: turn on backups.** Once the volume is attached, the service's panel
+   gets a **Backups** tab, next to Deployments, Variables, Metrics, Console and Settings. There
+   you can make a backup now and set a schedule. Railway's backups guide (checked 2026-09-30)
+   lists:
+   - **Daily:** every 24 hours, each kept 6 days (recommended);
+   - **Weekly:** every 7 days, kept 27 days;
+   - **Monthly:** every 30 days, kept 89 days.
+
+   To restore, pick a backup by its date, choose **Restore**, then **Deploy**; the old volume
+   is kept, unmounted. **VERIFY IN RAILWAY:** the Pro plan's backup price, if any.
+
+   Steps 2 and 3 were done on 2026-09-30: a volume at `/data` and a daily backup schedule (the
+   owner's report).
+4. Redeploy (or push, on your word). Then open `https://<host>/healthz`. It should say
+   `{"status":"ok","database":"ok","storage":"volume"}`:
+   - `"storage":"local"` means no volume is attached;
+   - `"database":"unavailable"` means the file couldn't be opened. The deploy log says why, and
+     the page is still served.
+
+What to expect: with a volume, Railway runs only one copy of the service. Each deploy has a few
+seconds of downtime, because the old copy stops before the new one mounts the volume (Railway's
+volume guide says so). From T-09, phones keep changes made during those seconds and send them
+afterwards.
 
 ## 4. Check it (pending check PC-003)
 
@@ -80,6 +133,10 @@ With `<host>` as the address from step 4:
    response headers: `cache-control: no-cache`, `x-content-type-options: nosniff`.
 
 Tell the next session the result. It records it under PC-003 in `docs/planning/STATE.json`.
+
+After the T-08 push (pending check PC-005): `https://<host>/healthz` answers 200 as in section
+3a, and the family group opens exactly as before. The page itself doesn't change in T-08, so
+phones see no difference.
 
 ## 5. The Android fingerprints (later, in T-05 and after the first Play upload)
 
@@ -123,5 +180,7 @@ as a deploy (CLAUDE.md §5).
 
 - **MANUAL ACTION REQUIRED:** in Railway, open the service's **Deployments**, pick the last good
   one and choose **Redeploy**; or revert the commit on `main` and push (your word first).
+  Rolling back to the Caddy deployment (before T-08) is safe while the page still uses Firestore:
+  the volume and its database file are left as they are.
 - Phones pick up the rolled-back files within an open or two, as with any update: the first open
   may still show the cached version while the service worker fetches the other one.

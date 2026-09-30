@@ -1,11 +1,14 @@
 // Guards the wiring: the page uses the modules instead of its own copies, phones cache every
-// file the page imports under the same version number as the service worker's cache, the
-// Docker image ships those files, and the Firestore rules keep the app's own limits.
+// file the page imports under the same version number as the service worker's cache, the server
+// serves exactly those files, the Docker image ships them and the server's own code, and the
+// Firestore rules and ledger-rules.js keep the app's own limits.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { MAX_AMOUNT_PAISE } from "../money.js";
 import { MAX_GROUP_ID_LENGTH, isValidGroupId } from "../group-code.js";
+import * as ledgerRules from "../ledger-rules.js";
+import { STATIC_FILES } from "../server/static.js";
 
 const read = function(name){ return readFileSync(new URL("../" + name, import.meta.url), "utf8"); };
 
@@ -18,7 +21,8 @@ function swList(sw, name){
   const body = new RegExp("const " + name + " = \\[([^\\]]*)\\];").exec(sw)[1];
   return [...body.matchAll(/"([^"]+)"/g)].map(function(m){ return m[1]; });
 }
-// The files the Dockerfile copies into the image, by their path on the site.
+// The files the Dockerfile copies into the image, by their path under /app. Each lands at the same
+// path as in the repo, so the server's imports work the same in both.
 function dockerFiles(dockerfile){
   const files = [];
   dockerfile.split(/\r?\n/).forEach(function(line){
@@ -26,12 +30,26 @@ function dockerFiles(dockerfile){
     if(!m) return;
     const parts = m[1].trim().split(/\s+/);
     const dest = parts.pop();
-    if(!dest.startsWith("/srv/")) return;
-    if(dest.endsWith("/")) parts.forEach(function(p){ files.push(dest.slice("/srv/".length) + p); });
-    else files.push(dest.slice("/srv/".length));
+    assert.ok(dest.startsWith("/app/"), line);
+    const target = dest.slice("/app/".length);
+    parts.forEach(function(p){
+      const path = target.endsWith("/") || target === "" ? target + p.split("/").pop() : target;
+      assert.equal(path, p, "the Dockerfile copies " + p + " to a different path");
+      files.push(path);
+    });
   });
   return files;
 }
+// The relative imports of a module, as repo paths: server/api.js's "../money.js" → "money.js".
+function relativeImports(file){
+  const dir = file.includes("/") ? file.slice(0, file.lastIndexOf("/") + 1) : "";
+  return [...read(file).matchAll(/from "(\.{1,2}\/[^"]+)";/g)].map(function(m){
+    return new URL(m[1], "https://repo.invalid/" + dir).pathname.slice(1);
+  });
+}
+const serverFiles = function(){
+  return readdirSync(new URL("../server/", import.meta.url)).filter(function(f){ return f.endsWith(".js"); }).map(function(f){ return "server/" + f; });
+};
 
 test("index.html imports the balance maths from money.js instead of defining it", function(){
   const html = read("index.html");
@@ -76,27 +94,72 @@ test("the service worker keeps exactly the Firebase SDK files the page imports (
   assert.deepEqual(swList(sw, "SDK").slice().sort(), pageSdk);
 });
 
-test("the Docker image ships every file the service worker caches, and .dockerignore lets them in (SF-011)", function(){
+test("the server serves exactly the files phones cache, plus the worker, the iPhone icon and assetlinks.json (SF-031)", function(){
+  const shell = swList(read("service-worker.js"), "SHELL").map(function(p){ return "/" + p.replace(/^\.\//, "").replace(/\?.*$/, ""); });
+  const expected = shell.concat(["/service-worker.js", "/apple-touch-icon.png", "/.well-known/assetlinks.json"]).sort();
+  assert.deepEqual(Object.keys(STATIC_FILES).sort(), expected);
+});
+
+test("the Docker image ships every file the server serves or imports, and .dockerignore lets them in (SF-011, SF-031)", function(){
   const shipped = dockerFiles(read("Dockerfile"));
   const allowed = read(".dockerignore").split(/\r?\n/).filter(function(l){ return l.startsWith("!"); }).map(function(l){ return l.slice(1); });
-  const needed = swList(read("service-worker.js"), "SHELL").map(function(p){ return p.replace(/^\.\//, "").replace(/\?.*$/, ""); })
-    .concat(["apple-touch-icon.png", ".well-known/assetlinks.json"]);
-  needed.forEach(function(f){
+  const served = Object.keys(STATIC_FILES).map(function(p){ return p.slice(1); });
+  const server = serverFiles();
+  const imported = server.flatMap(relativeImports);
+  assert.ok(server.includes("server/main.js"));
+  assert.ok(imported.includes("ledger-rules.js") && imported.includes("group-code.js"));
+  served.concat(server, imported).forEach(function(f){
     assert.ok(shipped.includes(f), f + " is not copied by the Dockerfile");
     assert.ok(allowed.includes(f), f + " is not let in by .dockerignore");
   });
+  // The modules those modules import are shipped too (ledger-rules.js imports nothing).
+  imported.forEach(function(f){ relativeImports(f).forEach(function(g){ assert.ok(shipped.includes(g), g + " (imported by " + f + ") is not shipped"); }); });
   shipped.forEach(function(f){ assert.ok(allowed.includes(f), f + " is copied but .dockerignore keeps it out"); });
-  assert.ok(allowed.includes("Caddyfile"));
-  // Nothing but the app: no docs, tests, tooling, rules or secrets.
-  shipped.forEach(function(f){ assert.doesNotMatch(f, /^(docs|tests|node_modules|android)\/|\.md$|^package|^firebase|^firestore|\.env/); });
+  // Nothing but the app: no docs, tests, tooling, rules, local data or secrets.
+  shipped.forEach(function(f){ assert.doesNotMatch(f, /^(docs|tests|node_modules|android|data)\/|\.md$|^package|^firebase|^firestore|\.env|Caddyfile/); });
+});
+
+test("the image runs the Node server on node:24 Alpine, checked at /healthz; Caddy is gone (SF-031)", function(){
+  const dockerfile = read("Dockerfile");
+  assert.match(dockerfile, /^FROM node:24(\.\d+){0,2}-alpine\s*$/m);
+  assert.match(dockerfile, /^CMD \["node", "server\/main\.js"\]\s*$/m);
+  assert.match(dockerfile, /^RUN echo '\{ "type": "module" \}' > \/app\/package\.json\s*$/m);
+  assert.equal(existsSync(new URL("../Caddyfile", import.meta.url)), false);
+  assert.doesNotMatch(read(".dockerignore"), /Caddyfile/);
+  const railway = JSON.parse(read("railway.json"));
+  assert.equal(railway.deploy.healthcheckPath, "/healthz");
+  assert.ok(railway.build.watchPatterns.includes("/server/**"));
+  assert.ok(!railway.build.watchPatterns.includes("/Caddyfile"));
+  assert.equal(JSON.parse(read("package.json")).scripts.start, "node server/main.js");
+  // Only Node's own modules: nothing to install in the image.
+  serverFiles().forEach(function(f){
+    [...read(f).matchAll(/from "([^"]+)";/g)].forEach(function(m){
+      assert.match(m[1], /^(node:|\.\.?\/)/, f + " imports " + m[1]);
+    });
+  });
 });
 
 test("shipped files use HTTPS only: no localhost and no plain http:// URLs (SF-011)", function(){
-  dockerFiles(read("Dockerfile")).filter(function(f){ return !f.endsWith(".png"); }).forEach(function(f){
+  // ledger-client.js ships with the page in T-09; it is held to the same rule now.
+  dockerFiles(read("Dockerfile")).concat(["ledger-client.js"]).filter(function(f){ return !f.endsWith(".png"); }).forEach(function(f){
     const text = read(f);
     assert.doesNotMatch(text, /http:\/\//, f);
     assert.doesNotMatch(text, /localhost|127\.0\.0\.1/, f);
   });
+});
+
+test("the page's inputs and ledger-rules.js keep the same limits, and the amount limit is money.js's (SF-033)", function(){
+  const html = read("index.html");
+  const maxlength = function(id){ return Number(new RegExp('id="' + id + '"[^>]*maxlength="(\\d+)"').exec(html)[1]); };
+  assert.equal(maxlength("person-name"), ledgerRules.MAX_NAME_LENGTH);
+  assert.equal(maxlength("exp-desc"), ledgerRules.MAX_DESC_LENGTH);
+  assert.equal(maxlength("currency-input"), ledgerRules.MAX_CURRENCY_LENGTH);
+  assert.equal(ledgerRules.MAX_AMOUNT_PAISE, MAX_AMOUNT_PAISE);
+  // ledger-rules.js imports nothing, so the page can load it with one ?v= and no nested versions.
+  assert.deepEqual(relativeImports("ledger-rules.js"), []);
+  assert.doesNotMatch(read("ledger-rules.js"), /^import /m);
+  // Until T-09 the Firestore rules still apply to the page, and agree on the split too.
+  assert.match(read("firestore.rules"), new RegExp("data\\.split\\.size\\(\\) <= " + ledgerRules.MAX_SPLIT + "\\b"));
 });
 
 test("the Firestore rules keep the app's limits (SF-007)", function(){

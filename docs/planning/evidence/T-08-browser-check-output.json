@@ -1,0 +1,65 @@
+{
+  "first": {
+    "title": "SplitFamilia",
+    "boot": false,
+    "join": true,
+    "app": false,
+    "controlled": true
+  },
+  "caches": {
+    "splitsheet-v5": [
+      "/group-code.js?v=5",
+      "/icon-192.png",
+      "/icon-512.png",
+      "/index.html",
+      "/manifest.json",
+      "/money.js?v=5",
+      "/sync-status.js?v=5",
+      "www.gstatic.com/firebasejs/12.17.1/firebase-app.js",
+      "www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js"
+    ]
+  },
+  "second": {
+    "title": "SplitFamilia",
+    "boot": false,
+    "join": true,
+    "app": false,
+    "controlled": true
+  },
+  "secondVisitRequests": [
+    "GET / → 304",
+    "GET /manifest.json → 304",
+    "GET /icon-192.png → 304",
+    "GET /service-worker.js → 304"
+  ],
+  "offlineWithServerStopped": {
+    "title": "SplitFamilia",
+    "boot": false,
+    "join": true,
+    "app": false,
+    "controlled": true
+  },
+  "firstVisitRequests": [
+    "GET / → 200",
+    "GET /manifest.json → 200",
+    "GET /money.js?v=5 → 200",
+    "GET /group-code.js?v=5 → 200",
+    "GET /sync-status.js?v=5 → 200",
+    "GET /icon-192.png → 200",
+    "GET /icon-192.png → 304",
+    "GET /service-worker.js → 200",
+    "GET /index.html → 200",
+    "GET /money.js?v=5 → 200",
+    "GET /group-code.js?v=5 → 200",
+    "GET /sync-status.js?v=5 → 200",
+    "GET /manifest.json → 200",
+    "GET /icon-192.png → 200",
+    "GET /icon-512.png → 200",
+    "GET / → 304",
+    "GET /manifest.json → 304",
+    "GET /icon-192.png → 304",
+    "GET /service-worker.js → 304"
+  ],
+  "errors": [],
+  "firestoreRequests": []
+}

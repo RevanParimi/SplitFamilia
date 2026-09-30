@@ -1,9 +1,10 @@
 {
   "name": "splitfamilia",
   "private": true,
-  "description": "Shared-expense ledger PWA. No build step. `npm test` needs no install; `npm run test:rules` needs `npm install` and Java 21 for the Firestore emulator.",
+  "description": "Shared-expense ledger PWA. No build step. `npm start` runs the server (page and API) on port 8080; `npm test` needs no install; `npm run test:rules` needs `npm install` and Java 21 for the Firestore emulator.",
   "type": "module",
   "scripts": {
+    "start": "node server/main.js",
     "test": "node --test \"tests/*.test.js\"",
     "test:rules": "firebase emulators:exec --only firestore --project demo-splitfamilia \"node --test tests/rules/firestore-rules.test.js\""
   },

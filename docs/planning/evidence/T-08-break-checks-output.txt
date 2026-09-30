@@ -1,0 +1,52 @@
+CAUGHT B1 (SF-031) drop X-Content-Type-Options: nosniff: 6 failing, 3 passing
+    ✖ every app file is served as it is on disk, with the Caddyfile's headers
+    ✖ an unchanged file costs a quick 304 on revalidation
+    ✖ HEAD gives the headers without the body; other methods are refused
+CAUGHT B2 (SF-031) serve package.json too: 3 failing, 19 passing
+    ✖ nothing but the app's files is served: 404 with the same headers
+    ✖ the server serves exactly the files phones cache, plus the worker, the iPhone icon and assetlinks.json (SF-031)
+    ✖ the Docker image ships every file the server serves or imports, and .dockerignore lets them in (SF-011, SF-031)
+CAUGHT B3 (SF-031) leave server/live.js out of the image: 1 failing, 12 passing
+    ✖ the Docker image ships every file the server serves or imports, and .dockerignore lets them in (SF-011, SF-031)
+CAUGHT B4 (SF-032) build one query by string concatenation: 1 failing, 8 passing
+    ✖ a code or a name holding ' or ; is stored as text, never run
+CAUGHT B5 (SF-032) really delete an expense (no record), so a replay brings it back: 3 failing, 35 passing
+    ✖ a duplicate POST leaves one row, and sending it again after a delete doesn't bring it back
+    ✖ a group holds at most 5,000 expenses, deleted ones included: then 409 group-full; a replay still succeeds
+    ✖ a deleted row stays deleted: sending its add again doesn't bring it back
+CAUGHT B6 (SF-033) F-7: skip the code check on DELETE: 1 failing, 28 passing
+    ✖ denied (F-7): every operation with each code the app would never make
+CAUGHT B7 (SF-033) F-6: allow a split of 101: 3 failing, 45 passing
+    ✖ the limits are the card's, and the amount limit is money.js's
+    ✖ an expense's people: the payer and 1 to 100 split members, each once, all in the group
+    ✖ the page's inputs and ledger-rules.js keep the same limits, and the amount limit is money.js's (SF-033)
+CAUGHT B8 (SF-033) let a person used in an expense be deleted: 1 failing, 28 passing
+    ✖ a person used in an expense (as payer or in the split) can't be deleted: 409 failed-precondition
+CAUGHT B14 (SF-033) no cap on people per group: 1 failing, 28 passing
+    ✖ a group holds at most 100 people: the 101st gets 409 failed-precondition
+CAUGHT B9 (SF-033) allow one more unknown code (the 31st gets 404): 4 failing, 25 passing
+    ✖ the 31st unknown code from one address in 10 minutes gives 429, for every code, until the window passes
+    ✖ the address comes from X-Real-IP only behind Railway's proxy
+    ✖ F-8: requests whose bodies arrive after their heads are limited too: of 60 unknown codes, 30 get 404
+CAUGHT B10 (SF-033) log the group code with a refusal: 1 failing, 28 passing
+    ✖ no log line holds a group code, a name or a description
+CAUGHT B11 (SF-034) don't tell other pages about a change: 1 failing, 11 passing
+    ✖ two phones on one group: one adds an expense, the other hears it within 1 s; another group hears nothing
+CAUGHT B12 (SF-034) cap the reconnect delay at 60 s: 1 failing, 11 passing
+    ✖ reconnect delays grow 1 s, 2 s, 4 s, 8 s, 16 s, then stay at 30 s
+CAUGHT B13 (SF-034) keep the old watch when a new one starts (two connections per page): 1 failing, 11 passing
+    ✖ at most one live connection per page: a new watch stops the old one
+CAUGHT B15 (SF-033) F-8: check the guess limit only before the body is read: 1 failing, 28 passing
+    ✖ F-8: requests whose bodies arrive after their heads are limited too: of 60 unknown codes, 30 get 404
+CAUGHT B16 (SF-033) D-17: no limit on changes per address: 1 failing, 28 passing
+    ✖ an address sends at most 300 changes in 10 minutes; then its changes wait, and its reads don't
+CAUGHT B17 (SF-033) D-17: no cap on expenses per group: 1 failing, 28 passing
+    ✖ a group holds at most 5,000 expenses, deleted ones included: then 409 group-full; a replay still succeeds
+CAUGHT B18 (SF-034) D-17: no cap on streams per address: 1 failing, 11 passing
+    ✖ one address holds at most 10 streams: the 11th gets 503, others still get theirs, and closing one frees a place
+CAUGHT B19 (SF-034) D-17: an address's closed streams still count against it: 2 failing, 10 passing
+    ✖ 100 streams opened and closed leave nothing behind
+    ✖ one address holds at most 10 streams: the 11th gets 503, others still get theirs, and closing one frees a place
+CAUGHT B20 (SF-033) N-4: take a date that rolls over (2026-02-30): 1 failing, 5 passing
+    ✖ an expense's shape: every field once, amounts in whole paise from 1 to the maximum
+All 20 breaks caught; every file restored byte for byte.

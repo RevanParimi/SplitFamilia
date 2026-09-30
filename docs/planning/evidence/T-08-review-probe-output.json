@@ -1,0 +1,241 @@
+{
+ "P1_heldBodies": {
+  "sent": 60,
+  "answers": {
+   "404": 60
+  },
+  "trackedHits": "n/a",
+  "nextGet": 429
+ },
+ "P1_burst": {
+  "sent": 60,
+  "answers": {
+   "404": 30,
+   "429": 30
+  }
+ },
+ "P1_heldPuts": {
+  "sent": 60,
+  "answers": {
+   "200": 60
+  },
+  "groupsCreated": 60
+ },
+ "P2_oddAmount": {
+  "addStatus": 201,
+  "returned": {
+   "id": "e-odd",
+   "date": "2026-09-30T04:15:00.000Z",
+   "desc": "Chai ☕",
+   "amountPaise": 10001,
+   "paidBy": "ben",
+   "split": [
+    "chitra",
+    "asha",
+    "ben"
+   ]
+  },
+  "storedAs": {
+   "amount_paise": 10001,
+   "t": "integer"
+  },
+  "balances": {
+   "asha": -3334,
+   "ben": 6667,
+   "chitra": -3333
+  },
+  "balanceSum": 0
+ },
+ "P2_amountShapes": {
+  "0": "400 amountPaise",
+  "1000000000": "201",
+  "1000000001": "400 amountPaise",
+  "3334.0": "201",
+  "1e3": "201",
+  "\"3334\"": "400 amountPaise",
+  "3334.5": "400 amountPaise",
+  "-1": "400 amountPaise",
+  "2^53+1": "400 amountPaise",
+  "true": "400 amountPaise",
+  "null": "400 amountPaise"
+ },
+ "P2_storedAmounts": [
+  {
+   "id": "amt-0",
+   "amount_paise": 3334,
+   "t": "integer"
+  },
+  {
+   "id": "amt-1",
+   "amount_paise": 1000,
+   "t": "integer"
+  },
+  {
+   "id": "amt-6",
+   "amount_paise": 1000000000,
+   "t": "integer"
+  }
+ ],
+ "P3_replay": {
+  "steps": [
+   [
+    "add",
+    201
+   ],
+   [
+    "delete",
+    200
+   ],
+   [
+    "replay add (changed text)",
+    200,
+    {
+     "version": 4
+    }
+   ],
+   [
+    "replay delete",
+    200
+   ]
+  ],
+  "versionBeforeReplay": 4,
+  "versionAfter": 4,
+  "expensesShown": 0,
+  "rows": [
+   {
+    "id": "tea-1",
+    "description": "Tea",
+    "deleted": 1
+   }
+  ],
+  "twinStatuses": [
+   200,
+   201
+  ],
+  "twinRows": 1,
+  "twinSplitRows": 1
+ },
+ "P4_streams": {
+  "openCounts": {
+   "a": 2,
+   "b": 1,
+   "all": 3
+  },
+  "a1": [
+   "data: {\"version\":2}",
+   "data: {\"version\":3}"
+  ],
+  "a2": [
+   "data: {\"version\":2}",
+   "data: {\"version\":3}"
+  ],
+  "b": [
+   "data: {\"version\":1}"
+  ],
+  "unknownStatus": "404",
+  "heardWithinMs": 218,
+  "streamHeaders": [
+   "Content-Type: text/event-stream; charset=utf-8",
+   "Cache-Control: no-store",
+   "Connection: close",
+   "X-Content-Type-Options: nosniff"
+  ],
+  "afterClose": {
+   "all": 0,
+   "groups": 0,
+   "ticking": false
+  }
+ },
+ "P5_paths": {
+  "/..": "404",
+  "/../package.json": "404",
+  "/%2e%2e/package.json": "404",
+  "/%2E%2E%2Fpackage.json": "404",
+  "/.%2e/package.json": "404",
+  "/..%2fpackage.json": "404",
+  "/..%5cpackage.json": "404",
+  "/..\\package.json": "404",
+  "/%5c..%5cpackage.json": "404",
+  "/./index.html": "404",
+  "/index.html/.": "404",
+  "/.well-known/../package.json": "404",
+  "/.well-known/%2e%2e/package.json": "404",
+  "/%252e%252e/package.json": "404",
+  "//package.json": "404",
+  "/.git/config": "404",
+  "/.env": "404",
+  "/.dockerignore": "404",
+  "/Dockerfile": "404",
+  "/server/main.js": "404",
+  "/server/db.js": "404",
+  "/data/splitfamilia.db": "404",
+  "/splitfamilia.db": "404",
+  "/splitfamilia.db-wal": "404",
+  "/ledger-rules.js": "404",
+  "/ledger-client.js": "404",
+  "/docs/planning/STATE.json": "404",
+  "/tests/wiring.test.js": "404",
+  "/firestore.rules": "404",
+  "/index.html%00": "404",
+  "/INDEX.HTML": "404",
+  "/index.html;.js": "404",
+  "/%2e": "404",
+  "/.": "404",
+  "/api/../index.html": "404",
+  "/api/%2e%2e/index.html": "404",
+  "/.well-known/assetlinks.json": "200",
+  "/": "200",
+  "/?g=goa-trip-2026": "200",
+  "/index.html": "200"
+ },
+ "P6_forced500": {
+  "status": 500,
+  "body": {
+   "error": "internal"
+  },
+  "log": [
+   "SplitFamilia api: GET 500 internal (ERR_INVALID_STATE)"
+  ]
+ },
+ "P6_logs": {
+  "lines": [
+   "SplitFamilia api: POST 400 invalid-argument",
+   "SplitFamilia api: POST 400 invalid-argument",
+   "SplitFamilia api: POST 400 invalid-argument",
+   "SplitFamilia api: POST 400 invalid-argument",
+   "SplitFamilia api: GET 400 invalid-argument",
+   "SplitFamilia api: GET 404 not-found",
+   "SplitFamilia api: DELETE 405 invalid-argument",
+   "SplitFamilia api: GET 404 not-found",
+   "SplitFamilia api: GET 404 not-found",
+   "SplitFamilia api: GET 404 not-found",
+   "SplitFamilia api: an address reached the limit of unknown group codes",
+   "SplitFamilia api: GET 404 not-found"
+  ],
+  "leaks": []
+ },
+ "P7_header": {
+  "twoHeadersSameCode": "400",
+  "codeOnlyInQuery": "400",
+  "paddedCode": "200",
+  "len80": 404,
+  "len81": 400
+ },
+ "P8_writeFlood": {
+  "expensesSent": 2000,
+  "answers": {
+   "201": 2000
+  },
+  "ms": 9371,
+  "perSecond": 213,
+  "databaseBytesAfter": 28233728,
+  "bytesPerExpense": 14117,
+  "refusedAny": false
+ },
+ "P9_streamCap": {
+  "heldByOneAddress": {
+   "200": 20
+  },
+  "familyStream": 503
+ }
+}

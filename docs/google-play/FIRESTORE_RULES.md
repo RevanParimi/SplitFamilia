@@ -1,8 +1,25 @@
 # Firestore rules
 
+> **A stopgap since 2026-09-30.** The database is moving to Railway (tasks T-08 and T-09), and
+> Firebase will be removed. Publishing these rules now only closes today's open database until
+> the switch-over (decision D-15). This guide is retired in SF-038.
+
 SplitFamilia has no sign-in. A group's code is its password: whoever has the invite link can
-read and change that group. Today the database is probably open to anyone (decision D-6: no
-rules were ever written). `firestore.rules` (SF-007) closes it down to what the app needs.
+read and change that group. Today the database is open to anyone. These are the live rules the
+owner pasted on 2026-09-30, and they are the rollback target:
+
+```
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /groups/{groupId}/{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+`firestore.rules` (SF-007) closes it down to what the app needs.
 
 - **What the repository does:** the rules file, `firebase.json`, and tests.
 - **What you do by hand:** deploy the rules, marked **MANUAL ACTION REQUIRED** below. Nothing in
@@ -16,7 +33,7 @@ Everything not listed is refused.
 |---|---|---|
 | `groups/{code}` | Read one group by its code. Create or change it only as `{ currency }`, 1–3 characters. | Listing all groups. Other fields. Deleting a group. |
 | `groups/{code}/people/{id}` | Read and list. Add a person as `{ name }`, 1–60 characters. Delete. | Editing a person. Other fields. |
-| `groups/{code}/expenses/{id}` | Read and list. Add an expense with exactly `date` (text), `desc` (1–200 characters), `amount` (a number above 0, at most 10,000,000), `paidBy` (text) and `split` (a list of 1–50 people). Delete. | Editing an expense. An amount such as `"lots"` or `0`. Other fields. |
+| `groups/{code}/expenses/{id}` | Read and list. Add an expense with exactly `date` (text), `desc` (1–200 characters), `amount` (a number above 0, at most 10,000,000), `paidBy` (text) and `split` (a list of 1–100 people). Delete. | Editing an expense. An amount such as `"lots"` or `0`. Other fields. |
 | Any other path, and searches across all groups | — | Everything. |
 
 A code must look like the ones the app makes: lowercase letters and digits joined by single
@@ -62,8 +79,7 @@ longer name or description; the rules would refuse those, and the old page shows
 
 1. **MANUAL ACTION REQUIRED: save today's rules.** Firebase console → project
    `splitfamilia-cf927` → **Firestore Database → Rules**. Copy the text somewhere safe. This is
-   what a rollback returns to. On 2026-09-28 the tab had no `timestamp.date` expiry line (PC-001);
-   the full text wasn't recorded.
+   what a rollback returns to. The text as of 2026-09-30 is at the top of this guide.
 2. **MANUAL ACTION REQUIRED: sign in and deploy**, from this folder, with the Google account that
    owns the Firebase project:
 

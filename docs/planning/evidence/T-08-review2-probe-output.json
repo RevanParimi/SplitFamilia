@@ -1,0 +1,162 @@
+{
+ "Q1_heldWrites": {
+  "setup": [
+   200,
+   201
+  ],
+  "held": 400,
+  "answers": {
+   "201": 298,
+   "429": 102
+  },
+  "readSameAddress": 200,
+  "expensesStored": 298,
+  "otherAddressWrite": 201
+ },
+ "Q3a_changeLimit": {
+  "pairs": [
+   {
+    "request": "PUT /api/group",
+    "known": 429,
+    "unknown": 429,
+    "sameBody": true,
+    "sameHeaders": true,
+    "retryAfter": [
+     "599",
+     "599"
+    ]
+   },
+   {
+    "request": "POST /api/people",
+    "known": 429,
+    "unknown": 429,
+    "sameBody": true,
+    "sameHeaders": true,
+    "retryAfter": [
+     "599",
+     "599"
+    ]
+   },
+   {
+    "request": "POST /api/expenses",
+    "known": 429,
+    "unknown": 429,
+    "sameBody": true,
+    "sameHeaders": true,
+    "retryAfter": [
+     "599",
+     "599"
+    ]
+   },
+   {
+    "request": "DELETE /api/people/asha",
+    "known": 429,
+    "unknown": 429,
+    "sameBody": true,
+    "sameHeaders": true,
+    "retryAfter": [
+     "599",
+     "599"
+    ]
+   },
+   {
+    "request": "DELETE /api/expenses/h0",
+    "known": 429,
+    "unknown": 429,
+    "sameBody": true,
+    "sameHeaders": true,
+    "retryAfter": [
+     "599",
+     "599"
+    ]
+   }
+  ],
+  "fortyUnknownChanges": {
+   "429": 40
+  },
+  "afterwards": {
+   "knownRead": 200,
+   "unknownRead": 404
+  }
+ },
+ "Q3b_streamCap": {
+  "tenFromOneAddress": {
+   "200": 10
+  },
+  "atCap": {
+   "known": {
+    "status": 503,
+    "body": "{\"error\":\"unavailable\"}"
+   },
+   "unknown": 404
+  },
+  "belowCap": {
+   "known": 200,
+   "unknown": 404
+  }
+ },
+ "Q4_fullGroup": {
+  "fill": {
+   "201": 5000
+  },
+  "fillMs": 14090,
+  "databaseBytes": 67919872,
+  "bytesPerExpense": 13584,
+  "deleteOne": [
+   200,
+   5102
+  ],
+  "newAfterDelete": [
+   409,
+   {
+    "error": "failed-precondition",
+    "field": "group-full"
+   }
+  ],
+  "replayLive": [
+   200,
+   5102
+  ],
+  "replayDeleted": [
+   200,
+   5102
+  ],
+  "replayWithChangedPayer": [
+   200,
+   5102
+  ],
+  "rows": {
+   "n": 5000,
+   "deleted": 1
+  }
+ },
+ "Q8_bigRead": {
+  "visibleExpenses": 4999,
+  "responseBytes": 37304989,
+  "ms": 1739,
+  "contentEncodingWhenGzipAsked": "none",
+  "tenUnreadReads": {
+   "pageStatus": 200,
+   "pageMsWhileBuilding": 16686,
+   "externalMBBefore": 112,
+   "externalMBHeld": 113,
+   "externalMBAfterClose": 77,
+   "rssMBBefore": 493,
+   "rssMBHeld": 1102
+  }
+ },
+ "Q5_isDate": {
+  "checked": 90552,
+  "mismatches": []
+ },
+ "Q6_logs": {
+  "lines": 6,
+  "distinct": [
+   "SplitFamilia api: an address reached the limit of changes",
+   "SplitFamilia api: GET 404 not-found",
+   "SplitFamilia api: GET 503 unavailable",
+   "SplitFamilia api: POST 409 failed-precondition"
+  ],
+  "bad": []
+ }
+}

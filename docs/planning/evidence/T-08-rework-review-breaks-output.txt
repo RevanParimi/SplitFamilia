@@ -1,0 +1,25 @@
+CAUGHT R1 no dot-segment check (the URL parser tidies /%2e%2e/ to /): 1 failing, 8 passing
+    x nothing but the app's files is served: 404 with the same headers
+CAUGHT R2 trust X-Real-IP everywhere, not only behind Railway: 1 failing, 28 passing
+    x the address comes from X-Real-IP only behind Railway's proxy
+CAUGHT R3 count only Content-Length, not the bytes that arrive: 1 failing, 28 passing
+    x bodies over 16 KB, bodies that aren't JSON and requests that don't say JSON are refused
+CAUGHT R4 a closed stream stays in the hub: 5 failing, 7 passing
+    x a heartbeat comment arrives while nothing changes
+    x 100 streams opened and closed leave nothing behind
+    x at most one live connection per page: a new watch stops the old one
+    x a stream that goes quiet is dropped and opened again
+    x one address holds at most 10 streams: the 11th gets 503, others still get theirs, and closing one frees a place
+CAUGHT R5 a person only in a split (not the payer) can be deleted: 1 failing, 28 passing
+    x a person used in an expense (as payer or in the split) can't be deleted: 409 failed-precondition
+CAUGHT R6 the client keeps retrying an unknown code: 1 failing, 11 passing
+    x an unknown or invalid code stops the watch instead of trying forever
+CAUGHT R7 the API answers without Cache-Control: no-store: 1 failing, 37 passing
+    x allowed: open a group by its code
+CAUGHT R8 reading a group drops the first person of every split: 5 failing, 33 passing
+    x allowed: open a group by its code
+    x allowed: add an expense exactly as the page sends it, at the edges of each limit
+    x F-6: a split of 100 people is accepted, and of 101 refused
+    x a round trip keeps whole paise exactly, stored as integers
+    x the split keeps its order, and each expense its own
+All 8 reviewer breaks caught; every file restored byte for byte.

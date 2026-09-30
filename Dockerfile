@@ -1,15 +1,22 @@
-# SplitFamilia on Railway (SF-011): the app's static files, served by Caddy on $PORT.
-# Only the files the app serves are copied: no docs, tests, tooling or Firebase settings.
-# tests/wiring.test.js checks that every file the service worker caches is copied here.
-FROM caddy:2.11.4-alpine
+# SplitFamilia on Railway (SF-031): one small Node server that serves the app's files and the
+# ledger API. It uses only Node's built-in modules, so nothing is installed.
+# Only the files the app needs are copied: no docs, tests, tooling or Firebase settings.
+# tests/wiring.test.js checks this list against the service worker's SHELL, the server's list of
+# files and imports, and .dockerignore.
+FROM node:24.21.0-alpine
 
-COPY Caddyfile /etc/caddy/Caddyfile
+WORKDIR /app
+# The server and the page's modules are ES modules.
+RUN echo '{ "type": "module" }' > /app/package.json
 
-COPY index.html manifest.json service-worker.js /srv/
-COPY money.js group-code.js sync-status.js /srv/
-COPY icon-192.png icon-512.png apple-touch-icon.png /srv/
-COPY .well-known/assetlinks.json /srv/.well-known/assetlinks.json
+COPY index.html manifest.json service-worker.js /app/
+COPY money.js group-code.js sync-status.js ledger-rules.js /app/
+COPY icon-192.png icon-512.png apple-touch-icon.png /app/
+COPY .well-known/assetlinks.json /app/.well-known/assetlinks.json
+COPY server/main.js server/server.js server/static.js server/db.js server/api.js server/live.js /app/server/
 
-# Railway sets $PORT; the Caddyfile uses 8080 when it isn't set.
+# Runs as root: Railway mounts volumes as root, and the database lives on the volume
+# (RAILWAY_VOLUME_MOUNT_PATH). Railway sets $PORT; the server uses 8080 when it isn't set.
+ENV NODE_ENV=production
 EXPOSE 8080
-CMD ["caddy", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+CMD ["node", "server/main.js"]
