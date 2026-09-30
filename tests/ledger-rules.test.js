@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import {
   checkGroup, checkPerson, checkExpense, isValidId,
   MAX_AMOUNT_PAISE, MAX_CURRENCY_LENGTH, MAX_NAME_LENGTH, MAX_DESC_LENGTH, MAX_SPLIT, MAX_ID_LENGTH, MAX_PEOPLE,
-  MAX_EXPENSES
+  MAX_EXPENSES, MAX_SPLIT_ENTRIES
 } from "../ledger-rules.js";
 import { MAX_AMOUNT_PAISE as MONEY_MAX } from "../money.js";
 
@@ -20,6 +20,8 @@ test("the limits are the card's, and the amount limit is money.js's", function()
   assert.deepEqual([MAX_CURRENCY_LENGTH, MAX_NAME_LENGTH, MAX_DESC_LENGTH, MAX_SPLIT, MAX_ID_LENGTH, MAX_PEOPLE], [3, 60, 200, 100, 64, 100]);
   // The owner's cap on a group's expenses, deleted ones included (D-17).
   assert.equal(MAX_EXPENSES, 5000);
+  // The owner's cap on a group's split entries, deleted expenses included (D-18).
+  assert.equal(MAX_SPLIT_ENTRIES, 20000);
 });
 
 test("IDs: 1 to 64 letters, digits, _ or -", function(){

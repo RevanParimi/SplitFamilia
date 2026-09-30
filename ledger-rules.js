@@ -19,9 +19,14 @@ export const MAX_SPLIT = 100;
 // A group holds at most 5,000 expenses, deleted ones included (the owner, D-17): far more than a
 // family trip needs, and a bound on what anyone can store in one group.
 export const MAX_EXPENSES = 5000;
+// And at most 20,000 split entries in all, deleted expenses included (the owner, D-18): an expense
+// split among 4 people is 4 entries. Room for 100 people × 200 expenses, or 10 × 2,000, while
+// keeping a whole group's read to about 5 MB (the T-08 review's F-10 measured 37 MB without it).
+export const MAX_SPLIT_ENTRIES = 20000;
 export const MAX_ID_LENGTH = 64;
 
-// A person's or an expense's ID: Firestore's 20-character IDs and crypto.randomUUID()'s both fit.
+// A person's or an expense's ID: the old 20-character IDs (kept when the data moved) and
+// crypto.randomUUID()'s both fit.
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 // A time as Date.toISOString() writes it, which is what the page stores: "2026-09-29T06:30:00.000Z".
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?Z$/;

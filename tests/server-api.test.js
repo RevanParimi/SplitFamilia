@@ -4,9 +4,10 @@
 import { test, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { connect } from "node:net";
+import { gunzipSync } from "node:zlib";
 import { startTestServer, api, raw } from "./helpers/test-server.js";
 import { MAX_BODY_BYTES, WRITE_LIMIT, WRITE_WINDOW_MS } from "../server/api.js";
-import { MAX_EXPENSES } from "../ledger-rules.js";
+import { MAX_EXPENSES, MAX_SPLIT_ENTRIES } from "../ledger-rules.js";
 
 const GROUP = "goa-trip-2026"; // an old-style code, made from the group's name
 const NEW_GROUP = "goa-trip-7k2m9xqpwd"; // a new-style code with its random part
@@ -43,6 +44,28 @@ const addPerson = function(code, body){ return api(t.base, "POST", "/api/people"
 const addExpense = function(code, body){ return api(t.base, "POST", "/api/expenses", { code: code, body: body }); };
 
 // ---------- allowed ----------
+
+test("every API answer is no-store and nosniff: reads, changes and refusals alike", async function(){
+  // A browser or proxy must never keep group data, not even a change's answer or an error.
+  const code = await freshGroup();
+  const answers = [
+    await get(code),
+    await api(t.base, "PUT", "/api/group", { code: code, body: { currency: "$" } }),
+    await addPerson(code, { id: "zed", name: "Zed" }),
+    await addPerson(code, { id: "zed", name: "Zed" }),
+    await api(t.base, "DELETE", "/api/people/zed", { code: code }),
+    await get("no-such-group"),
+    await api(t.base, "GET", "/api/group", { code: "Bad-Code" }),
+    await addPerson(code, { id: "x" }),
+    await api(t.base, "DELETE", "/api/people/asha", { code: code }),
+    await api(t.base, "GET", "/api/nothing-here", { code: code })
+  ];
+  assert.deepEqual(answers.map(function(r){ return r.status; }), [200, 200, 201, 200, 200, 404, 400, 400, 409, 404]);
+  answers.forEach(function(r, i){
+    assert.equal(r.headers.get("cache-control"), "no-store", "answer " + i);
+    assert.equal(r.headers.get("x-content-type-options"), "nosniff", "answer " + i);
+  });
+});
 
 test("allowed: open a group by its code", async function(){
   const code = await freshGroup();
@@ -580,6 +603,84 @@ test("a group holds at most 5,000 expenses, deleted ones included: then 409 grou
     assert.equal((await add("e3")).status, 200);
     const read = await api(g.base, "GET", "/api/group", { code: code });
     assert.deepEqual(read.body.expenses.map(function(e){ return e.id; }), ["e1", "e2"]);
+  }finally{
+    await g.close();
+  }
+});
+
+// ---------- reading a large group stays cheap (D-18, the second T-08 review's F-10) ----------
+
+test("a group holds at most 20,000 split entries, deleted expenses included: then 409 group-full; a replay still succeeds", async function(){
+  // A cap of 5 here, so the test is quick; ledger-rules.test.js checks MAX_SPLIT_ENTRIES is 20,000.
+  assert.equal(MAX_SPLIT_ENTRIES, 20000);
+  const g = await startTestServer({ maxSplitEntries: 5 });
+  try{
+    const code = "entries-trip";
+    await api(g.base, "PUT", "/api/group", { code: code, body: { currency: "₹" } });
+    for(const id of ["a", "b", "c"]) await api(g.base, "POST", "/api/people", { code: code, body: { id: id, name: id.toUpperCase() } });
+    const add = function(id, split){
+      return api(g.base, "POST", "/api/expenses", { code: code,
+        body: { id: id, date: "2026-09-30T06:00:00.000Z", desc: "Tea", amountPaise: 900, paidBy: "a", split: split } });
+    };
+    assert.equal((await add("e1", ["a", "b", "c"])).status, 201); // 3 entries
+    assert.equal((await api(g.base, "DELETE", "/api/expenses/e1", { code: code })).status, 200); // still 3
+    const full = await add("e2", ["a", "b", "c"]); // 6 > 5
+    assert.equal(full.status, 409);
+    assert.deepEqual(full.body, { error: "failed-precondition", field: "group-full" });
+    assert.equal((await add("e3", ["a", "b"])).status, 201); // exactly 5
+    assert.equal((await add("e1", ["a", "b", "c"])).status, 200); // a replay: already there
+    assert.equal((await add("e4", ["a"])).status, 409);
+  }finally{
+    await g.close();
+  }
+});
+
+test("a group's answer is gzipped when the browser accepts it, and the same data either way", async function(){
+  const code = await freshGroup();
+  for(let i = 0; i < 20; i++) await addExpense(code, expense({ id: "g" + i, desc: "Dinner at the beach shack " + i }));
+  const plain = await raw(t.base, "/api/group", { headers: { "X-Group-Code": code } });
+  const zipped = await raw(t.base, "/api/group", { headers: { "X-Group-Code": code, "Accept-Encoding": "gzip, deflate, br" } });
+  const refused = await raw(t.base, "/api/group", { headers: { "X-Group-Code": code, "Accept-Encoding": "gzip;q=0" } });
+  assert.equal(plain.headers["content-encoding"], undefined);
+  assert.equal(refused.headers["content-encoding"], undefined);
+  assert.equal(zipped.headers["content-encoding"], "gzip");
+  for(const r of [plain, zipped, refused]){
+    assert.equal(r.status, 200);
+    assert.equal(r.headers["vary"], "Accept-Encoding");
+    assert.equal(r.headers["cache-control"], "no-store");
+    assert.equal(r.headers["x-content-type-options"], "nosniff");
+    assert.equal(Number(r.headers["content-length"]), r.body.length);
+  }
+  assert.ok(zipped.body.length < plain.body.length / 3, zipped.body.length + " vs " + plain.body.length);
+  assert.deepEqual(gunzipSync(zipped.body), plain.body);
+  assert.equal(JSON.parse(plain.body.toString("utf8")).expenses.length, 21);
+});
+
+test("a group's answer is built once per version and shared by every reader; the oldest goes past the byte budget", async function(){
+  const g = await startTestServer({ maxAnswerBytes: 2000 });
+  try{
+    let builds = 0;
+    const read = g.app.ledger.readGroup;
+    g.app.ledger.readGroup = function(code){ builds++; return read(code); };
+    const get = function(code){ return api(g.base, "GET", "/api/group", { code: code }); };
+    await api(g.base, "PUT", "/api/group", { code: "one-trip", body: { currency: "₹" } });
+    await api(g.base, "PUT", "/api/group", { code: "two-trip", body: { currency: "₹" } });
+    for(let i = 0; i < 3; i++) assert.equal((await get("one-trip")).status, 200);
+    assert.equal(builds, 1);
+    await api(g.base, "POST", "/api/people", { code: "one-trip", body: { id: "asha", name: "Asha" } });
+    assert.deepEqual((await get("one-trip")).body.people, [{ id: "asha", name: "Asha" }]);
+    assert.equal(builds, 2);
+    await get("two-trip");
+    assert.equal(builds, 3);
+    // A group of over 2 KB pushes the others out of a 2,000-byte budget.
+    await api(g.base, "PUT", "/api/group", { code: "big-trip", body: { currency: "₹" } });
+    for(let i = 0; i < 40; i++) await api(g.base, "POST", "/api/people", { code: "big-trip", body: { id: "p" + i, name: "Person number " + i + " with a longer name" } });
+    await get("big-trip");
+    assert.equal(builds, 4);
+    await get("one-trip");
+    assert.equal(builds, 5, "one-trip was dropped and built again");
+    await get("one-trip");
+    assert.equal(builds, 5);
   }finally{
     await g.close();
   }

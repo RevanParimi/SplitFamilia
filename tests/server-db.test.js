@@ -142,7 +142,7 @@ test("the data folder is Railway's volume when one is attached, otherwise data/ 
   assert.match(readFileSync(join(REPO_ROOT, ".gitignore"), "utf8"), /^\/data\/$/m);
 });
 
-test("if the database can't be opened, the page is still served and the API answers 503", async function(){
+test("if the database can't be opened, the page is still served, and /healthz and the API answer 503 (N-5)", async function(){
   // A folder where a file is expected, and a file that isn't a database.
   const blocker = join(dir, "blocker");
   writeFileSync(blocker, "not a folder");
@@ -152,8 +152,10 @@ test("if the database can't be opened, the page is still served and the API answ
     const t = await startTestServer({ dbFile: dbFile });
     try{
       assert.equal((await raw(t.base, "/")).status, 200);
-      const health = JSON.parse((await raw(t.base, "/healthz")).body.toString("utf8"));
-      assert.equal(health.database, "unavailable");
+      // Railway's health check then fails, so it keeps the last good deploy (the T-08 review's N-5).
+      const hz = await raw(t.base, "/healthz");
+      assert.equal(hz.status, 503);
+      assert.deepEqual(JSON.parse(hz.body.toString("utf8")), { status: "unavailable", database: "unavailable", storage: "local" });
       const res = await api(t.base, "GET", "/api/group", { code: "goa-trip-2026" });
       assert.equal(res.status, 503);
       assert.deepEqual(res.body, { error: "unavailable" });

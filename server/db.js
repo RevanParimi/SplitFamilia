@@ -132,6 +132,7 @@ export function openLedger(file, options){
     ),
     expenseExists: db.prepare("SELECT 1 AS found FROM expenses WHERE group_code = ? AND id = ?"),
     expenseCount: db.prepare("SELECT COUNT(*) AS n FROM expenses WHERE group_code = ?"),
+    splitEntryCount: db.prepare("SELECT COUNT(*) AS n FROM expense_split WHERE group_code = ?"),
     addSplit: db.prepare("INSERT INTO expense_split (group_code, expense_id, position, person_id) VALUES (?, ?, ?, ?)"),
     deleteExpense: db.prepare("UPDATE expenses SET deleted_at = ? WHERE group_code = ? AND id = ? AND deleted_at IS NULL")
   };
@@ -223,6 +224,11 @@ export function openLedger(file, options){
       return q.expenseCount.get(code).n;
     },
 
+    // How many split entries the group's expenses have, deleted ones included (for MAX_SPLIT_ENTRIES).
+    splitEntryCount: function(code){
+      return q.splitEntryCount.get(code).n;
+    },
+
     // → { added, version }, as addPerson. The amount is whole paise.
     addExpense: function(code, expense){
       return inTransaction(db, function(){
@@ -232,6 +238,28 @@ export function openLedger(file, options){
         if(!added) return { added: false, version: groupVersion(code) };
         expense.split.forEach(function(personId, i){ q.addSplit.run(code, expense.id, i, personId); });
         return { added: true, version: q.bump.get(code).version };
+      });
+    },
+
+    // A whole group copied in at once (SF-037): created if new, with each person and expense
+    // added under its own ID, and an ID already here left as it is, so running the copy again
+    // adds nothing. One version step for the lot. → { created, version, added: { people, expenses } }
+    importGroup: function(code, group){
+      return inTransaction(db, function(){
+        const created = groupVersion(code) === null;
+        if(created) q.createGroup.run(code, group.currency, now());
+        let people = 0;
+        let expenses = 0;
+        group.people.forEach(function(p){
+          if(q.addPerson.run(code, p.id, p.name, now()).changes === 1) people++;
+        });
+        group.expenses.forEach(function(e){
+          if(q.addExpense.run(code, e.id, e.date, e.desc, e.amountPaise, e.paidBy, now()).changes !== 1) return;
+          e.split.forEach(function(personId, i){ q.addSplit.run(code, e.id, i, personId); });
+          expenses++;
+        });
+        const version = !created && (people > 0 || expenses > 0) ? q.bump.get(code).version : groupVersion(code);
+        return { created: created, version: version, added: { people: people, expenses: expenses } };
       });
     },
 

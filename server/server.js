@@ -37,8 +37,9 @@ function reason(err){
 // - storage: "volume" or "local", shown by /healthz;
 // - log(line): where log lines go (console.log by default);
 // - trustProxy: true behind Railway's proxy (see clientAddress in api.js);
+// - importToken: the IMPORT_TOKEN variable, which opens POST /api/import (SF-037) while it is set;
 // - heartbeatMs, maxStreams, maxStreamsPerAddress, guessLimit, guessWindowMs, writeLimit,
-//   writeWindowMs, maxExpenses, now: for tests.
+//   writeWindowMs, maxExpenses, maxSplitEntries, maxAnswerBytes, now: for tests.
 export function createApp(options){
   const log = options.log || console.log;
   const files = loadStaticFiles(options.root);
@@ -58,10 +59,13 @@ export function createApp(options){
   const writes = createWriteLimiter({ limit: options.writeLimit, windowMs: options.writeWindowMs, now: options.now });
   const api = createApi({
     ledger: ledger, hub: hub, limiter: limiter, writes: writes, log: log,
-    trustProxy: Boolean(options.trustProxy), maxExpenses: options.maxExpenses
+    trustProxy: Boolean(options.trustProxy), maxExpenses: options.maxExpenses, maxSplitEntries: options.maxSplitEntries,
+    maxAnswerBytes: options.maxAnswerBytes, importToken: options.importToken
   });
+  // Since the switch-over the app needs its database, so /healthz fails without it (the T-08
+  // review's N-5): Railway then keeps the last good deploy instead of this one.
   const health = {
-    status: "ok",
+    status: ledger ? "ok" : "unavailable",
     database: ledger ? "ok" : "unavailable",
     storage: options.storage || "local"
   };
@@ -73,7 +77,7 @@ export function createApp(options){
     if(path === "/healthz"){
       if(req.method !== "GET" && req.method !== "HEAD") return sendText(res, 405, "Method not allowed", { "Allow": "GET, HEAD" });
       const body = Buffer.from(JSON.stringify(health), "utf8");
-      res.writeHead(200, Object.assign({
+      res.writeHead(ledger ? 200 : 503, Object.assign({
         "Content-Type": "application/json; charset=utf-8",
         "Content-Length": body.length,
         "Cache-Control": "no-store"

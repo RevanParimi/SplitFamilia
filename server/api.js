@@ -1,11 +1,14 @@
 // The ledger API (SF-033), all JSON, under /api/. There is no sign-in: a group's code is its
-// password, as it was with the Firestore rules. So:
+// password. So:
 // - the code travels in the X-Group-Code header, never in the URL, and Railway's request logs
 //   don't record it. This module logs at most a method, a status and an error code;
 // - there is no endpoint that lists groups;
 // - an address that tries more than 30 unknown codes in 10 minutes is refused for a while;
 // - an address may send at most 300 changes in 10 minutes, and hold at most 10 live streams
-//   (the owner, D-17), so no one can fill the database or take every stream;
+//   (the owner, D-17), so no one can fill the database quickly or take every stream;
+// - a group holds at most 20,000 split entries (D-18), and its answer is built once per version
+//   and shared by every reader, gzipped when the browser accepts it, so reading even the largest
+//   group stays cheap;
 // - only ledger-shaped data is accepted (ledger-rules.js, shared with the page).
 //
 // GET    /api/group          the group: { currency, version, people, expenses }; 404 if unknown
@@ -14,21 +17,30 @@
 //                            409 when the group already has 100 people (MAX_PEOPLE)
 // DELETE /api/people/<id>    409 while an expense uses them
 // POST   /api/expenses       { id, date, desc, amountPaise, paidBy, split }
-//                            409 when the group has had 5,000 expenses (MAX_EXPENSES)
+//                            409 when the group has had 5,000 expenses (MAX_EXPENSES), or the
+//                            split would pass 20,000 entries in all (MAX_SPLIT_ENTRIES)
 // DELETE /api/expenses/<id>
 // GET    /api/group/events   the live stream (live.js)
+// POST   /api/import         a whole group at once, only while the IMPORT_TOKEN variable is set
+//                            and the request carries it (SF-037, the move from the old database)
 //
 // Errors are { "error": <code> } with the codes the page's friendlyError() maps. A change
 // answers { "version" }, the group's version after it. Adding an ID that is already there
 // changes nothing and still succeeds (200 instead of 201), so a phone may safely send it again.
+import { createHash, timingSafeEqual } from "node:crypto";
+import { gzip as gzipAsync } from "node:zlib";
 import { isValidGroupId } from "../group-code.js";
-import { checkGroup, checkPerson, checkExpense, isValidId, MAX_PEOPLE, MAX_EXPENSES } from "../ledger-rules.js";
+import { checkGroup, checkPerson, checkExpense, isValidId, MAX_PEOPLE, MAX_EXPENSES, MAX_SPLIT_ENTRIES } from "../ledger-rules.js";
 import { COMMON_HEADERS } from "./static.js";
 
 export const GROUP_HEADER = "x-group-code";
 // The largest expense allowed (split among MAX_SPLIT people with 64-character IDs) is about
 // 8 KB, so 16 KB leaves room; a test sends exactly that expense.
 export const MAX_BODY_BYTES = 16 * 1024;
+// A whole group copied in at once: a family's is far smaller.
+export const MAX_IMPORT_BYTES = 4 * 1024 * 1024;
+// A shorter IMPORT_TOKEN leaves the import endpoint off: it must be long and random.
+export const MIN_IMPORT_TOKEN_LENGTH = 24;
 export const GUESS_LIMIT = 30;
 export const GUESS_WINDOW_MS = 10 * 60 * 1000;
 // Changes (every PUT, POST and DELETE) per address: a family never comes near it, even a phone
@@ -36,6 +48,10 @@ export const GUESS_WINDOW_MS = 10 * 60 * 1000;
 export const WRITE_LIMIT = 300;
 export const WRITE_WINDOW_MS = 10 * 60 * 1000;
 const MAX_TRACKED_ADDRESSES = 10000;
+// The group answers kept ready (D-18), by size: a few of the largest groups, or many small ones.
+export const MAX_ANSWER_BYTES = 32 * 1024 * 1024;
+// Smaller answers aren't worth gzipping.
+const GZIP_FROM_BYTES = 1024;
 
 class ApiError extends Error {
   constructor(status, code, field){
@@ -113,8 +129,9 @@ export function clientAddress(req, trustProxy){
   return req.socket.remoteAddress || "unknown";
 }
 
-function route(pathname){
+function route(pathname, importOn){
   if(pathname === "/api/group") return { name: "group", methods: ["GET", "PUT"] };
+  if(pathname === "/api/import" && importOn) return { name: "import", methods: ["POST"] };
   if(pathname === "/api/group/events") return { name: "events", methods: ["GET"] };
   if(pathname === "/api/people") return { name: "people", methods: ["POST"] };
   if(pathname === "/api/expenses") return { name: "expenses", methods: ["POST"] };
@@ -123,14 +140,14 @@ function route(pathname){
   return null;
 }
 
-// The request's JSON body: at most MAX_BODY_BYTES, sent as application/json.
-function readJson(req){
+// The request's JSON body: at most maxBytes, sent as application/json.
+function readJson(req, maxBytes){
   return new Promise(function(resolve, reject){
     const type = req.headers["content-type"];
     if(typeof type !== "string" || !/^application\/json\s*(;|$)/i.test(type)){
       return reject(new ApiError(415, "invalid-argument", "content-type"));
     }
-    if(Number(req.headers["content-length"]) > MAX_BODY_BYTES){
+    if(Number(req.headers["content-length"]) > maxBytes){
       return reject(new ApiError(413, "invalid-argument", "size"));
     }
     const chunks = [];
@@ -139,7 +156,7 @@ function readJson(req){
     req.on("data", function(chunk){
       if(done) return;
       size += chunk.length;
-      if(size > MAX_BODY_BYTES){
+      if(size > maxBytes){
         done = true;
         return reject(new ApiError(413, "invalid-argument", "size"));
       }
@@ -162,6 +179,41 @@ function readJson(req){
   });
 }
 
+// True when the request's "Authorization: Bearer <token>" is the import token. Both are hashed
+// first, so the comparison takes the same time whatever the token's length or content.
+function isImportToken(header, token){
+  const m = typeof header === "string" ? /^Bearer (\S+)$/.exec(header) : null;
+  if(!m) return false;
+  const digest = function(t){ return createHash("sha256").update(t, "utf8").digest(); };
+  return timingSafeEqual(digest(m[1]), digest(token));
+}
+
+// A whole group to copy in: { code, currency, people: [{ id, name }], expenses: [{ id, date,
+// desc, amountPaise, paidBy, split }] }, each person and expense as the API itself takes them,
+// except that a payer or split member need not be among the people: someone removed from the
+// old group keeps their share under their old ID, as money.js allows. → null, or what is wrong.
+function checkImport(body, maxExpenses){
+  if(body === null || typeof body !== "object" || Array.isArray(body)) return "fields";
+  const keys = Object.keys(body).sort().join(",");
+  if(keys !== "code,currency,expenses,people") return "fields";
+  if(!isValidGroupId(body.code)) return "code";
+  if(checkGroup({ currency: body.currency })) return "currency";
+  if(!Array.isArray(body.people) || body.people.length > MAX_PEOPLE) return "people";
+  if(!Array.isArray(body.expenses) || body.expenses.length > maxExpenses) return "expenses";
+  if(body.people.some(function(p){ return checkPerson(p) !== null; })) return "people";
+  if(body.expenses.some(function(e){ return checkExpense(e) !== null; })) return "expenses";
+  const unique = function(list){ return new Set(list.map(function(x){ return x.id; })).size === list.length; };
+  if(!unique(body.people)) return "people";
+  if(!unique(body.expenses)) return "expenses";
+  return null;
+}
+
+// True when the browser takes a gzipped answer: the same test as static.js's, kept here so the
+// server's part of T-09 deploys on its own before the page's (the switch-over guide's two pushes).
+function acceptsGzip(header){
+  return typeof header === "string" && /\bgzip\b/i.test(header) && !/\bgzip\s*;\s*q=0(?:\.0*)?(?![\d.])/i.test(header);
+}
+
 function sendJson(res, status, body, extra){
   const text = Buffer.from(JSON.stringify(body), "utf8");
   res.writeHead(status, Object.assign({
@@ -174,7 +226,9 @@ function sendJson(res, status, body, extra){
 }
 
 // options: { ledger (null when the database couldn't be opened), hub, limiter (unknown codes),
-// writes (changes), log, trustProxy, maxExpenses (MAX_EXPENSES unless a test sets it) }
+// writes (changes), log, trustProxy, maxExpenses and maxSplitEntries (the limits unless a test
+// sets them), maxAnswerBytes (for tests),
+// importToken (the import endpoint exists only when this is at least MIN_IMPORT_TOKEN_LENGTH long) }
 export function createApi(options){
   const ledger = options.ledger;
   const hub = options.hub;
@@ -183,6 +237,10 @@ export function createApi(options){
   const log = options.log;
   const trustProxy = options.trustProxy;
   const maxExpenses = options.maxExpenses || MAX_EXPENSES;
+  const maxSplitEntries = options.maxSplitEntries || MAX_SPLIT_ENTRIES;
+  const maxAnswerBytes = options.maxAnswerBytes || MAX_ANSWER_BYTES;
+  const importToken = typeof options.importToken === "string" && options.importToken.length >= MIN_IMPORT_TOKEN_LENGTH
+    ? options.importToken : null;
 
   function fail(req, res, status, code, field, extra){
     if(status !== 429) log("SplitFamilia api: " + req.method + " " + status + " " + code);
@@ -193,16 +251,98 @@ export function createApi(options){
     return fail(req, res, 429, "resource-exhausted", null, { "Retry-After": String(which.retryAfter(address)) });
   }
 
+  // Each group's answer to GET /api/group, built once per version and shared by every reader
+  // (D-18): building a large group's answer is the costly part, and an answer a slow reader holds
+  // is this one buffer, not a copy each. The gzipped copy is made on Node's worker threads, so the
+  // server goes on answering meanwhile. The group seen longest ago goes first when the answers
+  // pass maxAnswerBytes. code → { version, json, gzip (a promise of the gzipped copy, or of null
+  // when the answer is small), bytes }
+  const answers = new Map();
+  let answerBytes = 0;
+  function groupAnswer(code, version){
+    const kept = answers.get(code);
+    if(kept){
+      answers.delete(code);
+      if(kept.version === version){
+        answers.set(code, kept);
+        return kept;
+      }
+      answerBytes -= kept.bytes;
+    }
+    const json = Buffer.from(JSON.stringify(ledger.readGroup(code)), "utf8");
+    const answer = { version: version, json: json, gzip: null, bytes: json.length };
+    answer.gzip = json.length < GZIP_FROM_BYTES ? Promise.resolve(null) : new Promise(function(resolve){
+      gzipAsync(json, function(err, zipped){
+        if(err) return resolve(null);
+        if(answers.get(code) === answer){
+          answer.bytes += zipped.length;
+          answerBytes += zipped.length;
+          trimAnswers(code);
+        }
+        resolve(zipped);
+      });
+    });
+    answers.set(code, answer);
+    answerBytes += answer.bytes;
+    trimAnswers(code);
+    return answer;
+  }
+  function trimAnswers(keep){
+    for(const [k, a] of answers){
+      if(answerBytes <= maxAnswerBytes || k === keep) break;
+      answers.delete(k);
+      answerBytes -= a.bytes;
+    }
+  }
+  async function sendGroup(req, res, code, version){
+    const answer = groupAnswer(code, version);
+    const zipped = acceptsGzip(req.headers["accept-encoding"]) ? await answer.gzip : null;
+    const gzip = zipped !== null;
+    const body = gzip ? zipped : answer.json;
+    const headers = Object.assign({
+      "Content-Type": "application/json; charset=utf-8",
+      "Content-Length": body.length,
+      "Cache-Control": "no-store",
+      "Vary": "Accept-Encoding"
+    }, COMMON_HEADERS);
+    if(gzip) headers["Content-Encoding"] = "gzip";
+    res.writeHead(200, headers);
+    res.end(body);
+  }
+
   // A change the group saw: every page showing it hears the new version.
   function changed(res, status, code, version){
     hub.publish(code, version);
     sendJson(res, status, { version: version });
   }
 
+  // The move from the old database (SF-037): the token holder copies in a whole group. It isn't
+  // a guess or a change from a phone, so neither limit counts it. A wrong token looks like no
+  // such path.
+  async function importGroup(req, res){
+    if(!isImportToken(req.headers["authorization"], importToken)) return fail(req, res, 404, "not-found");
+    if(!ledger) return fail(req, res, 503, "unavailable");
+    const body = await readJson(req, MAX_IMPORT_BYTES);
+    const problem = checkImport(body, maxExpenses);
+    if(problem) return fail(req, res, 400, "invalid-argument", problem);
+    const code = body.code;
+    const exists = ledger.groupVersion(code) !== null;
+    const newPeople = body.people.filter(function(p){ return !ledger.personExists(code, p.id); }).length;
+    const newExpenses = body.expenses.filter(function(e){ return !ledger.expenseExists(code, e.id); });
+    const people = (exists ? ledger.personIds(code).size : 0) + newPeople;
+    const expenses = (exists ? ledger.expenseCount(code) : 0) + newExpenses.length;
+    const entries = (exists ? ledger.splitEntryCount(code) : 0) + newExpenses.reduce(function(n, e){ return n + e.split.length; }, 0);
+    if(people > MAX_PEOPLE || expenses > maxExpenses || entries > maxSplitEntries) return fail(req, res, 409, "failed-precondition", "group-full");
+    const result = ledger.importGroup(code, { currency: body.currency, people: body.people, expenses: body.expenses });
+    hub.publish(code, result.version);
+    return sendJson(res, 200, { version: result.version, created: result.created, added: result.added });
+  }
+
   async function handle(req, res, pathname){
-    const r = route(pathname);
+    const r = route(pathname, importToken !== null);
     if(!r) return fail(req, res, 404, "not-found");
     if(!r.methods.includes(req.method)) return fail(req, res, 405, "invalid-argument", "method", { "Allow": r.methods.join(", ") });
+    if(r.name === "import") return importGroup(req, res);
 
     const address = clientAddress(req, trustProxy);
     if(limiter.blocked(address)) return tooMany(req, res, limiter, address);
@@ -213,7 +353,7 @@ export function createApi(options){
 
     let body = null;
     if(req.method === "PUT" || req.method === "POST"){
-      body = await readJson(req);
+      body = await readJson(req, MAX_BODY_BYTES);
       const problem = r.name === "group" ? checkGroup(body) : r.name === "people" ? checkPerson(body) : checkExpense(body);
       if(problem) return fail(req, res, 400, "invalid-argument", problem);
     }
@@ -234,7 +374,7 @@ export function createApi(options){
       if(!creating) return fail(req, res, 404, "not-found");
     }
 
-    if(r.name === "group" && req.method === "GET") return sendJson(res, 200, ledger.readGroup(code));
+    if(r.name === "group" && req.method === "GET") return sendGroup(req, res, code, version);
     if(creating) return changed(res, 200, code, ledger.setCurrency(code, body.currency).version);
     if(r.name === "events"){
       if(hub.full(address)) return fail(req, res, 503, "unavailable");
@@ -257,6 +397,7 @@ export function createApi(options){
       // been removed or the group is full: the phone's first send got through.
       if(ledger.expenseExists(code, body.id)) return sendJson(res, 200, { version: version });
       if(ledger.expenseCount(code) >= maxExpenses) return fail(req, res, 409, "failed-precondition", "group-full");
+      if(ledger.splitEntryCount(code) + body.split.length > maxSplitEntries) return fail(req, res, 409, "failed-precondition", "group-full");
       const problem = checkExpense(body, ledger.personIds(code));
       if(problem) return fail(req, res, 400, "invalid-argument", problem);
       const result = ledger.addExpense(code, body);
