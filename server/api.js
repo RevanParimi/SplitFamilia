@@ -16,9 +16,14 @@
 // POST   /api/people         { id, name }
 //                            409 when the group already has 100 people (MAX_PEOPLE)
 // DELETE /api/people/<id>    409 while an expense uses them
-// POST   /api/expenses       { id, date, desc, amountPaise, paidBy, split }
+// POST   /api/expenses       { id, date, desc, amountPaise, paidBy, split }, plus
+//                            kind: "settlement" for a settle-up (SF-023)
 //                            409 when the group has had 5,000 expenses (MAX_EXPENSES), or the
 //                            split would pass 20,000 entries in all (MAX_SPLIT_ENTRIES)
+// PUT    /api/expenses/<id>  an edit (SF-022): the same body under a new ID, which takes the
+//                            place of expense <id>. Each edit counts as one more expense towards
+//                            the limits above. 409 "gone" when <id> has been deleted or edited
+//                            meanwhile (by another phone), so an expense is never counted twice
 // DELETE /api/expenses/<id>
 // GET    /api/group/events   the live stream (live.js)
 // POST   /api/import         a whole group at once, only while the IMPORT_TOKEN variable is set
@@ -136,7 +141,7 @@ function route(pathname, importOn){
   if(pathname === "/api/people") return { name: "people", methods: ["POST"] };
   if(pathname === "/api/expenses") return { name: "expenses", methods: ["POST"] };
   const m = /^\/api\/(people|expenses)\/([^/]*)$/.exec(pathname);
-  if(m) return { name: m[1] === "people" ? "person" : "expense", methods: ["DELETE"], id: m[2] };
+  if(m) return m[1] === "people" ? { name: "person", methods: ["DELETE"], id: m[2] } : { name: "expense", methods: ["PUT", "DELETE"], id: m[2] };
   return null;
 }
 
@@ -403,7 +408,22 @@ export function createApi(options){
       const result = ledger.addExpense(code, body);
       return result.added ? changed(res, 201, code, result.version) : sendJson(res, 200, { version: result.version });
     }
-    // r.name === "expense"
+    if(req.method === "PUT"){
+      // r.name === "expense": an edit. The new expense needs an ID of its own.
+      if(body.id === r.id) return fail(req, res, 400, "invalid-argument", "id");
+      // The same edit sent again (its first answer was lost) succeeds as it is, even if that
+      // expense has since been edited or deleted again.
+      if(ledger.expenseExists(code, body.id)) return sendJson(res, 200, { version: version });
+      // Another phone deleted or edited it first: this edit would count it twice.
+      if(!ledger.expenseLive(code, r.id)) return fail(req, res, 409, "failed-precondition", "gone");
+      if(ledger.expenseCount(code) >= maxExpenses) return fail(req, res, 409, "failed-precondition", "group-full");
+      if(ledger.splitEntryCount(code) + body.split.length > maxSplitEntries) return fail(req, res, 409, "failed-precondition", "group-full");
+      const problem = checkExpense(body, ledger.personIds(code));
+      if(problem) return fail(req, res, 400, "invalid-argument", problem);
+      const edit = ledger.replaceExpense(code, r.id, body);
+      return edit.replaced ? changed(res, 200, code, edit.version) : fail(req, res, 409, "failed-precondition", "gone");
+    }
+    // r.name === "expense", DELETE
     const result = ledger.deleteExpense(code, r.id);
     return result.deleted ? changed(res, 200, code, result.version) : sendJson(res, 200, { version: result.version });
   }

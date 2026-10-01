@@ -1,0 +1,34 @@
+pass 17.35:1 (needs 4.5)  #1C1A18 on #FFFFFF  body text
+pass  7.85:1 (needs 4.5)  #56514B on #FFFFFF  secondary text (meta, hints in sheets)
+pass  5.51:1 (needs 4.5)  #6E6860 on #FFFFFF  faint text (counters, captions, fine print, placeholders)
+pass  7.20:1 (needs 4.5)  #56514B on #F6F5F2  meta text on a hovered row
+pass  7.20:1 (needs 4.5)  #56514B on #F6F5F2  'waiting to sync' pill
+pass  5.51:1 (needs 4.5)  #6E6860 on #FFFFFF  amount still waiting
+pass  6.29:1 (needs 4.5)  #FFFFFF on #4F46E5  primary button text
+pass  7.99:1 (needs 4.5)  #FFFFFF on #4038C9  primary button text, hovered
+pass  6.29:1 (needs 4.5)  #4F46E5 on #FFFFFF  outline and text buttons, links
+pass  5.35:1 (needs 4.5)  #4F46E5 on #ECEBFE  'Change' button, group tile initial, menu icons
+pass  6.29:1 (needs 4.5)  #FFFFFF on #4F46E5  header: group name, '4 people'
+pass  4.73:1 (needs 4.5)  #FFFFFF on #6860e9  header: sync pill text (white 14% over brand)
+pass  4.54:1 (needs 3)  #FFFFFF on #6b64e9  header: ⋯ button icon (white 16% over brand)
+pass  4.75:1 (needs 4.5)  #C0392B on #FDECE9  'not syncing' pill
+pass  5.75:1 (needs 4.5)  #8A5300 on #FFF3D9  guide: step label, 'Not now'
+pass  7.13:1 (needs 4.5)  #56514B on #FFF3D9  guide and intro card body
+pass 17.35:1 (needs 4.5)  #FFFFFF on #1C1A18  guide button
+pass  5.44:1 (needs 4.5)  #C0392B on #FFFFFF  balance amount, 'Remove', errors
+pass  4.75:1 (needs 4.5)  #C0392B on #FDECE9  blocked removal, message bar, banner
+pass  5.44:1 (needs 4.5)  #FFFFFF on #C0392B  delete button in a dialog
+pass  5.87:1 (needs 4.5)  #157347 on #FFFFFF  payment rows, 'All settled up.'
+pass  5.17:1 (needs 4.5)  #157347 on #E5F4EB  'All settled up.' card, payment summary
+pass  6.91:1 (needs 4.5)  #56514B on #E5F4EB  settled card sub-text
+pass  6.69:1 (needs 4.5)  #56514B on #ECEBFE  'Everyone' count on brand-soft
+pass 15.91:1 (needs 4.5)  #1C1A18 on #F6F5F2  dialog Cancel button
+pass  3.55:1 (needs 3)  #8E877D on #FFFFFF  input borders (non-text, 3:1)
+pass  5.88:1 (needs 4.5)  #9C3514 on #FFE3D8  avatar 1 initial
+pass  6.42:1 (needs 4.5)  #0B5E55 on #D6F1EA  avatar 2 initial
+pass  6.89:1 (needs 4.5)  #4133B8 on #E3E1FF  avatar 3 initial
+pass  5.84:1 (needs 4.5)  #7F5200 on #FFEDC2  avatar 4 initial
+pass  6.17:1 (needs 4.5)  #9B1C57 on #FBDDEB  avatar 5 initial
+pass  6.00:1 (needs 4.5)  #1E4FB8 on #DAEAFE  avatar 6 initial
+pass  6.54:1 (needs 4.5)  #56514B on #ECEAE6  removed person's avatar
+All 33 pairs pass WCAG AA.

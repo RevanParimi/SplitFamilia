@@ -50,8 +50,11 @@ export function newGroupId(name, fillRandom){
 // A link's `g` must already be a valid code: "?g=GOA" is refused, not lower-cased, because
 // lower-casing would quietly open a different group. Typed text is lower-cased and, if it still
 // isn't a code, turned into one the way old groups were named ("Goa Trip 2026" → "goa-trip-2026").
+// Brackets, quotes or a full stop around a link pasted from a sentence, such as "(…?g=goa-trip-
+// 7k2m9xqpwd)." or "…?g=goa-trip-7k2m9xqpwd.", are left out (the T-02 review's N-1): no code
+// starts or ends with one.
 export function parseInvite(text){
-  const raw = String(text).trim();
+  const raw = String(text).trim().replace(/^[\s<(\[{"'“‘]+/, "").replace(/[\s>)\]}"'”’.,;:!?]+$/, "");
   if(raw === "") return null;
   if(raw.indexOf("://") !== -1 || /[?&]g=/.test(raw)){
     let url;
@@ -63,6 +66,19 @@ export function parseInvite(text){
   if(isValidGroupId(lower)) return lower;
   const slug = slugify(raw);
   return slug === "" ? null : slug;
+}
+
+// A group's name as the page shows it (SF-028), made from its code, since the app keeps no other
+// name: the random part a new code ends with is left out, hyphens become spaces, and the first
+// letter is a capital. "goa-trip-7k2m9xqpwd" → "Goa trip", "goa-trip-2026" (an old code made
+// from its name) → "Goa trip 2026", "group-7k2m9xqpwd" → "Group".
+export function groupName(code){
+  const parts = String(code).split("-");
+  const last = parts[parts.length - 1];
+  const random = last.length === CODE_LENGTH && last.split("").every(function(c){ return CODE_ALPHABET.indexOf(c) !== -1; });
+  if(parts.length > 1 && random) parts.pop();
+  const text = parts.join(" ");
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 // The app's one address since the move from GitHub Pages (D-10; SF-038). The Android app opens it.

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>SplitFamilia</title>
 <meta name="description" content="Track shared expenses with a group and see who owes whom." />
-<meta name="theme-color" content="#2F5D50" />
+<meta name="theme-color" content="#4F46E5" />
 <link rel="manifest" href="manifest.json" />
 <link rel="icon" href="icon-192.png" />
 <link rel="apple-touch-icon" href="apple-touch-icon.png" />
@@ -13,466 +13,406 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="SplitFamilia" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <style>
+  /* SF-028: the approved design (docs/design/DESIGN_NOTES.md, indigo-saffron). */
   :root{
-    --paper:#F6F4EF;
-    --paper-raise:#EFEBE1;
-    --ink:#211F1D;
-    --ink-soft:#5B564D;
-    --ink-faint:#8A8375;
-    --green:#2F5D50;
-    --green-soft:#E4ECE7;
-    --rust:#8C3B2E;
-    --rust-soft:#F3E4DF;
-    --line:#DCD6C9;
-    --line-strong:#B9B0A0;
-    --serif:"Source Serif 4",Georgia,serif;
-    --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-    --mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+    --bg:#FFFFFF;
+    --surface:#F6F5F2;
+    --line:#E7E4DE;
+    --line-strong:#8E877D;
+    --ink:#1C1A18;
+    --ink-soft:#56514B;
+    --ink-faint:#6E6860;
+    --brand:#4F46E5;
+    --brand-press:#4038C9;
+    --brand-soft:#ECEBFE;
+    --accent:#F4A51C;
+    --accent-soft:#FFF3D9;
+    --accent-ink:#8A5300;
+    --good:#157347;
+    --good-soft:#E5F4EB;
+    --owe:#C0392B;
+    --owe-soft:#FDECE9;
+    --font-head:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --gutter-l:max(20px, env(safe-area-inset-left));
+    --gutter-r:max(20px, env(safe-area-inset-right));
   }
   *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
   html,body{margin:0;padding:0;}
   body{
-    background:var(--paper);
+    background:var(--bg);
     color:var(--ink);
-    font-family:var(--sans);
-    font-size:15px;
+    font-family:var(--font);
+    font-size:16px;
     line-height:1.5;
     -webkit-font-smoothing:antialiased;
-    padding-bottom:3rem;
+    font-variant-numeric:tabular-nums;
+    overflow-x:hidden;
   }
-  a{color:var(--green);}
-  .wrap{
-    max-width:640px;
-    margin:0 auto;
-    padding:2.25rem 1.25rem 1rem;
-  }
-  header.top{
-    display:flex;
-    justify-content:space-between;
-    align-items:flex-start;
-    gap:1rem;
-    margin-bottom:1.25rem;
-  }
-  h1{
-    font-family:var(--serif);
-    font-weight:600;
-    font-size:1.9rem;
-    margin:0 0 0.2rem;
-    letter-spacing:-0.01em;
-  }
-  .sub{
-    color:var(--ink-soft);
-    font-size:0.92rem;
-    margin:0;
-  }
-  #install-btn{
-    display:none;
-    white-space:nowrap;
-    background:var(--green);
-    color:var(--paper);
-    border:none;
-    border-radius:3px;
-    padding:0.5rem 0.85rem;
-    font-family:var(--sans);
-    font-size:0.85rem;
-    font-weight:600;
-    cursor:pointer;
-  }
-  #install-btn.show{display:inline-block;}
-
-  /* group bar */
-  .group-bar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:0.6rem;
-    flex-wrap:wrap;
-    background:var(--green-soft);
-    border-radius:4px;
-    padding:0.55rem 0.75rem;
-    margin-bottom:2rem;
-    font-size:0.82rem;
-  }
-  .group-bar .g-name{
-    color:var(--green);
-    font-weight:600;
-  }
-  .group-bar .g-status{
-    color:var(--ink-soft);
-    margin-left:0.4rem;
-  }
-  .group-bar .g-actions{
-    display:flex;
-    gap:0.6rem;
-  }
-  .link-btn{
-    background:none;
-    border:none;
-    padding:0;
-    font-family:var(--sans);
-    font-size:0.8rem;
-    font-weight:600;
-    color:var(--green);
-    cursor:pointer;
-    text-decoration:underline;
-  }
-  .link-btn.muted{color:var(--ink-faint);}
-
-  section{
-    margin-bottom:2rem;
-  }
-  section h2{
-    font-family:var(--sans);
-    font-weight:600;
-    font-size:0.95rem;
-    margin:0 0 0.85rem;
-    color:var(--ink);
-  }
-  .currency-row{
-    display:flex;
-    align-items:center;
-    gap:0.4rem;
-    font-size:0.82rem;
-    color:var(--ink-soft);
-  }
-  .currency-row input{
-    width:2.4rem;
-    text-align:center;
-    border:1px solid var(--line-strong);
-    border-radius:3px;
-    background:var(--paper);
-    font-family:var(--mono);
-    font-size:0.85rem;
-    padding:0.15rem 0.2rem;
-    color:var(--ink);
+  body.sheet-open{overflow:hidden;}
+  button,input,select{font:inherit;color:inherit;}
+  button{cursor:pointer;}
+  button:disabled{cursor:not-allowed;}
+  a{color:var(--brand);}
+  :focus{outline:none;}
+  :focus-visible{outline:3px solid var(--brand);outline-offset:2px;}
+  input::placeholder{color:var(--ink-faint);opacity:1;}
+  h1,h2{font-family:var(--font-head);font-weight:800;margin:0;}
+  p{margin:0;}
+  ul,ol{list-style:none;margin:0;padding:0;}
+  .sr-only{position:absolute !important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;}
+  svg{flex:none;}
+  @keyframes sf-fade{from{opacity:0}to{opacity:1}}
+  @keyframes sf-up{from{transform:translateY(32px);opacity:0}to{transform:none;opacity:1}}
+  @keyframes sf-bar{0%{transform:translateX(-100%)}100%{transform:translateX(260%)}}
+  @keyframes sf-pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  @keyframes sf-spin{to{transform:rotate(360deg)}}
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after,::backdrop{animation-duration:.01ms !important;animation-iteration-count:1 !important;}
   }
 
-  /* people chips */
-  .people-row{
-    display:flex;
-    flex-wrap:wrap;
-    gap:0.5rem;
-    margin-bottom:0.9rem;
-  }
-  .chip{
-    display:flex;
-    align-items:center;
-    gap:0.4rem;
-    background:var(--paper-raise);
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:0.3rem 0.55rem;
-    font-size:0.86rem;
-  }
-  .chip button{
-    border:none;
-    background:none;
-    color:var(--ink-faint);
-    cursor:pointer;
-    font-size:0.9rem;
-    line-height:1;
-    padding:0;
-  }
-  .chip button:hover{color:var(--rust);}
-  /* Someone added on this phone whom the server doesn't have yet (SF-036). */
-  .chip.waiting{border-style:dashed;}
-  .inline-form{
-    display:flex;
-    gap:0.5rem;
-  }
-  input[type=text], input[type=number], select{
-    font-family:var(--sans);
-    font-size:0.9rem;
-    color:var(--ink);
-    background:var(--paper);
-    border:1px solid var(--line-strong);
-    border-radius:3px;
-    padding:0.5rem 0.6rem;
-  }
-  input[type=text]:focus, input[type=number]:focus, select:focus{
-    outline:2px solid var(--green);
-    outline-offset:1px;
-  }
-  .people-row + .inline-form input{flex:1;}
+  /* ---------- buttons ---------- */
   .btn{
-    font-family:var(--sans);
-    font-size:0.86rem;
-    font-weight:600;
-    border:1px solid var(--ink);
-    background:var(--ink);
-    color:var(--paper);
-    border-radius:3px;
-    padding:0.5rem 0.9rem;
-    cursor:pointer;
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:48px;padding:0 20px;border:0;border-radius:14px;
+    font-size:15px;font-weight:700;text-decoration:none;text-align:center;
   }
-  .btn:hover{background:#3a3733;}
-  .btn.ghost{
-    background:var(--paper);
-    color:var(--ink);
-    border:1px solid var(--line-strong);
+  .btn.big{width:100%;min-height:56px;border-radius:16px;font-size:16px;}
+  .btn.primary{background:var(--brand);color:#fff;}
+  .btn.primary:hover{background:var(--brand-press);}
+  .btn.primary:disabled{opacity:.5;}
+  .btn.outline{background:var(--bg);color:var(--brand);border:1.5px solid var(--brand);}
+  .btn.outline:hover{background:var(--brand-soft);}
+  .btn.dark{background:var(--ink);color:#fff;}
+  .btn.dark:hover{background:#35312D;}
+  .btn.surface{background:var(--surface);color:var(--ink);}
+  .btn.danger{background:var(--owe);color:#fff;}
+  .btn.danger:hover{background:#A32F23;}
+  .btn.danger-outline{background:var(--bg);color:var(--owe);border:1.5px solid var(--owe);min-height:56px;border-radius:16px;font-size:16px;}
+  .btn.danger-outline:hover{background:var(--owe-soft);}
+  .btn.soft{min-height:44px;padding:0 14px;border-radius:12px;background:var(--brand-soft);color:var(--brand);font-size:14px;}
+  .text-btn{
+    min-height:44px;padding:0 12px;border:0;border-radius:12px;background:none;
+    color:var(--brand);font-size:14px;font-weight:600;
   }
-  .btn.ghost:hover{border-color:var(--ink);}
-  .btn:disabled{opacity:0.45;cursor:not-allowed;}
-  a.btn{display:inline-block;text-decoration:none;}
+  .text-btn:hover{background:var(--brand-soft);}
+  .text-btn.owe{color:var(--owe);}
+  .text-btn.owe:hover{background:var(--owe-soft);}
+  .text-btn.accent{color:var(--accent-ink);font-size:15px;}
+  .text-btn.accent:hover{background:rgba(138,83,0,.08);}
 
-  /* add expense form */
-  .expense-form{
-    border:1px solid var(--line);
-    border-radius:4px;
-    padding:1rem 1.1rem 1.1rem;
-    background:var(--paper-raise);
-  }
-  .field{margin-bottom:0.75rem;}
-  .field label{
-    display:block;
-    font-size:0.78rem;
-    color:var(--ink-soft);
-    margin-bottom:0.3rem;
-  }
-  .field input, .field select{width:100%;}
-  .row2{display:flex;gap:0.7rem;}
-  .row2 .field{flex:1;}
-  .split-boxes{
-    display:flex;
-    flex-wrap:wrap;
-    gap:0.5rem 1rem;
-  }
-  .split-boxes label{
-    display:flex;
-    align-items:center;
-    gap:0.4rem;
-    font-size:0.86rem;
-    color:var(--ink);
-  }
-  .split-boxes input{width:auto;}
-  .form-actions{
-    display:flex;
-    justify-content:flex-end;
-    margin-top:0.9rem;
-  }
-
-  /* ledger */
-  .ledger-row{
-    display:flex;
-    align-items:baseline;
-    gap:0.75rem;
-    padding:0.65rem 0;
-    border-bottom:1px solid var(--line);
-  }
-  .ledger-row:first-child{border-top:1px solid var(--line);}
-  .ledger-date{
-    font-family:var(--mono);
-    font-size:0.72rem;
-    color:var(--ink-faint);
-    width:3.6rem;
-    flex-shrink:0;
-  }
-  .ledger-mid{flex:1;min-width:0;}
-  .ledger-desc{font-size:0.92rem;}
-  .ledger-meta{
-    font-size:0.76rem;
-    color:var(--ink-soft);
-    margin-top:0.1rem;
-  }
-  .ledger-amt{
-    font-family:var(--mono);
-    font-weight:600;
-    font-size:0.92rem;
-    white-space:nowrap;
-  }
-  .ledger-del{
-    border:none;
-    background:none;
-    color:var(--ink-faint);
-    cursor:pointer;
-    font-size:0.95rem;
-    padding:0 0 0 0.2rem;
-    flex-shrink:0;
-  }
-  .ledger-del:hover{color:var(--rust);}
-  .ledger-row.flagged .ledger-amt{color:var(--ink-faint);}
-  .ledger-flag{
-    font-size:0.76rem;
-    color:var(--rust);
-    margin-top:0.2rem;
-  }
-
-  /* balances */
-  .balance-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:0.6rem 0.7rem;
-    border-radius:3px;
-    background:var(--rust-soft);
-    margin-bottom:0.5rem;
-    font-size:0.9rem;
-  }
-  .balance-row .amt{
-    font-family:var(--mono);
-    font-weight:600;
-    color:var(--rust);
-  }
-  .balance-note{
-    font-size:0.82rem;
-    color:var(--rust);
-    margin-bottom:0.6rem;
-  }
-  .settled{
-    color:var(--green);
-    background:var(--green-soft);
-    border-radius:3px;
-    padding:0.7rem 0.8rem;
-    font-size:0.88rem;
-  }
-  .empty{
-    color:var(--ink-faint);
-    font-size:0.88rem;
-    font-style:italic;
-    padding:0.4rem 0;
-  }
-
-  footer{
-    max-width:640px;
-    margin:2.5rem auto 0;
-    padding:1rem 1.25rem 0;
-    border-top:1px solid var(--line);
-    color:var(--ink-faint);
-    font-size:0.76rem;
-  }
-
-  /* join gate: hidden until the page's script has started and shows it */
-  .join-screen{
-    min-height:100vh;
-    display:none;
-    align-items:center;
-    justify-content:center;
-    padding:1.5rem;
-  }
-  .join-card{
-    max-width:360px;
-    width:100%;
-  }
-  .join-card h1{margin-bottom:0.2rem;}
-  .join-copy{
-    color:var(--ink-soft);
-    font-size:0.88rem;
-    margin:1.1rem 0 0.9rem;
-  }
-  .join-card .inline-form{flex-direction:column;}
-  .join-card input{width:100%;}
-  .join-card .btn{width:100%;}
-  .join-note{
-    font-size:0.76rem;
-    color:var(--ink-faint);
-    margin-top:0.9rem;
-  }
-  .join-error{
-    font-size:0.82rem;
-    color:var(--rust);
-    margin-top:0.6rem;
-    display:none;
-  }
-  .join-alert{
-    display:none;
-    background:var(--rust-soft);
-    color:var(--rust);
-    border-radius:3px;
-    padding:0.6rem 0.75rem;
-    font-size:0.85rem;
-    margin:1rem 0 0;
-  }
-  .join-block{margin-top:1.5rem;}
-  .join-block h2{
-    font-family:var(--sans);
-    font-weight:600;
-    font-size:0.95rem;
-    margin:0 0 0.2rem;
-  }
-  .join-block .join-copy{margin:0 0 0.75rem;}
-  .join-or{
-    display:flex;
-    align-items:center;
-    gap:0.75rem;
-    margin-top:1.5rem;
-    color:var(--ink-faint);
-    font-size:0.72rem;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-  }
-  .join-or::before, .join-or::after{
-    content:"";
-    flex:1;
-    border-top:1px solid var(--line);
-  }
-
-  /* start-up panel: "Loading…", or a plain message with Retry when the app can't start (SF-008) */
+  /* ---------- logo and start-up (SF-008) ---------- */
+  .brand-row{display:flex;align-items:center;gap:12px;}
+  .logo{flex:none;width:40px;height:40px;border-radius:14px;background:var(--brand);position:relative;overflow:hidden;}
+  .logo::after{content:"";position:absolute;right:-10px;bottom:-10px;width:30px;height:30px;border-radius:50%;background:var(--accent);}
+  .wordmark{font-family:var(--font-head);font-size:30px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;margin:0;}
   .boot{
-    min-height:100vh;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:1.5rem;
-    text-align:center;
+    min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;text-align:center;
   }
   .boot.done{display:none;}
-  .boot-loading{
-    color:var(--ink-faint);
-    font-size:0.88rem;
-    opacity:0;
-    animation:boot-appear 0.2s ease 0.6s forwards;
-  }
-  @keyframes boot-appear{ to{ opacity:1; } }
-  .boot-failed p{
-    color:var(--ink-soft);
-    font-size:0.92rem;
-    margin:1rem 0;
-  }
+  .boot-loading{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:22px;opacity:0;animation:sf-fade .2s ease .6s forwards;}
+  .boot-track{width:120px;height:4px;background:var(--brand-soft);border-radius:4px;overflow:hidden;}
+  .boot-track div{width:40%;height:100%;border-radius:4px;background:var(--brand);animation:sf-bar 1.3s ease-in-out infinite;}
+  .boot-loading p{font-size:14px;color:var(--ink-faint);}
   .boot.failed .boot-loading{display:none;}
+  .boot-failed{display:flex;flex-direction:column;align-items:center;gap:18px;margin-top:28px;max-width:300px;}
+  .boot-failed p{font-size:16px;color:var(--ink-soft);}
+  .boot-failed .btn{min-width:160px;}
+  .icon-circle{width:56px;height:56px;border-radius:50%;background:var(--surface);display:grid;place-items:center;color:var(--ink-soft);}
 
-  /* one friendly message at a time: save errors, sync errors, anything unexpected (SF-009) */
+  /* ---------- welcome: your groups, start or join (SF-029) ---------- */
+  .welcome{
+    max-width:480px;min-height:100vh;min-height:100dvh;margin:0 auto;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top) + 36px) var(--gutter-r) calc(env(safe-area-inset-bottom) + 24px) var(--gutter-l);
+  }
+  .tagline{margin-top:10px;font-size:16px;color:var(--ink-soft);}
+  .welcome .grow{flex:1;min-height:32px;}
+  .welcome-actions{display:flex;flex-direction:column;gap:10px;}
+  .fine-print{margin-top:16px;font-size:13px;line-height:1.45;color:var(--ink-faint);text-align:center;}
+  .banner{margin-top:20px;padding:12px 14px;border-radius:14px;background:var(--owe-soft);color:var(--owe);font-size:14px;font-weight:600;}
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px;}
+  .section-head h2{font-size:18px;}
+  .section-head .hint{font-size:13px;color:var(--ink-faint);text-align:right;}
+  .recent{margin-top:32px;}
+  .recent .section-head{align-items:center;margin-bottom:8px;}
+  .recent .section-head .text-btn{margin-right:-12px;}
+  .recent-note{margin:0 0 10px;font-size:13px;line-height:1.45;color:var(--ink-soft);}
+  .card-list{border:1px solid var(--line);border-radius:18px;overflow:hidden;}
+  .card-list > li + li{border-top:1px solid var(--line);}
+  .group-item{display:flex;align-items:center;}
+  .group-open{
+    flex:1;min-width:0;display:flex;align-items:center;gap:14px;min-height:72px;
+    padding:12px 12px 12px 14px;border:0;background:none;text-align:left;
+  }
+  .group-open:hover:not(:disabled){background:var(--surface);}
+  .group-open:disabled{cursor:default;}
+  .tile{flex:none;width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:var(--brand-soft);color:var(--brand);font-family:var(--font-head);font-weight:800;font-size:18px;}
+  .row-main{flex:1;min-width:0;}
+  .row-title{display:block;font-size:16px;font-weight:600;line-height:1.35;overflow-wrap:anywhere;}
+  .row-sub{display:block;font-size:13px;line-height:1.4;color:var(--ink-soft);margin-top:2px;overflow-wrap:anywhere;}
+  .group-remove{
+    flex:none;min-height:44px;max-width:132px;margin-right:10px;padding:0 12px;border:1px solid var(--owe);border-radius:12px;
+    background:var(--bg);color:var(--owe);font-size:13px;font-weight:600;line-height:1.2;
+  }
+  .group-remove:hover{background:var(--owe-soft);}
+  .intro-card{margin-top:32px;padding:24px 20px;border-radius:22px;background:var(--accent-soft);}
+  .intro-avatars{display:flex;margin-bottom:16px;}
+  .intro-avatars span{width:44px;height:44px;border-radius:50%;border:3px solid var(--accent-soft);display:grid;place-items:center;font-family:var(--font-head);font-weight:800;}
+  .intro-avatars span + span{margin-left:-10px;}
+  .intro-card h2{font-size:20px;line-height:1.25;}
+  .intro-card p{margin-top:6px;font-size:15px;color:var(--ink-soft);}
+
+  /* ---------- the group: header band ---------- */
+  .top{
+    background:var(--brand);color:#fff;
+    padding:calc(env(safe-area-inset-top) + 8px) max(16px, env(safe-area-inset-right)) 18px var(--gutter-l);
+  }
+  .top :focus-visible{outline-color:#fff;}
+  .top-inner{max-width:640px;margin:0 auto;}
+  .top-row{display:flex;align-items:center;gap:8px;min-height:52px;}
+  .group-title{flex:1;min-width:0;font-size:26px;line-height:1.2;letter-spacing:-0.015em;}
+  .group-btn{
+    width:100%;min-height:48px;display:flex;align-items:center;gap:6px;padding:4px 0;
+    border:0;background:none;color:#fff;text-align:left;font:inherit;letter-spacing:inherit;
+  }
+  .group-btn span{min-width:0;overflow-wrap:anywhere;}
+  .sync-dot{flex:none;width:44px;height:44px;display:grid;place-items:center;}
+  .sync-dot span{width:10px;height:10px;border-radius:50%;background:#fff;box-shadow:0 0 0 3px rgba(255,255,255,.28);}
+  .sync-dot.pulse span{animation:sf-pulse 1.2s ease-in-out infinite;}
+  .round-btn{
+    flex:none;width:44px;height:44px;border:0;border-radius:50%;background:rgba(255,255,255,.16);color:#fff;
+    display:grid;place-items:center;
+  }
+  .round-btn:hover{background:rgba(255,255,255,.26);}
+  .sync-pill{
+    display:inline-flex;align-items:center;gap:8px;max-width:100%;margin-top:2px;padding:5px 12px 5px 10px;border-radius:999px;
+    /* white 14%, not the design's 18%: white text on it then meets WCAG AA (4.7:1, not 4.4:1) */
+    background:rgba(255,255,255,.14);color:#fff;font-size:13px;line-height:1.35;font-weight:600;
+  }
+  .sync-pill .dot{flex:none;width:8px;height:8px;border-radius:50%;background:#fff;}
+  .sync-pill.offline .dot{background:transparent;box-shadow:inset 0 0 0 1.5px #fff;}
+  .sync-pill.failed{background:var(--owe-soft);color:var(--owe);}
+  .sync-pill.failed .dot{background:var(--owe);}
+  .sync-pill.quiet{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .people-bar{display:flex;align-items:center;gap:10px;margin-top:12px;}
+  .avatars-btn{display:flex;align-items:center;min-height:44px;padding:0;border:0;background:none;}
+  .avatars-btn .av + .av{margin-left:-8px;}
+  .avatars-btn .av{border:2px solid var(--brand);}
+  .add-person-btn{
+    flex:none;width:44px;height:44px;border:2px dashed rgba(255,255,255,.7);border-radius:50%;background:none;color:#fff;
+    display:grid;place-items:center;
+  }
+  .add-person-btn:hover:not(:disabled){background:rgba(255,255,255,.14);}
+  .people-count{font-size:14px;font-weight:500;color:#fff;}
+  .top button:disabled{opacity:.55;}
+
+  /* ---------- avatars ---------- */
+  .av{
+    flex:none;position:relative;border-radius:50%;display:grid;place-items:center;
+    font-family:var(--font-head);font-weight:800;line-height:1;
+  }
+  .av-30{width:30px;height:30px;font-size:13px;}
+  .av-36{width:36px;height:36px;font-size:14px;}
+  .av-40{width:40px;height:40px;font-size:15px;}
+  .av-44{width:44px;height:44px;font-size:16px;}
+  .av-52{width:52px;height:52px;font-size:20px;}
+  .av .badge{
+    position:absolute;right:-3px;bottom:-3px;width:20px;height:20px;border-radius:50%;background:var(--good);
+    border:2px solid var(--bg);color:#fff;display:grid;place-items:center;
+  }
+
+  /* ---------- the group: home ---------- */
+  .home{
+    max-width:640px;margin:0 auto;
+    padding:0 var(--gutter-r) calc(env(safe-area-inset-bottom) + 120px) var(--gutter-l);
+  }
+  .home-col{min-width:0;}
+  .home section{min-width:0;}
+  .guide{margin-top:20px;padding:20px;border-radius:22px;background:var(--accent-soft);}
+  .guide-step{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700;color:var(--accent-ink);}
+  .dashes{display:flex;gap:4px;}
+  .dashes i{width:22px;height:5px;border-radius:3px;background:rgba(28,26,24,.12);}
+  .dashes i.on{background:var(--accent);}
+  .guide h2{margin-top:10px;font-size:21px;line-height:1.25;}
+  .guide p{margin-top:6px;font-size:15px;color:var(--ink-soft);}
+  .guide-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px;}
+  .status-card{margin-top:24px;padding:20px;border-radius:20px;background:var(--surface);}
+  .status-card p{font-size:16px;color:var(--ink-soft);}
+  .status-card .btn{margin-top:14px;}
+  .balances{margin-top:24px;}
+  .ledger-section{margin-top:28px;}
+  .ledger-section h2{font-size:18px;margin-bottom:4px;}
+  .balance-note{margin-bottom:10px;padding:10px 12px;border-radius:12px;background:var(--owe-soft);color:var(--owe);font-size:14px;}
+  .balance-list{border:1px solid var(--line);border-radius:20px;overflow:hidden;}
+  .balance-list > li + li{border-top:1px solid var(--line);}
+  .balance-row{
+    width:100%;display:flex;align-items:center;gap:12px;min-height:64px;padding:12px 12px 12px 14px;
+    border:0;background:var(--bg);text-align:left;
+  }
+  .balance-row:hover{background:var(--surface);}
+  .balance-who{flex:1;min-width:0;font-size:16px;line-height:1.4;overflow-wrap:anywhere;}
+  .balance-who strong{font-weight:600;}
+  .balance-amt{flex:none;font-size:16px;font-weight:700;color:var(--owe);white-space:nowrap;text-align:right;}
+  .settled{display:flex;align-items:center;gap:14px;padding:18px;border-radius:20px;background:var(--good-soft);}
+  .settled .smile{flex:none;width:48px;height:48px;border-radius:50%;background:var(--good);color:#fff;display:grid;place-items:center;}
+  .settled-title{display:block;font-family:var(--font-head);font-size:20px;font-weight:800;color:var(--good);}
+  .settled-sub{display:block;font-size:14px;color:var(--ink-soft);}
+  .ledger > li{border-bottom:1px solid var(--line);}
+  .expense-row{
+    width:calc(100% + 12px);display:grid;grid-template-columns:40px minmax(0,1fr) auto;column-gap:12px;align-items:center;
+    min-height:68px;padding:12px 6px;margin:0 -6px;border:0;border-radius:14px;background:none;text-align:left;
+  }
+  .expense-row:hover{background:var(--surface);}
+  .expense-row .row-title{text-wrap:pretty;}
+  .expense-row.payment .row-title{color:var(--good);}
+  .row-amt{font-size:15px;font-weight:700;text-align:right;white-space:nowrap;}
+  .expense-row.payment .row-amt{color:var(--good);}
+  .expense-row.waiting .row-amt, .expense-row.flagged .row-amt{color:var(--ink-faint);}
+  .pill-waiting{
+    display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:1px 9px 1px 7px;border-radius:999px;
+    background:var(--surface);font-size:12px;font-weight:500;line-height:1.6;color:var(--ink-soft);
+  }
+  .row-flag{display:block;margin-top:4px;font-size:13px;color:var(--owe);}
+  .add-bar{
+    position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;justify-content:center;
+    padding:12px var(--gutter-r) calc(env(safe-area-inset-bottom) + 14px) var(--gutter-l);
+    background:linear-gradient(rgba(255,255,255,0), #fff 30%);
+    pointer-events:none;
+  }
+  .add-bar .btn{max-width:560px;font-size:17px;border-radius:18px;box-shadow:0 8px 24px rgba(28,26,24,.18);pointer-events:auto;}
+
+  /* ---------- sheets and dialogs ---------- */
+  dialog{color:var(--ink);}
+  dialog::backdrop{background:rgba(28,26,24,.42);animation:sf-fade .18s ease;}
+  .sheet{
+    position:fixed;inset:auto 0 0 0;margin:0;width:100%;max-width:100%;max-height:94vh;max-height:94dvh;
+    padding:0;border:0;border-radius:24px 24px 0 0;background:var(--bg);
+    box-shadow:0 -10px 40px rgba(28,26,24,.2);animation:sf-up .26s cubic-bezier(.2,.8,.2,1);
+    flex-direction:column;overflow:hidden;
+  }
+  .sheet[open]{display:flex;}
+  .sheet-head{flex:none;padding:8px 8px 0 20px;}
+  .handle{width:40px;height:5px;margin:0 auto 4px;border-radius:3px;background:var(--line);}
+  .sheet-title-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .sheet-title-row h2{min-width:0;font-size:22px;line-height:1.25;overflow-wrap:anywhere;}
+  .close-btn{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:var(--surface);color:var(--ink-soft);display:grid;place-items:center;}
+  .panel{flex:1;min-height:0;display:flex;flex-direction:column;}
+  .panel-body{flex:1;min-height:0;overflow-y:auto;padding:8px 20px 20px;}
+  .panel-foot{flex:none;display:flex;gap:10px;padding:12px 20px calc(env(safe-area-inset-bottom) + 14px);border-top:1px solid var(--line);}
+  .panel-foot .btn.primary{flex:1;min-height:56px;border-radius:16px;font-size:16px;}
+  .panel-foot.plain{border-top:0;}
+  .menu-body{flex:1;min-height:0;overflow-y:auto;padding:8px 12px calc(env(safe-area-inset-bottom) + 16px);}
+  .menu-row{
+    width:100%;display:flex;align-items:center;gap:14px;min-height:64px;padding:10px 8px;border:0;border-radius:16px;
+    background:none;text-align:left;
+  }
+  button.menu-row:hover{background:var(--surface);}
+  .menu-icon{flex:none;width:44px;height:44px;border-radius:50%;background:var(--brand-soft);color:var(--brand);display:grid;place-items:center;}
+  .menu-icon.grey{background:var(--surface);color:var(--ink-soft);}
+  .menu-row .row-title{font-weight:600;}
+  .menu-row input{
+    flex:none;width:60px;height:48px;text-align:center;border:1px solid var(--line-strong);border-radius:12px;
+    background:var(--bg);font-size:18px;font-weight:700;
+  }
+  .menu-note{margin:10px 8px 0;font-size:13px;line-height:1.45;color:var(--ink-faint);}
+  .menu-row-wrap .field-error{margin:0 8px 6px 66px;}
+
+  /* fields */
+  .field{margin-top:16px;}
+  .field:first-child{margin-top:8px;}
+  .label-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;}
+  .field label, .label{display:block;font-size:14px;font-weight:600;}
+  .counter{font-size:12px;color:var(--ink-faint);}
+  .input{
+    display:block;width:100%;min-height:52px;margin-top:6px;padding:0 16px;font-size:16px;
+    background:var(--bg);border:1px solid var(--line-strong);border-radius:14px;
+  }
+  .input[aria-invalid="true"]{border-color:var(--owe);}
+  .money{position:relative;margin-top:6px;}
+  .money .symbol{position:absolute;left:16px;top:0;bottom:0;display:flex;align-items:center;font-size:22px;font-weight:600;color:var(--ink-soft);pointer-events:none;}
+  .money .input{
+    margin-top:0;min-height:60px;padding:0 16px 0 60px;font-family:var(--font-head);font-size:26px;font-weight:800;
+    text-align:right;
+  }
+  .field-hint{margin-top:10px;font-size:14px;color:var(--ink-soft);}
+  .field-error{display:flex;gap:6px;align-items:flex-start;margin-top:6px;font-size:14px;line-height:1.45;color:var(--owe);}
+  .field-error svg{margin-top:3px;}
+  .inline-add{display:flex;gap:8px;margin-top:6px;}
+  .inline-add .input{flex:1;min-width:0;margin-top:0;}
+  .inline-add .btn{flex:none;min-height:52px;min-width:76px;}
+  .form-lines{margin-top:18px;border-top:1px solid var(--line);}
+  .line{display:flex;align-items:center;gap:12px;min-height:60px;border-bottom:1px solid var(--line);}
+  .line.split-line{padding:6px 0;}
+  .line.split-line.open{border-bottom:1px solid var(--line);}
+  .line-label{flex:none;font-size:15px;color:var(--ink-soft);}
+  .payer{position:relative;margin-left:auto;min-width:0;display:flex;align-items:center;gap:10px;min-height:44px;padding:0 30px 0 4px;}
+  .payer-name{font-size:16px;font-weight:700;overflow-wrap:anywhere;}
+  .payer select{position:absolute;inset:0;width:100%;opacity:0;font-size:16px;cursor:pointer;}
+  .payer:focus-within{outline:3px solid var(--brand);outline-offset:2px;border-radius:10px;}
+  .payer .chev{position:absolute;right:4px;top:13px;pointer-events:none;}
+  .split-text{flex:1;min-width:0;font-size:15px;line-height:1.4;color:var(--ink-soft);}
+  .split-text strong{color:var(--ink);font-weight:700;overflow-wrap:anywhere;}
+  .split-list{border:0;padding:10px 0 0;margin:0;min-width:0;}
+  .check-row{display:flex;align-items:center;gap:12px;min-height:52px;padding:0 14px;border-radius:14px;cursor:pointer;}
+  .check-row:hover{background:var(--surface);}
+  .check-row.everyone{background:var(--surface);}
+  .check-row.everyone.all{background:var(--brand-soft);}
+  .check-row input{flex:none;width:22px;height:22px;margin:0;accent-color:var(--brand);}
+  .check-row .name{flex:1;min-width:0;font-size:15px;overflow-wrap:anywhere;}
+  .check-row.everyone .name{font-weight:700;}
+  .check-row .count{font-size:13px;color:var(--ink-soft);}
+  .alert-box{margin-top:8px;padding:16px;border-radius:16px;background:var(--owe-soft);color:var(--owe);}
+  .alert-box p{display:flex;gap:8px;align-items:flex-start;font-size:15px;font-weight:600;}
+  .alert-box .btn{margin:10px 0 0 24px;min-height:44px;padding:0 16px;border-radius:12px;font-size:14px;}
+  .pay-summary{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px;padding:18px 12px;border-radius:20px;background:var(--good-soft);}
+  .pay-person{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:0;max-width:40%;}
+  .pay-person .name{font-size:15px;font-weight:700;text-align:center;overflow-wrap:anywhere;}
+  .pay-arrow{display:flex;flex-direction:column;align-items:center;gap:2px;color:var(--good);font-size:13px;font-weight:700;}
+  .people-list > li{border-bottom:1px solid var(--line);padding:6px 0;}
+  .person-line{display:flex;align-items:center;gap:12px;min-height:52px;}
+  .person-line .name{flex:1;min-width:0;font-size:16px;font-weight:600;overflow-wrap:anywhere;}
+  .person-line .pill-waiting{margin-top:0;margin-left:8px;}
+  .blocked{display:flex;gap:8px;align-items:flex-start;margin:4px 0 6px;padding:10px 12px;border-radius:12px;background:var(--owe-soft);font-size:14px;line-height:1.45;color:var(--owe);}
+  .blocked svg{margin-top:3px;}
+  .spinner{width:16px;height:16px;border:2.5px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:sf-spin .8s linear infinite;}
+  .confirm{
+    width:calc(100% - 48px);max-width:380px;padding:24px 20px 16px;border:0;border-radius:24px;background:var(--bg);
+    box-shadow:0 16px 48px rgba(28,26,24,.28);animation:sf-up .2s ease;
+  }
+  .confirm::backdrop{background:rgba(28,26,24,.5);}
+  .confirm h2{font-size:20px;line-height:1.3;overflow-wrap:anywhere;}
+  .confirm p{margin-top:8px;font-size:15px;color:var(--ink-soft);}
+  .confirm-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:22px;}
+
+  /* one message at a time: save errors, sync errors, anything unexpected (SF-009) */
   .notice{
-    position:fixed;
-    left:50%;
-    bottom:1rem;
-    transform:translateX(-50%);
-    width:calc(100% - 2rem);
-    max-width:600px;
-    display:flex;
-    align-items:flex-start;
-    gap:0.75rem;
-    background:var(--rust-soft);
-    color:var(--rust);
-    border:1px solid var(--rust);
-    border-radius:4px;
-    padding:0.65rem 0.8rem;
-    font-size:0.86rem;
-    z-index:10;
+    position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:40;max-width:560px;margin:0 auto;
+    display:flex;align-items:flex-start;gap:10px;padding:0 4px 0 14px;border-radius:16px;
+    background:var(--owe-soft);border:1px solid var(--owe);color:var(--owe);
+    box-shadow:0 8px 28px rgba(28,26,24,.14);animation:sf-up .22s ease;
   }
-  .notice[hidden]{display:none;}
-  .notice span{flex:1;}
-  .notice button{
-    border:none;
-    background:none;
-    color:var(--rust);
-    font-size:1rem;
-    line-height:1;
-    cursor:pointer;
-    padding:0;
-  }
-  .ledger-sync{
-    font-size:0.72rem;
-    color:var(--ink-faint);
-    margin-top:0.15rem;
-  }
+  body.in-group .notice{bottom:calc(env(safe-area-inset-bottom) + 92px);}
+  .notice > svg{margin-top:13px;}
+  .notice span{flex:1;min-width:0;padding:10px 0;font-size:14px;line-height:1.45;font-weight:600;}
+  .notice button{flex:none;width:44px;height:44px;border:0;border-radius:12px;background:none;color:var(--owe);display:grid;place-items:center;}
 
   /* inside the installed or Android app, hide what only makes sense in a browser (SF-010) */
-  .in-app .web-only, .in-app #install-btn.show{display:none;}
+  .in-app .web-only, .in-app .install-btn{display:none !important;}
 
-  @media (max-width:420px){
-    .row2{flex-direction:column;}
+  /* tablets: two columns, sheets as centred panels */
+  @media (min-width:700px){
+    .top-inner{max-width:1040px;}
+    .home{
+      max-width:1040px;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);column-gap:32px;align-items:start;
+    }
+    .sheet{
+      inset:0;margin:auto;width:calc(100% - 64px);max-width:560px;height:fit-content;max-height:calc(100dvh - 64px);
+      border-radius:24px;
+    }
   }
 </style>
 <script>
@@ -527,159 +467,325 @@
 <body>
 
 <div class="boot" id="boot">
-  <div class="join-card">
-    <h1>SplitFamilia</h1>
-    <p class="boot-loading">Loading…</p>
-    <div class="boot-failed" id="boot-failed" role="alert" hidden>
-      <p>Can't reach SplitFamilia. Check your connection.</p>
-      <button type="button" class="btn" id="boot-retry">Retry</button>
-    </div>
+  <div class="brand-row"><span class="logo" aria-hidden="true"></span><span class="wordmark">SplitFamilia</span></div>
+  <div class="boot-loading" role="status">
+    <div class="boot-track" aria-hidden="true"><div></div></div>
+    <p>Loading…</p>
+  </div>
+  <div class="boot-failed" id="boot-failed" role="alert" hidden>
+    <span class="icon-circle" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 2l20 20"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M5 12.9a10 10 0 0 1 5.2-2.8"/><path d="M19 12.9a10 10 0 0 0-2.2-1.6"/><path d="M12 20h.01"/></svg></span>
+    <p>Can't reach SplitFamilia. Check your connection.</p>
+    <button type="button" class="btn primary" id="boot-retry">Retry</button>
   </div>
 </div>
 
-<div class="join-screen" id="join-screen">
-  <div class="join-card">
-    <h1>SplitFamilia</h1>
-    <p class="sub">a running ledger for shared costs</p>
-    <p class="join-alert" id="join-alert" role="alert"></p>
+<main class="welcome" id="join-screen" hidden>
+  <div class="brand-row"><span class="logo" aria-hidden="true"></span><h1 class="wordmark">SplitFamilia</h1></div>
+  <p class="tagline">a running ledger for shared costs</p>
+  <p class="banner" id="join-alert" role="alert" hidden></p>
 
-    <div class="join-block">
-      <h2>Start a new group</h2>
-      <p class="join-copy">Name it after the trip or the household. You'll get a private invite link to share with the others.</p>
-      <form class="inline-form" id="new-group-form" novalidate>
-        <input type="text" id="new-group-name" placeholder="e.g. Goa trip 2026" maxlength="60" autocomplete="off" aria-label="Group name" />
-        <button type="submit" class="btn">Start group</button>
-      </form>
-      <p class="join-error" id="new-group-error" role="alert"></p>
+  <section class="recent" id="recent-section" aria-labelledby="recent-title" hidden>
+    <div class="section-head">
+      <h2 id="recent-title">Your groups</h2>
+      <button type="button" class="text-btn" id="recent-edit" aria-pressed="false">Edit</button>
     </div>
+    <p class="recent-note" id="recent-note" hidden>Removing a group only takes it off this device. The group itself isn't deleted, and its invite link still works.</p>
+    <ul class="card-list" id="recent-list"></ul>
+  </section>
 
-    <div class="join-or">or</div>
-
-    <div class="join-block">
-      <h2>Join a group</h2>
-      <p class="join-copy">Paste the invite link or code someone shared with you.</p>
-      <form class="inline-form" id="join-form" novalidate>
-        <input type="text" id="join-code" placeholder="Invite link or code" autocomplete="off" autocapitalize="none" spellcheck="false" aria-label="Invite link or code" />
-        <button type="submit" class="btn ghost" id="join-btn">Join</button>
-      </form>
-      <p class="join-error" id="join-error" role="alert"></p>
+  <div class="intro-card" id="intro-card" hidden>
+    <div class="intro-avatars" aria-hidden="true">
+      <span style="background:#FFE3D8;color:#9C3514">A</span><span style="background:#D6F1EA;color:#0B5E55">B</span><span style="background:#E3E1FF;color:#4133B8">C</span>
     </div>
-
-    <p class="join-note">Your group's data is stored in the cloud, not on this device<span class="web-only">, so installing the app won't lose it</span>.</p>
+    <h2>Share costs, not headaches.</h2>
+    <p>Start a group for a trip or an occasion. Everyone logs what they paid, and SplitFamilia shows who owes whom.</p>
   </div>
-</div>
 
-<div class="join-screen" id="moved-screen">
-  <div class="join-card">
-    <h1>SplitFamilia</h1>
-    <p class="sub">SplitFamilia has moved</p>
-    <p class="join-copy">It now has its own address. Your group comes with you: open it there, then install the app again from there.</p>
-    <a class="btn" id="moved-link">Open SplitFamilia</a>
+  <div class="grow"></div>
+  <div class="welcome-actions">
+    <button type="button" class="btn primary big" id="start-group-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Start a new group</button>
+    <button type="button" class="btn outline big" id="join-link-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/></svg>Join with a link</button>
+    <button type="button" class="text-btn install-btn" hidden>Install app</button>
   </div>
-</div>
+  <p class="fine-print">Groups are kept on SplitFamilia's server. Anyone with a group's invite link can open it on any phone.</p>
+</main>
 
-<div id="app-shell" style="display:none;">
-  <div class="wrap">
-    <header class="top">
-      <div>
-        <h1>SplitFamilia</h1>
-        <p class="sub">a running ledger for shared costs</p>
+<main class="welcome" id="moved-screen" hidden>
+  <div class="brand-row"><span class="logo" aria-hidden="true"></span><h1 class="wordmark">SplitFamilia</h1></div>
+  <p class="tagline">SplitFamilia has moved</p>
+  <p class="field-hint">It now has its own address. Your group comes with you: open it there, then install the app again from there.</p>
+  <div class="grow"></div>
+  <a class="btn primary big" id="moved-link">Open SplitFamilia</a>
+</main>
+
+<div id="app-shell" hidden>
+  <header class="top">
+    <div class="top-inner">
+      <div class="top-row">
+        <h1 class="group-title"><button type="button" class="group-btn" id="group-menu-btn" aria-haspopup="dialog">
+          <span id="group-name"></span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button></h1>
+        <span class="sync-dot pulse" id="sync-dot" aria-hidden="true"><span></span></span>
+        <button type="button" class="round-btn" id="menu-btn" aria-label="Group menu" aria-haspopup="dialog"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg></button>
       </div>
-      <button id="install-btn" class="web-only">Install app</button>
-    </header>
-
-    <div class="group-bar">
-      <div><span class="g-name" id="group-name"></span><span class="g-status" id="group-status">· connecting…</span></div>
-      <div class="g-actions">
-        <button class="link-btn" id="copy-link-btn">Copy invite link</button>
-        <button class="link-btn muted" id="switch-group-btn">Switch group</button>
+      <p class="sync-pill quiet" id="sync-pill" role="status"><span class="dot" aria-hidden="true"></span><span><span class="sr-only">Sync status: </span><span id="group-status">connecting…</span></span></p>
+      <div class="people-bar">
+        <button type="button" class="avatars-btn" id="people-btn" hidden></button>
+        <button type="button" class="add-person-btn" id="add-person-btn" aria-label="Add a person"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
+        <span class="people-count" id="people-count"></span>
       </div>
     </div>
+  </header>
 
-    <section>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.85rem;">
-        <h2 style="margin:0;">People</h2>
-        <div class="currency-row">
-          symbol <input id="currency-input" type="text" maxlength="3" />
+  <main class="home">
+    <div class="home-col">
+      <section class="guide" id="guide" aria-labelledby="guide-title" hidden>
+        <div class="guide-step"><span id="guide-step"></span><span class="dashes" id="guide-dashes" aria-hidden="true"><i></i><i></i><i></i></span></div>
+        <h2 id="guide-title"></h2>
+        <p id="guide-body"></p>
+        <div class="guide-actions">
+          <button type="button" class="btn dark" id="guide-go"></button>
+          <button type="button" class="text-btn accent" id="guide-skip" hidden>Not now</button>
         </div>
-      </div>
-      <div class="people-row" id="people-list"></div>
-      <form class="inline-form" id="add-person-form">
-        <input type="text" id="person-name" placeholder="Add a person" maxlength="60" autocomplete="off" />
-        <button type="submit" class="btn ghost">Add</button>
-      </form>
+      </section>
+      <section class="status-card" id="not-loaded" hidden>
+        <p id="not-loaded-text"></p>
+        <button type="button" class="btn outline" id="not-loaded-groups">Your groups</button>
+      </section>
+      <section class="balances" id="balances-section" aria-labelledby="balances-title" hidden>
+        <div class="section-head">
+          <h2 id="balances-title">Balances</h2>
+          <span class="hint" id="balances-hint">Tap one to record a payment</span>
+        </div>
+        <div id="balances-list"></div>
+      </section>
+    </div>
+    <section class="ledger-section" id="ledger-section" aria-labelledby="ledger-title" hidden>
+      <h2 id="ledger-title">Expenses</h2>
+      <ol class="ledger" id="ledger-list"></ol>
     </section>
+  </main>
 
-    <section>
-      <h2>Add expense</h2>
-      <form class="expense-form" id="add-expense-form" novalidate>
-        <div class="row2">
-          <div class="field">
-            <label for="exp-desc">Description</label>
-            <input type="text" id="exp-desc" placeholder="Dinner, cab, groceries…" maxlength="200" autocomplete="off" />
+  <div class="add-bar">
+    <button type="button" class="btn primary big" id="add-expense-btn"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add expense</button>
+  </div>
+</div>
+
+<dialog class="sheet" id="sheet" aria-labelledby="sheet-title">
+  <div class="sheet-head">
+    <div class="handle" aria-hidden="true"></div>
+    <div class="sheet-title-row">
+      <h2 id="sheet-title"></h2>
+      <button type="button" class="close-btn" id="sheet-close" aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+  </div>
+
+  <!-- The group menu: people, the invite link, the currency, switching group. -->
+  <div class="panel" id="menu-panel" hidden>
+    <div class="menu-body">
+      <button type="button" class="menu-row" id="menu-people">
+        <span class="menu-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.5a3.5 3.5 0 0 1 0 7"/><path d="M18 14.5a6.5 6.5 0 0 1 3.5 5.5"/></svg></span>
+        <span class="row-main"><span class="row-title">People</span><span class="row-sub" id="menu-people-names"></span></span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6E6860" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+      <button type="button" class="menu-row" id="copy-link-btn">
+        <span class="menu-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/></svg></span>
+        <span class="row-main"><span class="row-title" id="copy-link-label" aria-live="polite">Copy invite link</span><span class="row-sub">Send it to everyone in the group</span></span>
+      </button>
+      <div class="menu-row-wrap">
+        <label class="menu-row" for="currency-input">
+          <span class="menu-icon" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10M7 9.5h10M10 5c4.5 0 4.5 9-1 9H7l7 6"/></svg></span>
+          <span class="row-main"><span class="row-title">Currency symbol</span><span class="row-sub">Shown before every amount</span></span>
+          <input id="currency-input" type="text" maxlength="3" autocomplete="off" aria-describedby="currency-error" />
+        </label>
+        <p class="field-error" id="currency-error" hidden></p>
+      </div>
+      <button type="button" class="menu-row" id="switch-group-btn">
+        <span class="menu-icon grey" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span>
+        <span class="row-main"><span class="row-title">Switch group</span><span class="row-sub">Your other groups on this device</span></span>
+      </button>
+      <button type="button" class="menu-row install-btn" id="install-btn" hidden>
+        <span class="menu-icon grey" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg></span>
+        <span class="row-main"><span class="row-title">Install app</span><span class="row-sub">Add SplitFamilia to your home screen</span></span>
+      </button>
+      <p class="menu-note">Changes sync live to everyone with this group's link.<span class="web-only" id="ios-tip"> On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.</span></p>
+    </div>
+  </div>
+
+  <!-- People: add and remove. -->
+  <div class="panel" id="people-panel" hidden>
+    <div class="panel-body">
+      <p class="field-hint" id="people-empty" hidden>No one here yet. Add everyone who's sharing costs, one at a time.</p>
+      <ul class="people-list" id="people-list"></ul>
+      <form id="add-person-form" novalidate class="field">
+        <label for="person-name">Add a person</label>
+        <div class="inline-add">
+          <input class="input" type="text" id="person-name" placeholder="Name" maxlength="60" autocomplete="off" aria-describedby="person-error" />
+          <button type="submit" class="btn primary">Add</button>
+        </div>
+        <p class="field-error" id="person-error" hidden></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Start a new group. -->
+  <form class="panel" id="new-group-form" novalidate hidden>
+    <div class="panel-body">
+      <div class="field">
+        <label for="new-group-name">Group name</label>
+        <input class="input" type="text" id="new-group-name" placeholder="e.g. Goa trip 2026" maxlength="60" autocomplete="off" aria-describedby="new-group-error" />
+        <p class="field-error" id="new-group-error" hidden></p>
+      </div>
+      <p class="field-hint">Name it after the trip or the occasion. You'll get a private invite link to share with the others.</p>
+    </div>
+    <div class="panel-foot plain"><button type="submit" class="btn primary">Start group</button></div>
+  </form>
+
+  <!-- Join with a link. -->
+  <form class="panel" id="join-form" novalidate hidden>
+    <div class="panel-body">
+      <div class="field">
+        <label for="join-code">Invite link or code</label>
+        <input class="input" type="text" id="join-code" placeholder="Paste it here" autocomplete="off" autocapitalize="none" spellcheck="false" aria-describedby="join-error" />
+        <p class="field-error" id="join-error" hidden></p>
+      </div>
+      <p class="field-hint">Someone in the group can send it from their group menu.</p>
+    </div>
+    <div class="panel-foot plain"><button type="submit" class="btn primary" id="join-btn"><span class="spinner" id="join-spinner" aria-hidden="true" hidden></span><span id="join-label">Join</span></button></div>
+  </form>
+
+  <!-- Add or edit an expense (SF-022). -->
+  <form class="panel" id="add-expense-form" novalidate hidden>
+    <div class="panel-body">
+      <div class="alert-box" id="exp-no-people" role="alert" hidden>
+        <p><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true" style="margin-top:4px"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>Add at least one person first.</p>
+        <button type="button" class="btn danger" id="exp-go-people">Add people</button>
+      </div>
+      <div class="field">
+        <div class="label-row"><label for="exp-desc">What was it for?</label><span class="counter" id="exp-desc-count" aria-hidden="true">0/200</span></div>
+        <input class="input" type="text" id="exp-desc" placeholder="Dinner, tickets, groceries…" maxlength="200" autocomplete="off" aria-describedby="exp-desc-error" />
+        <p class="field-error" id="exp-desc-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="exp-amount">Amount</label>
+        <div class="money"><span class="symbol" id="exp-currency" aria-hidden="true">₹</span><input class="input" type="text" inputmode="decimal" id="exp-amount" placeholder="0.00" autocomplete="off" aria-describedby="exp-amount-error" /></div>
+        <p class="field-error" id="exp-amount-error" hidden></p>
+      </div>
+      <div class="form-lines" id="exp-people-lines">
+        <div class="line">
+          <label class="line-label" for="exp-paidby">Paid by</label>
+          <div class="payer">
+            <span id="exp-payer-av"></span>
+            <span class="payer-name" id="exp-payer-name" aria-hidden="true"></span>
+            <select id="exp-paidby" aria-describedby="exp-paidby-error"></select>
+            <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#4F46E5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
           </div>
-          <div class="field">
-            <label for="exp-amount">Amount</label>
-            <input type="number" id="exp-amount" step="0.01" min="0" placeholder="0.00" />
-          </div>
         </div>
-        <div class="field">
-          <label for="exp-paidby">Paid by</label>
-          <select id="exp-paidby"></select>
+        <p class="field-error" id="exp-paidby-error" hidden></p>
+        <div class="line split-line" id="split-line">
+          <span class="split-text">Split equally among <strong id="split-summary">everyone</strong></span>
+          <button type="button" class="btn soft" id="split-toggle" aria-expanded="false" aria-controls="split-boxes">Change</button>
         </div>
-        <div class="field">
-          <label>Split equally among</label>
-          <div class="split-boxes" id="split-boxes"></div>
-        </div>
-        <div class="form-actions">
-          <button type="submit" class="btn" id="add-expense-btn">Add expense</button>
-        </div>
-      </form>
-    </section>
+        <fieldset class="split-list" id="split-boxes" aria-describedby="split-error" hidden>
+          <legend class="sr-only">Split equally among</legend>
+          <label class="check-row everyone" id="split-everyone-row"><input type="checkbox" id="split-everyone" /><span class="name">Everyone</span><span class="count" id="split-count"></span></label>
+          <div id="split-people"></div>
+        </fieldset>
+        <p class="field-hint" id="split-removed" hidden>Someone it was split among isn't in the group any more. Saving splits it among the people ticked.</p>
+        <p class="field-error" id="split-error" hidden></p>
+        <p class="field-hint" id="split-hint" hidden></p>
+      </div>
+    </div>
+    <div class="panel-foot">
+      <button type="button" class="btn danger-outline" id="exp-delete-btn" hidden>Delete</button>
+      <button type="submit" class="btn primary" id="save-expense-btn">Add expense</button>
+    </div>
+  </form>
 
-    <section>
-      <h2>Ledger</h2>
-      <div id="ledger-list"></div>
-    </section>
+  <!-- Record or edit a payment (SF-023). -->
+  <form class="panel" id="pay-form" novalidate hidden>
+    <div class="panel-body">
+      <div class="pay-summary">
+        <span class="pay-person"><span id="pay-from-av"></span><span class="name" id="pay-from"></span></span>
+        <span class="pay-arrow">paid<svg width="28" height="20" viewBox="0 0 28 20" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10h21M17 4l7 6-7 6"/></svg></span>
+        <span class="pay-person"><span id="pay-to-av"></span><span class="name" id="pay-to"></span></span>
+      </div>
+      <div class="field" style="margin-top:18px">
+        <label for="pay-amount">Amount</label>
+        <div class="money"><span class="symbol" id="pay-currency" aria-hidden="true">₹</span><input class="input" type="text" inputmode="decimal" id="pay-amount" autocomplete="off" aria-describedby="pay-amount-error pay-note" /></div>
+        <p class="field-error" id="pay-amount-error" hidden></p>
+        <p class="field-hint" id="pay-note" hidden></p>
+      </div>
+      <p class="field-error" id="pay-error" role="alert" hidden></p>
+      <p class="field-hint" style="margin-top:18px">This only records a payment made outside the app. SplitFamilia never moves money.</p>
+    </div>
+    <div class="panel-foot">
+      <button type="button" class="btn danger-outline" id="pay-delete-btn" hidden>Delete</button>
+      <button type="submit" class="btn primary" id="pay-save-btn">Record payment</button>
+    </div>
+  </form>
+</dialog>
 
-    <section>
-      <h2>Balances</h2>
-      <div id="balances-list"></div>
-    </section>
+<dialog class="confirm" id="confirm" role="alertdialog" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+  <h2 id="confirm-title"></h2>
+  <p id="confirm-body"></p>
+  <div class="confirm-actions">
+    <button type="button" class="btn surface" id="confirm-cancel">Cancel</button>
+    <button type="button" class="btn danger" id="confirm-ok"></button>
   </div>
-
-  <footer>
-    Data syncs live through the cloud to everyone with this group's link.<span class="web-only" id="ios-tip"> On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.</span>
-  </footer>
-</div>
+</dialog>
 
 <div class="notice" id="notice" role="alert" hidden>
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
   <span id="notice-text"></span>
-  <button type="button" id="notice-close" aria-label="Dismiss">×</button>
+  <button type="button" id="notice-close" aria-label="Dismiss message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
 </div>
 
 <script type="module">
   // The page talks only to its own server (SF-035): ledger-client.js reads the group, sends each
   // change and keeps a live connection; outbox.js keeps the phone's copy and the changes waiting
-  // to sync (SF-036).
-  // "?v=6" matches the service worker's cache name; bump them together (see service-worker.js).
-  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=6";
-  import { isValidGroupId, newGroupId, parseInvite, movedLink } from "./group-code.js?v=6";
-  import { friendlyError, syncStatusText } from "./sync-status.js?v=6";
-  import { checkGroup, checkPerson, checkExpense, MAX_PEOPLE, MAX_SPLIT } from "./ledger-rules.js?v=6";
-  import { getGroup, sendChange, watchGroup } from "./ledger-client.js?v=6";
-  import { createOutbox, memoryStore, openBrowserStore, overlay, applyChange, forBalances, EMPTY_GROUP } from "./outbox.js?v=6";
+  // to sync (SF-036). recent-groups.js keeps the list of groups opened on this phone (SF-029).
+  // "?v=7" matches the service worker's cache name; bump them together (see service-worker.js).
+  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=7";
+  import { isValidGroupId, newGroupId, parseInvite, movedLink, groupName } from "./group-code.js?v=7";
+  import { friendlyError, syncStatusText } from "./sync-status.js?v=7";
+  import { checkGroup, checkPerson, checkExpense, MAX_PEOPLE, MAX_SPLIT, SETTLEMENT } from "./ledger-rules.js?v=7";
+  import { getGroup, sendChange, watchGroup } from "./ledger-client.js?v=7";
+  import { createOutbox, memoryStore, openBrowserStore, overlay, applyChange, forBalances, EMPTY_GROUP } from "./outbox.js?v=7";
+  import { RECENT_KEY, readRecent, rememberGroup, forgetGroup, wantsInvite, inviteDone, shortDate, openedText } from "./recent-groups.js?v=7";
+
+  const $ = function(id){ return document.getElementById(id); };
+  const ICON_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>';
+  const ICON_CLOCK = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  const ICON_CHEVRON = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6E6860" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+  const ICON_ARROW = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
+  const ICON_SMILE = '<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M8.5 13.5a4 4 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/></svg>';
+
+  // An element with a class and text (never HTML from data).
+  function el(tag, className, text){
+    const e = document.createElement(tag);
+    if(className) e.className = className;
+    if(text !== undefined) e.textContent = text;
+    return e;
+  }
+  // An icon from the fixed list above, never from data.
+  function icon(svg){
+    const span = document.createElement("span");
+    span.innerHTML = svg;
+    return span.firstChild;
+  }
 
   // ---------- messages (SF-009) ----------
   // People see plain words, never the server's own text. The console gets at most an error
   // code: never what someone typed, and never a group code.
-  const notice = document.getElementById("notice");
-  const noticeText = document.getElementById("notice-text");
+  const notice = $("notice");
+  const noticeText = $("notice-text");
   function showNotice(text){
     noticeText.textContent = text;
     notice.hidden = false;
   }
-  document.getElementById("notice-close").addEventListener("click", function(){ notice.hidden = true; });
+  $("notice-close").addEventListener("click", function(){ notice.hidden = true; });
 
   // From here on, anything that goes wrong without its own message gets one friendly message.
   let unexpectedShown = false;
@@ -692,8 +798,87 @@
   window.addEventListener("error", function(e){ reportUnexpected(e.error); });
   window.addEventListener("unhandledrejection", function(e){ reportUnexpected(e.reason); });
 
-  // ---------- group resolution ----------
+  // A form check's message goes under its field, never in a pop-up (SF-028). "" clears it.
+  function fieldError(errorId, text, input){
+    const box = $(errorId);
+    box.textContent = "";
+    if(text){
+      box.appendChild(icon(ICON_ALERT));
+      box.appendChild(el("span", "", text));
+    }
+    box.hidden = !text;
+    if(input) input.setAttribute("aria-invalid", text ? "true" : "false");
+  }
+
+  // ---------- sheets and the confirm dialog (SF-028) ----------
+  const sheet = $("sheet");
+  const confirmBox = $("confirm");
+  let sheetPanel = null;
+  let sheetCloseHook = null;
+  function openModal(d){
+    if(typeof d.showModal === "function") d.showModal();
+    else d.setAttribute("open", "");
+  }
+  function closeModal(d){
+    if(typeof d.close === "function") d.close();
+    else{
+      d.removeAttribute("open");
+      d.dispatchEvent(new Event("close"));
+    }
+  }
+  // Shows one panel in the sheet. `onClose` runs once when the sheet closes, however it closes.
+  function openSheet(panelId, title, onClose){
+    sheet.querySelectorAll(".panel").forEach(function(p){ p.hidden = p.id !== panelId; });
+    $("sheet-title").textContent = title;
+    if(sheetPanel !== null && sheetCloseHook) sheetCloseHook();
+    sheetCloseHook = onClose || null;
+    sheetPanel = panelId;
+    if(!sheet.open){
+      openModal(sheet);
+      document.body.classList.add("sheet-open");
+    }
+  }
+  function closeSheet(){ if(sheet.open) closeModal(sheet); }
+  sheet.addEventListener("close", function(){
+    document.body.classList.remove("sheet-open");
+    const hook = sheetCloseHook;
+    sheetCloseHook = null;
+    sheetPanel = null;
+    if(hook) hook();
+  });
+  // A tap on the dimmed page around the sheet closes it.
+  sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
+  $("sheet-close").addEventListener("click", closeSheet);
+
+  let confirmAction = null;
+  // Asks first, naming the item: "Delete ‘Dinner’ (₹1,200.00)?" (SF-028).
+  function confirmFirst(title, body, actionLabel, onConfirm){
+    $("confirm-title").textContent = title;
+    $("confirm-body").textContent = body;
+    $("confirm-ok").textContent = actionLabel;
+    confirmAction = onConfirm;
+    openModal(confirmBox);
+    $("confirm-cancel").focus();
+  }
+  $("confirm-cancel").addEventListener("click", function(){ confirmAction = null; closeModal(confirmBox); });
+  $("confirm-ok").addEventListener("click", function(){
+    const action = confirmAction;
+    confirmAction = null;
+    closeModal(confirmBox);
+    if(action) action();
+  });
+  confirmBox.addEventListener("click", function(e){ if(e.target === confirmBox){ confirmAction = null; closeModal(confirmBox); } });
+
+  // ---------- the groups on this phone (SF-029) ----------
   const GROUP_KEY = "splitsheet-group";
+  function loadRecent(){
+    try{ return readRecent(localStorage.getItem(RECENT_KEY), isValidGroupId); }catch(e){ return []; }
+  }
+  function saveRecent(list){
+    try{ localStorage.setItem(RECENT_KEY, JSON.stringify(list)); }catch(e){ /* only this list is lost */ }
+  }
+
+  // ---------- group resolution ----------
 
   // On the old GitHub Pages address the page only points to its new home, with the same group
   // (SF-038). Nothing else runs there: it has no server of its own.
@@ -723,26 +908,25 @@
   const resolved = resolveGroup();
   let groupId = resolved.id;
 
-  const joinScreen = document.getElementById("join-screen");
-  const appShell = document.getElementById("app-shell");
-  const joinAlert = document.getElementById("join-alert");
-  const newGroupForm = document.getElementById("new-group-form");
-  const newGroupName = document.getElementById("new-group-name");
-  const newGroupError = document.getElementById("new-group-error");
-  const joinForm = document.getElementById("join-form");
-  const joinInput = document.getElementById("join-code");
-  const joinBtn = document.getElementById("join-btn");
-  const joinError = document.getElementById("join-error");
-  const newGroupBtn = newGroupForm.querySelector("button");
+  const joinScreen = $("join-screen");
+  const appShell = $("app-shell");
+  const joinAlert = $("join-alert");
+  const newGroupForm = $("new-group-form");
+  const newGroupName = $("new-group-name");
+  const joinForm = $("join-form");
+  const joinInput = $("join-code");
+  const joinBtn = $("join-btn");
+  const newGroupBtn = newGroupForm.querySelector("button[type=submit]");
 
-  function showMessage(el, text){
-    el.textContent = text;
-    el.style.display = text ? "block" : "none";
+  function showMessage(box, text){
+    box.textContent = text;
+    box.hidden = !text;
   }
 
   // Opens a group in this page: saves it, puts it in the address bar, starts the ledger.
   // At most one group opens per page load (F-3): a "Join" check that returns after "Start a new
-  // group" has already opened a group is ignored. `group` is the server's copy when Join just read it.
+  // group" has already opened a group is ignored, and so is a tap on a recent group after either.
+  // `group` is the server's copy when Join just read it.
   function openGroup(id, isNew, group){
     if(appStarted) return;
     localStorage.setItem(GROUP_KEY, id);
@@ -750,82 +934,135 @@
     url.searchParams.set("g", id);
     history.replaceState(null, "", url.toString());
     groupId = id;
+    closeSheet();
     startApp(id, isNew, group);
   }
+
+  $("start-group-btn").addEventListener("click", function(){
+    fieldError("new-group-error", "", newGroupName);
+    openSheet("new-group-form", "Start a new group");
+    newGroupName.focus();
+  });
+  $("join-link-btn").addEventListener("click", function(){
+    fieldError("join-error", "", joinInput);
+    openSheet("join-form", "Join with a link");
+    joinInput.focus();
+  });
 
   newGroupForm.addEventListener("submit", function(ev){
     ev.preventDefault();
     const name = newGroupName.value.trim();
     if(!name){
-      showMessage(newGroupError, "Give the group a name.");
+      fieldError("new-group-error", "Give the group a name.", newGroupName);
       return;
     }
-    showMessage(newGroupError, "");
+    fieldError("new-group-error", "", newGroupName);
     openGroup(newGroupId(name), true, null);
   });
+  newGroupName.addEventListener("input", function(){ fieldError("new-group-error", "", newGroupName); });
+  joinInput.addEventListener("input", function(){ fieldError("join-error", "", joinInput); });
 
   // "Join" asks the server whether the group exists, and keeps what it read.
+  let checking = false;
   joinForm.addEventListener("submit", function(ev){
     ev.preventDefault();
+    if(checking) return;
     showMessage(joinAlert, "");
-    if(!joinInput.value.trim()){
-      showMessage(joinError, "Paste an invite link or code.");
-      return;
-    }
+    const fail = function(text){ fieldError("join-error", text, joinInput); };
+    if(!joinInput.value.trim()) return fail("Paste an invite link or code.");
     const id = parseInvite(joinInput.value);
-    if(!id){
-      showMessage(joinError, BAD_LINK);
-      return;
-    }
-    if(!navigator.onLine){
-      showMessage(joinError, OFFLINE_JOIN);
-      return;
-    }
-    showMessage(joinError, "");
+    if(!id) return fail(BAD_LINK);
+    if(!navigator.onLine) return fail(OFFLINE_JOIN);
+    fail("");
     // While the check runs, neither form can open another group (F-3).
+    checking = true;
     joinBtn.disabled = true;
     newGroupBtn.disabled = true;
-    joinBtn.textContent = "Checking…";
+    joinInput.readOnly = true;
+    $("join-spinner").hidden = false;
+    $("join-label").textContent = "Checking…";
     getGroup(id).then(function(res){
       if(res.status === 200) openGroup(id, false, res.group);
-      else if(res.status === 404) showMessage(joinError, friendlyError("not-found"));
-      else if(res.status === 0) showMessage(joinError, OFFLINE_JOIN);
-      else if(res.status === 429) showMessage(joinError, friendlyError("resource-exhausted"));
-      else if(res.status === 400) showMessage(joinError, BAD_LINK);
-      else showMessage(joinError, "Couldn't check that code just now. Try again.");
+      else if(res.status === 404) fail(friendlyError("not-found"));
+      else if(res.status === 0) fail(OFFLINE_JOIN);
+      else if(res.status === 429) fail(friendlyError("resource-exhausted"));
+      else if(res.status === 400) fail(BAD_LINK);
+      else fail("Couldn't check that code just now. Try again.");
     }).finally(function(){
+      checking = false;
       joinBtn.disabled = false;
       newGroupBtn.disabled = false;
-      joinBtn.textContent = "Join";
+      joinInput.readOnly = false;
+      $("join-spinner").hidden = true;
+      $("join-label").textContent = "Join";
     });
   });
 
-  document.getElementById("switch-group-btn").addEventListener("click", function(){
-    localStorage.removeItem(GROUP_KEY);
-    const url = new URL(window.location.href);
-    url.searchParams.delete("g");
-    window.location.href = url.toString();
+  // "Your groups": the groups opened on this phone, most recent first. Tapping one opens it;
+  // "Edit" offers "Remove from this device", which only forgets it here.
+  let recentEditing = false;
+  function renderRecent(){
+    const list = loadRecent();
+    $("recent-section").hidden = list.length === 0;
+    $("intro-card").hidden = list.length > 0;
+    if(list.length === 0) recentEditing = false;
+    $("recent-edit").textContent = recentEditing ? "Done" : "Edit";
+    $("recent-edit").setAttribute("aria-pressed", recentEditing ? "true" : "false");
+    $("recent-note").hidden = !recentEditing;
+    const ul = $("recent-list");
+    ul.textContent = "";
+    const now = Date.now();
+    list.forEach(function(entry){
+      const name = groupName(entry.code);
+      const li = el("li", "group-item");
+      const open = el("button", "group-open");
+      open.type = "button";
+      open.disabled = recentEditing;
+      const tile = el("span", "tile", Array.from(name)[0] || "G");
+      tile.setAttribute("aria-hidden", "true");
+      const main = el("span", "row-main");
+      main.appendChild(el("span", "row-title", name));
+      main.appendChild(el("span", "row-sub", "Opened " + openedText(entry.openedAt, now)));
+      open.appendChild(tile);
+      open.appendChild(main);
+      if(!recentEditing) open.appendChild(icon(ICON_CHEVRON));
+      open.addEventListener("click", function(){ openGroup(entry.code, false, null); });
+      li.appendChild(open);
+      if(recentEditing){
+        const remove = el("button", "group-remove", "Remove from this device");
+        remove.type = "button";
+        remove.setAttribute("aria-label", "Remove " + name + " from this device");
+        remove.addEventListener("click", function(){ removeRecent(entry.code); });
+        li.appendChild(remove);
+      }
+      ul.appendChild(li);
+    });
+  }
+  $("recent-edit").addEventListener("click", function(){
+    recentEditing = !recentEditing;
+    renderRecent();
   });
-
-  document.getElementById("copy-link-btn").addEventListener("click", function(){
-    const url = new URL(window.location.href);
-    url.searchParams.set("g", groupId);
-    const shareUrl = url.toString();
-    const btn = this;
-    const done = function(){ btn.textContent = "Copied"; setTimeout(function(){ btn.textContent = "Copy invite link"; }, 1500); };
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      navigator.clipboard.writeText(shareUrl).then(done).catch(function(){ prompt("Copy this link:", shareUrl); });
-    }else{
-      prompt("Copy this link:", shareUrl);
+  // Forgets the group on this phone only: the list entry and the phone's copy. Its waiting
+  // changes, if any, are still sent. The group on the server is untouched.
+  function removeRecent(code){
+    saveRecent(forgetGroup(loadRecent(), code));
+    if(localStorage.getItem(GROUP_KEY) === code) localStorage.removeItem(GROUP_KEY);
+    if(window.indexedDB){
+      openBrowserStore(window.indexedDB).then(function(store){
+        if(store) return store.deleteCopy(code);
+      }).catch(function(){ /* the copy stays; nothing shows it */ });
     }
-  });
+    renderRecent();
+  }
 
+  // ---------- start ----------
   let appStarted = false;
   if(movedTo){
-    document.getElementById("moved-link").href = movedTo;
-    document.getElementById("moved-screen").style.display = "flex";
+    $("moved-link").href = movedTo;
+    $("moved-screen").hidden = false;
   }else if(!groupId){
-    joinScreen.style.display = "flex";
+    joinScreen.hidden = false;
+    renderRecent();
     if(resolved.error) showMessage(joinAlert, resolved.error);
   }else{
     startApp(groupId, false, null);
@@ -835,9 +1072,16 @@
   async function startApp(gid, isNew, joined){
     if(appStarted) return;
     appStarted = true;
-    joinScreen.style.display = "none";
-    appShell.style.display = "";
-    document.getElementById("group-name").textContent = gid;
+    joinScreen.hidden = true;
+    appShell.hidden = false;
+    document.body.classList.add("in-group");
+    const title = groupName(gid);
+    $("group-name").textContent = title;
+    $("group-menu-btn").setAttribute("aria-label", title + ", open group menu");
+    saveRecent(rememberGroup(loadRecent(), gid, Date.now(), isValidGroupId, isNew));
+    // The phone's copy and its waiting changes (IndexedDB). Opened first: from here to the end of
+    // the set-up nothing waits, so no button below can be used before the outbox exists.
+    const store = (window.indexedDB && await openBrowserStore(window.indexedDB)) || memoryStore();
 
     // What the page shows: the phone's copy of the server's group, with this phone's waiting
     // changes on top (overlay in outbox.js). Balances include the waiting changes.
@@ -845,17 +1089,36 @@
     let people = [];
     let expenses = [];
     let currency = "₹";
+    let notLoaded = false;
 
     function fmtPaise(paise){
       return currency + formatPaise(paise);
     }
-    function fmtDate(iso){
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+    // Paise as the amount field takes it: 125050 → "1250.50" (no grouping, so it reads back).
+    function plainPaise(paise){
+      return Math.floor(paise / 100) + "." + String(paise % 100).padStart(2, "0");
+    }
+    function personIndex(id){
+      return people.findIndex(function(x){ return x.id === id; });
     }
     function personName(id){
-      const p = people.find(function(x){ return x.id === id; });
-      return p ? p.name : "Removed person";
+      const i = personIndex(id);
+      return i === -1 ? "Removed person" : people[i].name;
+    }
+    // A person's round initial, in the colour of their place in the group (reused after six).
+    const TINTS = [["#FFE3D8", "#9C3514"], ["#D6F1EA", "#0B5E55"], ["#E3E1FF", "#4133B8"], ["#FFEDC2", "#7F5200"], ["#FBDDEB", "#9B1C57"], ["#DAEAFE", "#1E4FB8"]];
+    function avatar(id, size){
+      const i = personIndex(id);
+      const span = el("span", "av av-" + size, i === -1 ? "?" : (Array.from(people[i].name.trim())[0] || "?").toUpperCase());
+      const tint = i === -1 ? ["#ECEAE6", "#56514B"] : TINTS[i % TINTS.length];
+      span.style.background = tint[0];
+      span.style.color = tint[1];
+      span.setAttribute("aria-hidden", "true");
+      return span;
+    }
+    function isSettlement(exp){ return exp.kind === SETTLEMENT; }
+    function expenseLabel(exp){
+      return isSettlement(exp) ? personName(exp.paidBy) + " paid " + personName(exp.split[0]) : exp.desc;
     }
     // Why an expense isn't counted, in words (see expenseProblem in money.js).
     const PROBLEM_TEXT = {
@@ -865,208 +1128,602 @@
     };
 
     function renderAll(){
-      renderCurrency();
-      renderPeople();
-      renderPayerSelect();
-      renderSplitBoxes();
-      renderLedger();
+      renderHeader();
+      renderHome();
+      renderSheet();
+    }
+
+    function renderHeader(){
+      const n = people.length;
+      const btn = $("people-btn");
+      btn.textContent = "";
+      btn.hidden = n === 0;
+      people.slice(0, 5).forEach(function(p){ btn.appendChild(avatar(p.id, 36)); });
+      if(n > 5){
+        const more = el("span", "av av-36", "+" + (n - 5));
+        more.style.background = "#fff";
+        more.style.color = "var(--ink)";
+        more.setAttribute("aria-hidden", "true");
+        btn.appendChild(more);
+      }
+      btn.setAttribute("aria-label", "People: " + people.map(function(p){ return p.name; }).join(", "));
+      $("people-count").textContent = notLoaded ? "" : n === 0 ? "Add people" : n === 1 ? "1 person" : n + " people";
+      btn.disabled = notLoaded;
+      $("add-person-btn").disabled = notLoaded;
+      $("add-expense-btn").disabled = notLoaded;
+    }
+
+    // The guide for a new group (SF-028): add people, then the first expense, then (for a group
+    // started on this phone) the invite link. It replaces the balances until there are 2+ people
+    // and an expense.
+    function guideStep(){
+      if(people.length < 2) return 1;
+      if(expenses.length === 0) return 2;
+      // Read again each time: another tab of this group may have copied the link meanwhile.
+      return wantsInvite(loadRecent(), gid) ? 3 : 0;
+    }
+
+    function renderHome(){
+      $("not-loaded").hidden = !notLoaded;
+      if(notLoaded){
+        $("not-loaded-text").textContent = failed
+          ? friendlyError("not-found")
+          : navigator.onLine ? "Loading…" : "Not loaded yet. Connect to see this group.";
+        $("guide").hidden = true;
+        $("balances-section").hidden = true;
+        $("ledger-section").hidden = true;
+        return;
+      }
+      renderGuide();
       renderBalances();
+      renderLedger();
     }
 
-    function renderCurrency(){
-      const el = document.getElementById("currency-input");
-      if(document.activeElement !== el) el.value = currency;
-    }
-
-    function renderPeople(){
-      const el = document.getElementById("people-list");
-      el.innerHTML = "";
-      if(people.length === 0){
-        const e = document.createElement("div");
-        e.className = "empty";
-        e.textContent = "No one added yet — add the people splitting costs.";
-        el.appendChild(e);
-        return;
-      }
-      people.forEach(function(p){
-        const chip = document.createElement("div");
-        chip.className = p.waiting ? "chip waiting" : "chip";
-        if(p.waiting) chip.title = "waiting to sync";
-        const span = document.createElement("span");
-        span.textContent = p.name;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.title = "Remove " + p.name;
-        btn.textContent = "×";
-        btn.addEventListener("click", function(){ removePerson(p.id); });
-        chip.appendChild(span);
-        chip.appendChild(btn);
-        el.appendChild(chip);
-      });
-    }
-
-    function renderPayerSelect(){
-      const sel = document.getElementById("exp-paidby");
-      const prev = sel.value;
-      sel.innerHTML = "";
-      if(people.length === 0){
-        const opt = document.createElement("option");
-        opt.textContent = "Add people first";
-        opt.value = "";
-        sel.appendChild(opt);
-        sel.disabled = true;
-        return;
-      }
-      sel.disabled = false;
-      people.forEach(function(p){
-        const o = document.createElement("option");
-        o.value = p.id;
-        o.textContent = p.name;
-        sel.appendChild(o);
-      });
-      if(people.some(function(p){ return p.id === prev; })) sel.value = prev;
-    }
-
-    function renderSplitBoxes(){
-      const el = document.getElementById("split-boxes");
-      const checkedIds = Array.prototype.slice.call(el.querySelectorAll("input:checked")).map(function(i){ return i.value; });
-      el.innerHTML = "";
-      if(people.length === 0) return;
-      people.forEach(function(p){
-        const label = document.createElement("label");
-        const cb = document.createElement("input");
-        cb.type = "checkbox";
-        cb.value = p.id;
-        cb.checked = checkedIds.length ? checkedIds.indexOf(p.id) !== -1 : true;
-        label.appendChild(cb);
-        label.appendChild(document.createTextNode(p.name));
-        el.appendChild(label);
-      });
-    }
-
-    function renderLedger(){
-      const el = document.getElementById("ledger-list");
-      el.innerHTML = "";
-      if(expenses.length === 0){
-        const e = document.createElement("div");
-        e.className = "empty";
-        e.textContent = "No expenses yet — add one above to start the ledger.";
-        el.appendChild(e);
-        return;
-      }
-      const sorted = expenses.slice().sort(function(a,b){ return new Date(b.date) - new Date(a.date); });
-      sorted.forEach(function(exp){
-        const row = document.createElement("div");
-        row.className = "ledger-row";
-
-        const date = document.createElement("div");
-        date.className = "ledger-date";
-        date.textContent = fmtDate(exp.date);
-
-        const mid = document.createElement("div");
-        mid.className = "ledger-mid";
-        const desc = document.createElement("div");
-        desc.className = "ledger-desc";
-        desc.textContent = exp.desc;
-        const meta = document.createElement("div");
-        meta.className = "ledger-meta";
-        const splitNames = Array.isArray(exp.split) && exp.split.length ? exp.split.map(personName).join(", ") : "nobody";
-        meta.textContent = "paid by " + personName(exp.paidBy) + " · split: " + splitNames;
-        mid.appendChild(desc);
-        mid.appendChild(meta);
-        if(exp.waiting){
-          const waiting = document.createElement("div");
-          waiting.className = "ledger-sync";
-          waiting.textContent = "waiting to sync";
-          mid.appendChild(waiting);
-        }
-        const problem = expenseProblem(exp);
-        if(problem){
-          row.classList.add("flagged");
-          const flag = document.createElement("div");
-          flag.className = "ledger-flag";
-          flag.textContent = PROBLEM_TEXT[problem];
-          mid.appendChild(flag);
-        }
-
-        const amt = document.createElement("div");
-        amt.className = "ledger-amt";
-        const paise = toPaise(exp.amount);
-        amt.textContent = paise === null ? "—" : fmtPaise(paise);
-
-        const del = document.createElement("button");
-        del.className = "ledger-del";
-        del.title = "Delete expense";
-        del.textContent = "×";
-        del.addEventListener("click", function(){ removeExpense(exp.id); });
-
-        row.appendChild(date);
-        row.appendChild(mid);
-        row.appendChild(amt);
-        row.appendChild(del);
-        el.appendChild(row);
-      });
+    function renderGuide(){
+      const step = guideStep();
+      $("guide").hidden = step === 0;
+      if(step === 0) return;
+      const steps = {
+        1: { title: "Who's sharing costs?", body: "Add the people in this group first. You can add more at any time.", action: people.length === 1 ? "Add another person" : "Add people" },
+        2: { title: "Add the first expense", body: "Say what it was for and how much. It's split equally, and the balance works itself out.", action: "Add expense" },
+        3: { title: "Invite your group", body: "Send everyone the invite link so they can see the balance and add expenses too.", action: copiedRecently ? "Copied" : "Copy invite link" }
+      };
+      $("guide-step").textContent = "Step " + step + " of 3";
+      $("guide-dashes").querySelectorAll("i").forEach(function(d, i){ d.classList.toggle("on", i < step); });
+      $("guide-title").textContent = steps[step].title;
+      $("guide-body").textContent = steps[step].body;
+      $("guide-go").textContent = steps[step].action;
+      $("guide-go").dataset.step = String(step);
+      $("guide-skip").hidden = step !== 3;
     }
 
     function renderBalances(){
-      const el = document.getElementById("balances-list");
-      el.innerHTML = "";
-      if(people.length === 0 || expenses.length === 0){
-        const e = document.createElement("div");
-        e.className = "empty";
-        e.textContent = "Balances will show up once there are people and expenses.";
-        el.appendChild(e);
-        return;
-      }
+      const section = $("balances-section");
+      const box = $("balances-list");
+      section.hidden = people.length < 2 || expenses.length === 0;
+      box.textContent = "";
+      if(section.hidden) return;
       const skipped = expenses.filter(function(exp){ return expenseProblem(exp) !== null; }).length;
       if(skipped > 0){
-        const note = document.createElement("div");
-        note.className = "balance-note";
-        note.textContent = skipped === 1
+        box.appendChild(el("p", "balance-note", skipped === 1
           ? "1 expense isn't counted because it has a problem. See the ledger."
-          : skipped + " expenses aren't counted because they have problems. See the ledger.";
-        el.appendChild(note);
+          : skipped + " expenses aren't counted because they have problems. See the ledger."));
       }
       const txns = simplifyDebts(computeBalances(people, expenses));
+      $("balances-hint").hidden = txns.length === 0;
       if(txns.length === 0){
-        const s = document.createElement("div");
-        s.className = "settled";
-        s.textContent = "All settled up.";
-        el.appendChild(s);
+        const card = el("div", "settled");
+        const smile = el("span", "smile");
+        smile.appendChild(icon(ICON_SMILE));
+        const words = el("span");
+        words.appendChild(el("span", "settled-title", "All settled up."));
+        words.appendChild(el("span", "settled-sub", "Nobody owes anybody."));
+        card.appendChild(smile);
+        card.appendChild(words);
+        box.appendChild(card);
         return;
       }
+      const ul = el("ul", "balance-list");
       txns.forEach(function(t){
-        const row = document.createElement("div");
-        row.className = "balance-row";
-        const label = document.createElement("span");
-        label.textContent = personName(t.from) + " owes " + personName(t.to);
-        const amt = document.createElement("span");
-        amt.className = "amt";
-        amt.textContent = fmtPaise(t.amount);
-        row.appendChild(label);
-        row.appendChild(amt);
-        el.appendChild(row);
+        const li = el("li");
+        const row = el("button", "balance-row");
+        row.type = "button";
+        row.setAttribute("aria-label", personName(t.from) + " owes " + personName(t.to) + " " + fmtPaise(t.amount) + ". Record payment");
+        const who = el("span", "balance-who");
+        who.appendChild(el("strong", "", personName(t.from)));
+        who.appendChild(document.createTextNode(" owes "));
+        who.appendChild(el("strong", "", personName(t.to)));
+        row.appendChild(avatar(t.from, 36));
+        row.appendChild(who);
+        row.appendChild(el("span", "balance-amt", fmtPaise(t.amount)));
+        row.appendChild(icon(ICON_CHEVRON));
+        row.addEventListener("click", function(){ openPay({ from: t.from, to: t.to, full: t.amount }); });
+        li.appendChild(row);
+        ul.appendChild(li);
+      });
+      box.appendChild(ul);
+    }
+
+    function renderLedger(){
+      const ol = $("ledger-list");
+      $("ledger-section").hidden = expenses.length === 0;
+      ol.textContent = "";
+      const now = Date.now();
+      const sorted = expenses.slice().sort(function(a, b){ return new Date(b.date) - new Date(a.date); });
+      sorted.forEach(function(exp){
+        const pay = isSettlement(exp);
+        const problem = expenseProblem(exp);
+        const paise = toPaise(exp.amount);
+        const amount = paise === null ? "—" : fmtPaise(paise);
+        const date = shortDate(exp.date, now);
+        const li = el("li");
+        const row = el("button", "expense-row" + (pay ? " payment" : "") + (exp.waiting ? " waiting" : "") + (problem ? " flagged" : ""));
+        row.type = "button";
+        row.setAttribute("aria-label", "Edit " + expenseLabel(exp) + ", " + amount + ", " + date + (exp.waiting ? ", waiting to sync" : ""));
+        const av = avatar(exp.paidBy, 40);
+        if(pay){
+          const badge = el("span", "badge");
+          badge.appendChild(icon(ICON_ARROW));
+          av.appendChild(badge);
+        }
+        const main = el("span", "row-main");
+        main.appendChild(el("span", "row-title", expenseLabel(exp)));
+        let meta;
+        if(pay){
+          meta = date + " · payment";
+        }else{
+          const split = Array.isArray(exp.split) ? exp.split : [];
+          const everyone = people.length > 1 && split.length === people.length && people.every(function(p){ return split.indexOf(p.id) !== -1; });
+          const who = everyone ? "split among everyone" : split.length === 1 ? "for " + personName(split[0]) : "split among " + split.length;
+          meta = date + " · paid by " + personName(exp.paidBy) + " · " + who;
+        }
+        main.appendChild(el("span", "row-sub", meta));
+        if(exp.waiting){
+          const pill = el("span", "pill-waiting");
+          pill.appendChild(icon(ICON_CLOCK));
+          pill.appendChild(document.createTextNode("waiting to sync"));
+          main.appendChild(pill);
+        }
+        if(problem) main.appendChild(el("span", "row-flag", PROBLEM_TEXT[problem]));
+        row.appendChild(av);
+        row.appendChild(main);
+        row.appendChild(el("span", "row-amt", amount));
+        row.addEventListener("click", function(){
+          if(pay) openPay({ from: exp.paidBy, to: exp.split[0], editing: exp });
+          else openExpense(exp);
+        });
+        li.appendChild(row);
+        ol.appendChild(li);
       });
     }
+
+    // The open sheet follows the group as it changes (another phone's edit, a change confirmed).
+    function renderSheet(){
+      if(sheetPanel === "menu-panel") renderMenu();
+      else if(sheetPanel === "people-panel") renderPeopleSheet();
+      else if(sheetPanel === "add-expense-form") renderExpenseForm();
+      else if(sheetPanel === "pay-form") renderPayForm();
+    }
+
+    // ---------- the group menu ----------
+    let copiedRecently = false;
+    function renderMenu(){
+      $("menu-people-names").textContent = people.length ? people.map(function(p){ return p.name; }).join(", ") : "No one yet";
+      const cur = $("currency-input");
+      if(document.activeElement !== cur) cur.value = currency;
+      cur.disabled = notLoaded;
+      $("copy-link-label").textContent = copiedRecently ? "Copied" : "Copy invite link";
+    }
+    function openMenu(){
+      fieldError("currency-error", "", $("currency-input"));
+      openSheet("menu-panel", title);
+      renderMenu();
+    }
+    $("group-menu-btn").addEventListener("click", openMenu);
+    $("menu-btn").addEventListener("click", openMenu);
+    $("menu-people").addEventListener("click", function(){ openPeople(false); });
+
+    function inviteLink(){
+      const url = new URL(window.location.href);
+      url.searchParams.set("g", gid);
+      return url.toString();
+    }
+    function copyInvite(){
+      const shareUrl = inviteLink();
+      const done = function(){
+        copiedRecently = true;
+        saveRecent(inviteDone(loadRecent(), gid));
+        renderAll();
+        setTimeout(function(){ copiedRecently = false; renderAll(); }, 1600);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(shareUrl).then(done).catch(function(){ prompt("Copy this link:", shareUrl); done(); });
+      }else{
+        prompt("Copy this link:", shareUrl);
+        done();
+      }
+    }
+    $("copy-link-btn").addEventListener("click", copyInvite);
+
+    function goToGroups(){
+      localStorage.removeItem(GROUP_KEY);
+      const url = new URL(window.location.href);
+      url.searchParams.delete("g");
+      window.location.href = url.toString();
+    }
+    // "Switch group" goes back to "Your groups"; this group stays in that list (SF-029).
+    $("switch-group-btn").addEventListener("click", goToGroups);
+    $("not-loaded-groups").addEventListener("click", goToGroups);
+
+    $("currency-input").addEventListener("change", function(ev){
+      const input = ev.target;
+      // A group this phone has never read (and isn't creating) gets no currency change: on the
+      // server that would create a new, empty group (the T-09 review's F-12).
+      if(notLoaded) return;
+      const v = input.value.trim() || "₹";
+      if(checkGroup({ currency: v })){
+        fieldError("currency-error", friendlyError("invalid-argument"), input);
+        return;
+      }
+      fieldError("currency-error", "", input);
+      if(v !== currency) queue({ kind: "group", code: gid, currency: v });
+    });
+
+    // ---------- people ----------
+    let blockedPerson = null;
+    function renderPeopleSheet(){
+      $("people-empty").hidden = people.length > 0;
+      const ul = $("people-list");
+      ul.textContent = "";
+      people.forEach(function(p){
+        const li = el("li");
+        const line = el("div", "person-line");
+        line.appendChild(avatar(p.id, 40));
+        const name = el("span", "name", p.name);
+        if(p.waiting){
+          const pill = el("span", "pill-waiting");
+          pill.appendChild(icon(ICON_CLOCK));
+          pill.appendChild(document.createTextNode("waiting to sync"));
+          name.appendChild(pill);
+        }
+        line.appendChild(name);
+        const remove = el("button", "text-btn owe", "Remove");
+        remove.type = "button";
+        remove.setAttribute("aria-label", "Remove " + p.name);
+        remove.addEventListener("click", function(){ removePerson(p.id); });
+        line.appendChild(remove);
+        li.appendChild(line);
+        if(blockedPerson === p.id){
+          const msg = el("p", "blocked");
+          msg.id = "person-blocked";
+          msg.setAttribute("role", "alert");
+          msg.appendChild(icon(ICON_ALERT));
+          msg.appendChild(el("span", "", "Can't remove someone who appears in an expense. Delete their expenses first."));
+          remove.setAttribute("aria-describedby", "person-blocked");
+          li.appendChild(msg);
+        }
+        ul.appendChild(li);
+      });
+    }
+    function openPeople(focusAdd){
+      blockedPerson = null;
+      fieldError("person-error", "", $("person-name"));
+      openSheet("people-panel", "People", function(){ blockedPerson = null; });
+      renderPeopleSheet();
+      if(focusAdd) $("person-name").focus();
+    }
+    $("people-btn").addEventListener("click", function(){ openPeople(false); });
+    $("add-person-btn").addEventListener("click", function(){ openPeople(true); });
+
+    // ---------- the guide's buttons ----------
+    $("guide-go").addEventListener("click", function(){
+      const step = this.dataset.step;
+      if(step === "1") openPeople(true);
+      else if(step === "2") openExpense(null);
+      else if(step === "3") copyInvite();
+    });
+    $("guide-skip").addEventListener("click", function(){
+      saveRecent(inviteDone(loadRecent(), gid));
+      renderAll();
+    });
+
+    // ---------- add or edit an expense (SF-022) ----------
+    // form: { editing (the expense being edited, or null), paidBy, split: [ids], splitOpen }
+    let form = null;
+    function lastPayer(){
+      const latest = expenses.filter(function(e){ return !isSettlement(e); })
+        .sort(function(a, b){ return new Date(b.date) - new Date(a.date); })[0];
+      if(latest && personIndex(latest.paidBy) !== -1) return latest.paidBy;
+      return people.length ? people[0].id : "";
+    }
+    function openExpense(exp){
+      form = {
+        editing: exp,
+        paidBy: exp ? exp.paidBy : lastPayer(),
+        split: exp ? exp.split.slice() : people.map(function(p){ return p.id; }),
+        splitOpen: false,
+        removedInSplit: exp ? exp.split.some(function(id){ return personIndex(id) === -1; }) : false
+      };
+      $("exp-desc").value = exp ? exp.desc : "";
+      $("exp-amount").value = exp ? plainPaise(toPaise(exp.amount)) : "";
+      ["exp-desc-error", "exp-amount-error", "exp-paidby-error", "split-error"].forEach(function(id){ fieldError(id, ""); });
+      ["exp-desc", "exp-amount", "exp-paidby"].forEach(function(id){ $(id).setAttribute("aria-invalid", "false"); });
+      openSheet("add-expense-form", exp ? "Edit expense" : "Add expense", function(){ form = null; });
+      renderExpenseForm();
+      if(!exp && people.length > 0) $("exp-desc").focus();
+    }
+    $("add-expense-btn").addEventListener("click", function(){ if(!notLoaded) openExpense(null); });
+    $("exp-go-people").addEventListener("click", function(){ openPeople(true); });
+
+    let formPeopleKey = "";
+    function renderExpenseForm(){
+      if(!form) return;
+      const editing = form.editing;
+      // Another phone may have edited or deleted this expense meanwhile: the sheet stays, and
+      // saving gets the plain "Someone else changed or deleted it first" message.
+      form.split = form.split.filter(function(id){ return personIndex(id) !== -1; });
+      const n = people.length;
+      $("exp-no-people").hidden = n > 0;
+      $("exp-people-lines").hidden = n === 0;
+      $("exp-currency").textContent = currency;
+      $("exp-delete-btn").hidden = !editing;
+      $("save-expense-btn").textContent = editing ? "Save" : "Add expense";
+      $("exp-desc-count").textContent = $("exp-desc").value.length + "/200";
+      // Paid by: a native select over the payer's avatar and name.
+      const key = people.map(function(p){ return p.id + ":" + p.name; }).join("|");
+      const sel = $("exp-paidby");
+      if(key !== formPeopleKey || sel.options.length === 0){
+        formPeopleKey = key;
+        sel.textContent = "";
+        if(personIndex(form.paidBy) === -1){
+          const gone = el("option", "", "Removed person");
+          gone.value = form.paidBy;
+          sel.appendChild(gone);
+        }
+        people.forEach(function(p){
+          const o = el("option", "", p.name);
+          o.value = p.id;
+          sel.appendChild(o);
+        });
+      }
+      sel.value = form.paidBy;
+      $("exp-payer-av").textContent = "";
+      $("exp-payer-av").appendChild(avatar(form.paidBy, 30));
+      $("exp-payer-name").textContent = personName(form.paidBy);
+      // Split equally among everyone, or the people ticked.
+      const all = n > 0 && people.every(function(p){ return form.split.indexOf(p.id) !== -1; });
+      const names = people.filter(function(p){ return form.split.indexOf(p.id) !== -1; }).map(function(p){ return p.name; });
+      $("split-summary").textContent = all ? (n === 1 ? people[0].name : "everyone")
+        : names.length === 0 ? "no one yet"
+        : names.length === 1 ? names[0]
+        : names.slice(0, -1).join(", ") + " and " + names[names.length - 1];
+      $("split-toggle").textContent = form.splitOpen ? "Done" : "Change";
+      $("split-toggle").setAttribute("aria-expanded", form.splitOpen ? "true" : "false");
+      $("split-line").classList.toggle("open", form.splitOpen);
+      $("split-boxes").hidden = !form.splitOpen;
+      $("split-everyone").checked = all;
+      $("split-everyone-row").classList.toggle("all", all);
+      $("split-count").textContent = form.split.length + " of " + n;
+      const box = $("split-people");
+      if(box.dataset.key !== key){
+        box.dataset.key = key;
+        box.textContent = "";
+        people.forEach(function(p){
+          const label = el("label", "check-row");
+          const cb = el("input");
+          cb.type = "checkbox";
+          cb.value = p.id;
+          cb.addEventListener("change", function(){
+            if(!form) return;
+            const on = people.map(function(x){ return x.id; }).filter(function(id){
+              return id === p.id ? cb.checked : form.split.indexOf(id) !== -1;
+            });
+            form.split = on;
+            fieldError("split-error", "");
+            renderExpenseForm();
+          });
+          label.appendChild(cb);
+          label.appendChild(avatar(p.id, 30));
+          label.appendChild(el("span", "name", p.name));
+          box.appendChild(label);
+        });
+      }
+      box.querySelectorAll("input").forEach(function(cb){ cb.checked = form.split.indexOf(cb.value) !== -1; });
+      $("split-removed").hidden = !form.removedInSplit;
+      // "₹400.00 each" once there's an amount.
+      const amount = parseAmountInput($("exp-amount").value);
+      const hint = $("split-hint");
+      hint.hidden = !(form.split.length > 0 && amount.paise);
+      if(!hint.hidden) hint.textContent = fmtPaise(Math.floor(amount.paise / form.split.length)) + " each";
+    }
+    $("exp-desc").addEventListener("input", function(){
+      $("exp-desc-count").textContent = this.value.length + "/200";
+      fieldError("exp-desc-error", "", this);
+    });
+    $("exp-amount").addEventListener("input", function(){
+      fieldError("exp-amount-error", "", this);
+      renderExpenseForm();
+    });
+    $("exp-paidby").addEventListener("change", function(){
+      if(!form) return;
+      form.paidBy = this.value;
+      fieldError("exp-paidby-error", "", this);
+      renderExpenseForm();
+    });
+    $("split-toggle").addEventListener("click", function(){
+      if(!form) return;
+      form.splitOpen = !form.splitOpen;
+      renderExpenseForm();
+    });
+    $("split-everyone").addEventListener("change", function(){
+      if(!form) return;
+      form.split = this.checked ? people.map(function(p){ return p.id; }) : [];
+      fieldError("split-error", "");
+      renderExpenseForm();
+    });
+
+    $("add-expense-form").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      if(!form) return;
+      const descInput = $("exp-desc");
+      const amountInput = $("exp-amount");
+      const desc = descInput.value.trim();
+      const amount = parseAmountInput(amountInput.value);
+      let ok = true;
+      fieldError("exp-desc-error", desc ? "" : "Add a description.", descInput);
+      fieldError("exp-amount-error", amount.error || "", amountInput);
+      if(!desc || amount.error) ok = false;
+      if(people.length === 0) return;
+      if(!form.paidBy){
+        fieldError("exp-paidby-error", "Add at least one person first.", $("exp-paidby"));
+        ok = false;
+      }
+      if(form.split.length === 0){
+        fieldError("split-error", "Pick at least one person to split with.");
+        form.splitOpen = true;
+        ok = false;
+      }else if(form.split.length > MAX_SPLIT){
+        fieldError("split-error", "An expense can be split among at most " + MAX_SPLIT + " people.");
+        form.splitOpen = true;
+        ok = false;
+      }
+      if(!ok){
+        renderExpenseForm();
+        return;
+      }
+      // Sent as whole paise: ₹99.50 → 9950. The split keeps the group's order.
+      const split = people.map(function(p){ return p.id; }).filter(function(id){ return form.split.indexOf(id) !== -1; });
+      if(saveExpense(form.editing, desc, amount.paise, form.paidBy, split)) closeSheet();
+    });
+
+    // Queues an add, or an edit: the edited expense under a new ID takes the old one's place
+    // (SF-022). An edit that changes nothing sends nothing. → true when the form can close.
+    function saveExpense(editing, desc, amountPaise, paidBy, split){
+      if(editing && editing.desc === desc && toPaise(editing.amount) === amountPaise && editing.paidBy === paidBy
+        && editing.split.length === split.length && editing.split.every(function(id, i){ return split[i] === id; })){
+        return true;
+      }
+      const body = { id: crypto.randomUUID(), date: editing ? editing.date : new Date().toISOString(), desc: desc, amountPaise: amountPaise, paidBy: paidBy, split: split };
+      // The same checks the server makes, so nothing it would refuse is sent (F-6).
+      const problem = checkExpense(body, people.map(function(p){ return p.id; }));
+      if(problem){
+        const text = friendlyError({ code: "invalid-argument", field: problem }, "expense");
+        if(problem === "desc") fieldError("exp-desc-error", text, $("exp-desc"));
+        else if(problem === "amountPaise") fieldError("exp-amount-error", text, $("exp-amount"));
+        else if(problem === "paidBy") fieldError("exp-paidby-error", text, $("exp-paidby"));
+        else if(problem === "split") fieldError("split-error", text);
+        else showNotice(text);
+        return false;
+      }
+      queue(Object.assign(editing ? { kind: "expense-edit", code: gid, replaces: editing.id } : { kind: "expense", code: gid }, body));
+      return true;
+    }
+
+    $("exp-delete-btn").addEventListener("click", function(){
+      if(!form || !form.editing) return;
+      askDelete(form.editing);
+    });
+    function askDelete(exp){
+      const paise = toPaise(exp.amount);
+      confirmFirst("Delete ‘" + expenseLabel(exp) + "’ (" + (paise === null ? "—" : fmtPaise(paise)) + ")?",
+        "It comes off the list for everyone in the group, and balances update.", "Delete", function(){
+          removeExpense(exp);
+          closeSheet();
+        });
+    }
+
+    // ---------- record or edit a payment (SF-023) ----------
+    // pay: { from, to, full (the whole debt, for a new one), editing (the settle-up being edited) }
+    let pay = null;
+    function openPay(p){
+      pay = p;
+      const editing = p.editing || null;
+      $("pay-amount").value = editing ? plainPaise(toPaise(editing.amount)) : plainPaise(p.full);
+      fieldError("pay-amount-error", "", $("pay-amount"));
+      fieldError("pay-error", "");
+      openSheet("pay-form", editing ? "Edit payment" : "Record payment", function(){ pay = null; });
+      renderPayForm();
+    }
+    function renderPayForm(){
+      if(!pay) return;
+      const editing = pay.editing || null;
+      $("pay-from").textContent = personName(pay.from);
+      $("pay-to").textContent = personName(pay.to);
+      $("pay-from-av").textContent = "";
+      $("pay-from-av").appendChild(avatar(pay.from, 52));
+      $("pay-to-av").textContent = "";
+      $("pay-to-av").appendChild(avatar(pay.to, 52));
+      $("pay-currency").textContent = currency;
+      $("pay-delete-btn").hidden = !editing;
+      $("pay-save-btn").textContent = editing ? "Save" : "Record payment";
+      const amount = parseAmountInput($("pay-amount").value);
+      const note = $("pay-note");
+      note.hidden = Boolean(editing) || amount.paise !== pay.full;
+      note.textContent = "That's everything " + personName(pay.from) + " owes. Change it for a part payment.";
+    }
+    $("pay-amount").addEventListener("input", function(){
+      fieldError("pay-amount-error", "", this);
+      renderPayForm();
+    });
+    $("pay-form").addEventListener("submit", function(ev){
+      ev.preventDefault();
+      if(!pay) return;
+      const input = $("pay-amount");
+      const amount = parseAmountInput(input.value);
+      if(amount.error){
+        fieldError("pay-amount-error", amount.error, input);
+        return;
+      }
+      const editing = pay.editing || null;
+      if(editing && toPaise(editing.amount) === amount.paise){
+        closeSheet();
+        return;
+      }
+      // Ben paid Asha: an expense paid by Ben, split to Asha alone, marked as a settle-up.
+      const body = { id: crypto.randomUUID(), date: editing ? editing.date : new Date().toISOString(), desc: "Payment",
+        amountPaise: amount.paise, paidBy: pay.from, split: [pay.to], kind: SETTLEMENT };
+      const problem = checkExpense(body, people.map(function(p){ return p.id; }));
+      if(problem){
+        const text = friendlyError({ code: "invalid-argument", field: problem }, "expense");
+        if(problem === "amountPaise") fieldError("pay-amount-error", text, input);
+        else fieldError("pay-error", text);
+        return;
+      }
+      delete body.kind;
+      queue(Object.assign(editing ? { kind: "expense-edit", code: gid, replaces: editing.id } : { kind: "expense", code: gid }, body, { settlement: true }));
+      closeSheet();
+    });
+    $("pay-delete-btn").addEventListener("click", function(){
+      if(pay && pay.editing) askDelete(pay.editing);
+    });
 
     // ---------- sync (SF-035, SF-036) ----------
 
     // "live" only when the live connection is up, the server's copy has been read on it, and no
     // change waits (SF-009, SF-036). Deletes waiting count like any change (F-5).
-    const statusEl = document.getElementById("group-status");
+    const statusEl = $("group-status");
+    const pillEl = $("sync-pill");
+    const dotEl = $("sync-dot");
     let streamLive = false;
     let heard = false;
     let failed = false;
-    const store = (window.indexedDB && await openBrowserStore(window.indexedDB)) || memoryStore();
 
+    // Quiet states are a white dot (pulsing while connecting); the others are written out.
     function updateStatus(){
-      statusEl.textContent = "· " + syncStatusText({
+      const text = syncStatusText({
         online: navigator.onLine,
         heard: heard,
         fromCache: !streamLive,
         pending: outbox.count(gid),
         failed: failed
       });
+      statusEl.textContent = text;
+      const quiet = text === "live" || text === "connecting…";
+      pillEl.classList.toggle("quiet", quiet);
+      pillEl.classList.toggle("failed", text === "not syncing");
+      pillEl.classList.toggle("offline", text.indexOf("offline") === 0);
+      dotEl.hidden = !quiet;
+      dotEl.classList.toggle("pulse", text === "connecting…");
     }
 
     function render(){
@@ -1074,6 +1731,9 @@
       people = view.people;
       expenses = forBalances(view.expenses);
       currency = view.currency;
+      // A group this phone has never read and isn't creating: nothing to show yet, and the forms
+      // wait, so nothing is added twice (the T-09 review's N-8).
+      notLoaded = copy === null && !creating();
       updateStatus();
       renderAll();
     }
@@ -1089,7 +1749,8 @@
         "group": "Couldn't change the currency.",
         "person": "Couldn't add " + change.name + ".",
         "person-delete": "Couldn't remove " + (change.name || "that person") + ".",
-        "expense": "Couldn't save the expense “" + change.desc + "”.",
+        "expense": change.settlement ? "Couldn't record the payment." : "Couldn't save the expense “" + change.desc + "”.",
+        "expense-edit": change.settlement ? "Couldn't save the payment." : "Couldn't save the expense “" + change.desc + "”.",
         "expense-delete": "Couldn't delete the expense “" + (change.desc || "") + "”."
       }[change.kind] || "Couldn't save a change.";
       return what + " " + friendlyError(err, change.kind);
@@ -1111,7 +1772,7 @@
       if(watch) watch.stop();
       console.error("SplitFamilia: sync stopped", "not-found");
       showNotice(friendlyError("not-found"));
-      updateStatus();
+      render();
     }
 
     const outbox = createOutbox({
@@ -1124,7 +1785,10 @@
         // the group's after this change, so if nothing else changed in between the copy matches it.
         const base = copy || EMPTY_GROUP;
         const next = applyChange(base, change);
-        if(body && Number.isSafeInteger(body.version) && body.version === base.version + 1) next.version = body.version;
+        // An edit the copy couldn't make (its expense wasn't in the copy) leaves the version, so
+        // the next read brings the server's own copy.
+        const applied = change.kind !== "expense-edit" || next.expenses.some(function(e){ return e.id === change.id; });
+        if(applied && body && Number.isSafeInteger(body.version) && body.version === base.version + 1) next.version = body.version;
         copy = next;
         keepCopy();
         if(change.kind === "group" && change.create === true && waitingForCreate){
@@ -1152,6 +1816,12 @@
         if(retryTimer === null) retryTimer = setTimeout(kick, wait);
       }else{
         retryWait = 5000;
+      }
+      // Another tab of this group sent the "create" (the T-09 review's F-11): the group is on the
+      // server now, so this tab starts its live connection too.
+      if(waitingForCreate && !creating()){
+        waitingForCreate = false;
+        startWatch();
       }
       updateStatus();
     }
@@ -1233,102 +1903,65 @@
       });
     }
 
+    // Another tab of this app changed the list of groups (it copied this group's invite link).
+    window.addEventListener("storage", function(e){ if(e.key === RECENT_KEY) renderAll(); });
+
     window.addEventListener("online", function(){
       if(watch && !failed) watch.reconnectNow();
       kick();
+      render();
     });
-    window.addEventListener("offline", updateStatus);
+    window.addEventListener("offline", render);
 
     // ---------- changes (each waits in the outbox until the server confirms it) ----------
 
     function addPerson(name){
+      const input = $("person-name");
       name = name.trim();
-      if(!name) return;
+      if(!name) return false;
       if(people.length >= MAX_PEOPLE){
-        alert(friendlyError({ code: "failed-precondition", field: "group-full" }, "person"));
-        return;
+        fieldError("person-error", friendlyError({ code: "failed-precondition", field: "group-full" }, "person"), input);
+        return false;
       }
       const change = { kind: "person", code: gid, id: crypto.randomUUID(), name: name };
       const problem = checkPerson({ id: change.id, name: change.name });
       if(problem){
-        alert(friendlyError({ code: "invalid-argument", field: problem }, "person"));
-        return;
+        fieldError("person-error", friendlyError({ code: "invalid-argument", field: problem }, "person"), input);
+        return false;
       }
+      fieldError("person-error", "", input);
       queue(change);
+      return true;
     }
 
     function removePerson(id){
       const used = expenses.some(function(exp){ return exp.paidBy === id || (Array.isArray(exp.split) && exp.split.indexOf(id) !== -1); });
       if(used){
-        alert("Can't remove someone who appears in an expense. Delete their expenses first.");
+        blockedPerson = id;
+        renderPeopleSheet();
         return;
       }
-      queue({ kind: "person-delete", code: gid, id: id, name: personName(id) });
+      blockedPerson = null;
+      renderPeopleSheet();
+      const name = personName(id);
+      confirmFirst("Remove " + name + " from the group?", "Their name comes off the People list for everyone in the group.", "Remove", function(){
+        queue({ kind: "person-delete", code: gid, id: id, name: name });
+      });
     }
 
-    function addExpense(desc, amountPaise, paidBy, split){
-      if(split.length > MAX_SPLIT){
-        alert("An expense can be split among at most " + MAX_SPLIT + " people.");
-        return false;
-      }
-      const body = { id: crypto.randomUUID(), date: new Date().toISOString(), desc: desc, amountPaise: amountPaise, paidBy: paidBy, split: split };
-      // The same checks the server makes, so nothing it would refuse is sent (F-6).
-      const problem = checkExpense(body, people.map(function(p){ return p.id; }));
-      if(problem){
-        alert(friendlyError({ code: "invalid-argument", field: problem }, "expense"));
-        return false;
-      }
-      queue(Object.assign({ kind: "expense", code: gid }, body));
-      return true;
-    }
-
-    function removeExpense(id){
-      const exp = expenses.find(function(e){ return e.id === id; });
-      queue({ kind: "expense-delete", code: gid, id: id, desc: exp ? exp.desc : "" });
+    function removeExpense(exp){
+      queue({ kind: "expense-delete", code: gid, id: exp.id, desc: isSettlement(exp) ? expenseLabel(exp) : exp.desc });
     }
 
     // ---------- events ----------
 
-    document.getElementById("add-person-form").addEventListener("submit", function(ev){
+    $("add-person-form").addEventListener("submit", function(ev){
       ev.preventDefault();
-      const input = document.getElementById("person-name");
-      addPerson(input.value);
-      input.value = "";
+      const input = $("person-name");
+      if(addPerson(input.value)) input.value = "";
       input.focus();
     });
-
-    document.getElementById("currency-input").addEventListener("change", function(ev){
-      const v = ev.target.value.trim() || "₹";
-      if(checkGroup({ currency: v })){
-        alert(friendlyError("invalid-argument"));
-        renderCurrency();
-        return;
-      }
-      queue({ kind: "group", code: gid, currency: v });
-    });
-
-    document.getElementById("add-expense-form").addEventListener("submit", function(ev){
-      ev.preventDefault();
-      const desc = document.getElementById("exp-desc").value.trim();
-      const amountInput = document.getElementById("exp-amount");
-      // A number input reports "" for text it can't read, such as "12abc".
-      const amount = amountInput.validity.badInput
-        ? { error: "Enter a number, like 250 or 99.50." }
-        : parseAmountInput(amountInput.value);
-      const paidBy = document.getElementById("exp-paidby").value;
-      const checked = Array.prototype.slice.call(document.querySelectorAll("#split-boxes input:checked")).map(function(i){ return i.value; });
-
-      if(!desc){ alert("Add a description."); return; }
-      if(amount.error){ alert(amount.error); return; }
-      if(!paidBy){ alert("Add at least one person first."); return; }
-      if(checked.length === 0){ alert("Pick at least one person to split with."); return; }
-
-      // Sent as whole paise: ₹99.50 → 9950.
-      if(!addExpense(desc, amount.paise, paidBy, checked)) return;
-
-      document.getElementById("exp-desc").value = "";
-      document.getElementById("exp-amount").value = "";
-    });
+    $("person-name").addEventListener("input", function(){ fieldError("person-error", "", this); });
 
     // ---------- start ----------
     // The phone's copy first, so an offline open shows the group at once; then the live connection.
@@ -1352,25 +1985,27 @@
 
   // ---------- PWA install ----------
   let deferredPrompt = null;
-  const installBtn = document.getElementById("install-btn");
+  const installBtns = document.querySelectorAll(".install-btn");
 
   window.addEventListener("beforeinstallprompt", function(e){
     e.preventDefault();
     deferredPrompt = e;
-    installBtn.classList.add("show");
+    installBtns.forEach(function(b){ b.hidden = false; });
   });
 
-  installBtn.addEventListener("click", function(){
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    deferredPrompt.userChoice.finally(function(){
-      deferredPrompt = null;
-      installBtn.classList.remove("show");
+  installBtns.forEach(function(b){
+    b.addEventListener("click", function(){
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.finally(function(){
+        deferredPrompt = null;
+        installBtns.forEach(function(x){ x.hidden = true; });
+      });
     });
   });
 
   window.addEventListener("appinstalled", function(){
-    installBtn.classList.remove("show");
+    installBtns.forEach(function(b){ b.hidden = true; });
   });
 
   if("serviceWorker" in navigator){

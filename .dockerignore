@@ -12,6 +12,7 @@
 !ledger-rules.js
 !ledger-client.js
 !outbox.js
+!recent-groups.js
 !icon-192.png
 !icon-512.png
 !apple-touch-icon.png

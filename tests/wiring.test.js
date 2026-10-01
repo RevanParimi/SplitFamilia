@@ -71,6 +71,17 @@ test("index.html shows errors through sync-status.js, never the server's own mes
   assert.doesNotMatch(html, /\.message\b/);
 });
 
+test("index.html shows form checks under their fields: no alert() or confirm() pop-ups (SF-028)", function(){
+  const html = read("index.html");
+  assert.doesNotMatch(html, /\balert\(/);
+  assert.doesNotMatch(html, /\bconfirm\(/);
+  // Deleting asks first in the page's own dialog, and the form errors have their places.
+  assert.match(html, /<dialog class="confirm" id="confirm" role="alertdialog"/);
+  ["exp-desc-error", "exp-amount-error", "split-error", "person-error", "new-group-error", "join-error", "pay-amount-error"].forEach(function(id){
+    assert.match(html, new RegExp('id="' + id + '"'), id);
+  });
+});
+
 test("module imports carry the cache version, and the service worker caches exactly those URLs", function(){
   // If index.html got a new module but a phone's old service worker served an old cached copy,
   // the page would break or show wrong numbers. So each release imports "?v=N" with N from the
@@ -79,7 +90,7 @@ test("module imports carry the cache version, and the service worker caches exac
   const sw = read("service-worker.js");
   const version = /const CACHE = "splitsheet-v(\d+)";/.exec(sw)[1];
   const imports = localImports(html);
-  assert.deepEqual(imports, ["./group-code.js", "./ledger-client.js", "./ledger-rules.js", "./money.js", "./outbox.js", "./sync-status.js"]
+  assert.deepEqual(imports, ["./group-code.js", "./ledger-client.js", "./ledger-rules.js", "./money.js", "./outbox.js", "./recent-groups.js", "./sync-status.js"]
     .map(function(p){ return p + "?v=" + version; }));
   const shell = swList(sw, "SHELL");
   imports.forEach(function(path){ assert.ok(shell.includes(path), path + " is not in SHELL"); });

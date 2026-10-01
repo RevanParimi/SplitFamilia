@@ -1,0 +1,675 @@
+{
+ "B0_welcome": {
+  "screen": "welcome",
+  "title": "",
+  "status": "connecting…",
+  "peopleCount": "",
+  "guide": null,
+  "notLoaded": null,
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B1_before": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Ben owes Asha",
+   "₹400.00",
+   "Chitra owes Asha",
+   "₹400.00"
+  ],
+  "ledger": [
+   "Dinner | 28 Sep · paid by Asha · split among everyone | ₹1,200.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B1_sheet": {
+  "title": "Edit expense",
+  "desc": "Dinner",
+  "amount": "1200.00",
+  "payer": "Asha",
+  "split": "everyone",
+  "save": "Save",
+  "deleteShown": true
+ },
+ "B1_after": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Ben owes Asha",
+   "₹416.83",
+   "Chitra owes Asha",
+   "₹416.83"
+  ],
+  "ledger": [
+   "Dinner | 28 Sep · paid by Asha · split among everyone | ₹1,250.50",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B1_server": {
+  "currency": "₹",
+  "version": 7,
+  "people": [
+   "Asha",
+   "Ben",
+   "Chitra"
+  ],
+  "expenses": [
+   "Deposit 30000 p-ben>p-ben",
+   "Dinner 125050 p-asha>p-asha+p-ben+p-chitra"
+  ]
+ },
+ "B1_rows": [
+  "dinner 120000 deleted",
+  "deposit 30000",
+  "new 125050"
+ ],
+ "B2_form": {
+  "summary": "Asha and Ben",
+  "count": "2 of 3",
+  "hint": "₹625.25 each"
+ },
+ "B2_offline": {
+  "screen": "group",
+  "title": "Check trip",
+  "status": "offline: 1 change waiting to sync",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Ben owes Asha",
+   "₹625.25"
+  ],
+  "ledger": [
+   "Dinner | 28 Sep · paid by Asha · split among 2 | ₹1,250.50 | waiting",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B2_online": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Ben owes Asha",
+   "₹625.25"
+  ],
+  "ledger": [
+   "Dinner | 28 Sep · paid by Asha · split among 2 | ₹1,250.50",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B2_server": {
+  "currency": "₹",
+  "version": 8,
+  "people": [
+   "Asha",
+   "Ben",
+   "Chitra"
+  ],
+  "expenses": [
+   "Deposit 30000 p-ben>p-ben",
+   "Dinner 125050 p-asha>p-asha+p-ben"
+  ]
+ },
+ "B3_confirm": "Delete ‘Dinner’ (₹1,250.50)? | It comes off the list for everyone in the group, and balances update.",
+ "B3_afterCancel": {
+  "sheet": "Edit expense",
+  "server": 2
+ },
+ "B3_deleted": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "All settled up."
+  ],
+  "ledger": [
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B3_server": {
+  "currency": "₹",
+  "version": 9,
+  "people": [
+   "Asha",
+   "Ben",
+   "Chitra"
+  ],
+  "expenses": [
+   "Deposit 30000 p-ben>p-ben"
+  ]
+ },
+ "B4_addForm": {
+  "payer": "Ben",
+  "split": "everyone"
+ },
+ "B4_hint": "₹100.00 each",
+ "B4_hotel": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Asha owes Ben",
+   "₹100.00",
+   "Chitra owes Ben",
+   "₹100.00"
+  ],
+  "ledger": [
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B4_paySheet": {
+  "title": "Record payment",
+  "from": "Asha",
+  "to": "Ben",
+  "amount": "100.00",
+  "note": "That's everything Asha owes. Change it for a part payment."
+ },
+ "B4_noteAfterChange": true,
+ "B4_part": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Chitra owes Ben",
+   "₹100.00",
+   "Asha owes Ben",
+   "₹60.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹40.00",
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B4_restAmount": "60.00",
+ "B4_rest": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Chitra owes Ben",
+   "₹100.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹60.00",
+   "Asha paid Ben | 1 Oct · payment | ₹40.00",
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B4_editPaySheet": {
+  "title": "Edit payment",
+  "amount": "40.00",
+  "save": "Save",
+  "deleteShown": true
+ },
+ "B4_edited": {
+  "status": "live",
+  "screen": "group",
+  "title": "Check trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Chitra owes Ben",
+   "₹90.00",
+   "Chitra owes Asha",
+   "₹10.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹60.00",
+   "Asha paid Ben | 1 Oct · payment | ₹50.00",
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B4_server": {
+  "currency": "₹",
+  "version": 13,
+  "people": [
+   "Asha",
+   "Ben",
+   "Chitra"
+  ],
+  "expenses": [
+   "Deposit 30000 p-ben>p-ben",
+   "Hotel 30000 p-ben>p-asha+p-ben+p-chitra",
+   "[settlement] Payment 6000 p-asha>p-ben",
+   "[settlement] Payment 5000 p-asha>p-ben"
+  ]
+ },
+ "B5_blocked": {
+  "screen": "group",
+  "title": "Check trip",
+  "status": "live",
+  "peopleCount": "4 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Chitra owes Ben",
+   "₹90.00",
+   "Chitra owes Asha",
+   "₹10.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹60.00",
+   "Asha paid Ben | 1 Oct · payment | ₹50.00",
+   "Hotel | 1 Oct · paid by Ben · split among 3 | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": "People",
+  "confirm": null,
+  "fieldErrors": [
+   "Can't remove someone who appears in an expense. Delete their expenses first."
+  ],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B5_confirm": "Remove Zed from the group? | Their name comes off the People list for everyone in the group.",
+ "B5_after": {
+  "people": [
+   "Asha",
+   "Ben",
+   "Chitra"
+  ],
+  "sheet": "People"
+ },
+ "B6_errors": {
+  "screen": "group",
+  "title": "Check trip",
+  "status": "live",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Chitra owes Ben",
+   "₹90.00",
+   "Chitra owes Asha",
+   "₹10.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹60.00",
+   "Asha paid Ben | 1 Oct · payment | ₹50.00",
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "sheet": "Add expense",
+  "confirm": null,
+  "fieldErrors": [
+   "Add a description.",
+   "Enter an amount.",
+   "Pick at least one person to split with."
+  ],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false,
+  "invalid": [
+   "true",
+   "true"
+  ],
+  "splitOpen": true
+ },
+ "B6_decimals": [
+  "Add a description.",
+  "Use at most 2 decimal places.",
+  "Pick at least one person to split with."
+ ],
+ "B7_diwali": {
+  "status": "live",
+  "screen": "group",
+  "title": "Diwali party 2026",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Asha owes Chitra",
+   "₹100.00",
+   "Ben owes Chitra",
+   "₹100.00"
+  ],
+  "ledger": [
+   "Sweets | 20 Sep · paid by Chitra · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B7_list": {
+  "screen": "welcome",
+  "title": "",
+  "status": "connecting…",
+  "peopleCount": "",
+  "guide": null,
+  "notLoaded": null,
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": [
+   "Diwali party 2026 | Opened just now",
+   "Check trip | Opened just now"
+  ],
+  "addDisabled": false,
+  "key": null,
+  "stored": [
+   "diwali-party-2026-a9a9ijkeit",
+   "check-trip-a9a9ijkeit"
+  ]
+ },
+ "B7_opened": {
+  "code": "check-trip-a9a9ijkeit",
+  "status": "live",
+  "title": "Check trip"
+ },
+ "B7_order": [
+  "Check trip | Opened just now",
+  "Diwali party 2026 | Opened just now"
+ ],
+ "B8_after": {
+  "screen": "welcome",
+  "title": "",
+  "status": "connecting…",
+  "peopleCount": "",
+  "guide": null,
+  "notLoaded": null,
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": [
+   "Check trip | Opened just now"
+  ],
+  "addDisabled": false,
+  "copies": 1,
+  "diwaliCopy": false
+ },
+ "B8_serverStillHasIt": true,
+ "B9": {
+  "code": "check-trip-a9a9ijkeit",
+  "title": "Check trip",
+  "status": "live",
+  "streams": 1
+ },
+ "B10_offline": {
+  "screen": "group",
+  "title": "Lake trip",
+  "status": "offline: changes will sync when you're back online",
+  "peopleCount": "",
+  "guide": null,
+  "notLoaded": "Not loaded yet. Connect to see this group.",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": true,
+  "addPerson": true
+ },
+ "B10_online": {
+  "status": "live",
+  "screen": "group",
+  "title": "Lake trip",
+  "peopleCount": "3 people",
+  "guide": null,
+  "notLoaded": null,
+  "balances": [
+   "Ben owes Asha",
+   "₹5.00"
+  ],
+  "ledger": [
+   "Tickets | 30 Sep · paid by Asha · split among 2 | ₹10.01"
+  ],
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": null,
+  "recent": null,
+  "addDisabled": false
+ },
+ "B11_offline": {
+  "currencyDisabled": true,
+  "status": "offline: changes will sync when you're back online"
+ },
+ "B11_afterTry": "offline: changes will sync when you're back online",
+ "B11_online": {
+  "screen": "group",
+  "title": "Check typo trip",
+  "status": "not syncing",
+  "peopleCount": "",
+  "guide": null,
+  "notLoaded": "No group found with that code. Check it, or ask for the invite link.",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "confirm": null,
+  "fieldErrors": [],
+  "notice": "No group found with that code. Check it, or ask for the invite link.",
+  "recent": null,
+  "addDisabled": true,
+  "serverGroup": null
+ },
+ "B12_offline": {
+  "A": "offline: 1 change waiting to sync",
+  "B": "offline: 1 change waiting to sync",
+  "notLoadedA": null,
+  "guideA": "Step 1 of 3 | Who's sharing costs? | Add people"
+ },
+ "B12_online": {
+  "A": "live",
+  "B": "live"
+ },
+ "B12_server": {
+  "group": true,
+  "creates": 1
+ },
+ "B13_step2": "Step 2 of 3 | Add the first expense | Add expense",
+ "B13_step3": "Step 3 of 3 | Invite your group | Copy invite link",
+ "B13_copied": {
+  "guide": null,
+  "clipboard": true
+ },
+ "B13_afterCopy": null,
+ "B13_reloaded": null,
+ "B13_tabB": {
+  "status": "live",
+  "guide": null
+ },
+ "B14": {
+  "360": {
+   "home": "ok",
+   "homeSmall": [],
+   "menu": "ok",
+   "menuSmall": [],
+   "people": "ok",
+   "peopleSmall": [],
+   "add": "ok",
+   "addSmall": [],
+   "pay": "ok",
+   "paySmall": [],
+   "welcome": "ok",
+   "welcomeSmall": [],
+   "newGroup": "ok",
+   "newGroupSmall": [],
+   "join": "ok",
+   "joinSmall": []
+  },
+  "390": {
+   "home": "ok",
+   "homeSmall": [],
+   "menu": "ok",
+   "menuSmall": [],
+   "people": "ok",
+   "peopleSmall": [],
+   "add": "ok",
+   "addSmall": [],
+   "pay": "ok",
+   "paySmall": [],
+   "welcome": "ok",
+   "welcomeSmall": [],
+   "newGroup": "ok",
+   "newGroupSmall": [],
+   "join": "ok",
+   "joinSmall": []
+  },
+  "412": {
+   "home": "ok",
+   "homeSmall": [],
+   "menu": "ok",
+   "menuSmall": [],
+   "people": "ok",
+   "peopleSmall": [],
+   "add": "ok",
+   "addSmall": [],
+   "pay": "ok",
+   "paySmall": [],
+   "welcome": "ok",
+   "welcomeSmall": [],
+   "newGroup": "ok",
+   "newGroupSmall": [],
+   "join": "ok",
+   "joinSmall": []
+  },
+  "768": {
+   "home": "ok",
+   "homeSmall": [],
+   "menu": "ok",
+   "menuSmall": [],
+   "people": "ok",
+   "peopleSmall": [],
+   "add": "ok",
+   "addSmall": [],
+   "pay": "ok",
+   "paySmall": [],
+   "welcome": "ok",
+   "welcomeSmall": [],
+   "newGroup": "ok",
+   "newGroupSmall": [],
+   "join": "ok",
+   "joinSmall": []
+  }
+ },
+ "B15": {
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹60.00",
+   "Asha paid Ben | 1 Oct · payment | ₹50.00",
+   "Hotel | 1 Oct · paid by Ben · split among everyone | ₹300.00",
+   "Deposit | 30 Dec 2025 · paid by Ben · for Ben | ₹300.00"
+  ],
+  "caches": [
+   "splitsheet-v7"
+  ]
+ },
+ "B16": {
+  "inputs": 9,
+  "missing": [],
+  "dialogs": [
+   "sheet:dialog:sheet-title",
+   "confirm:alertdialog:confirm-title"
+  ]
+ },
+ "B17": {
+  "moved": true,
+  "app": false,
+  "welcome": false,
+  "link": "https://splitfamilia.up.railway.app/?g=check-trip-a9a9ijkeit"
+ },
+ "dialogs": [],
+ "errors": [],
+ "timeouts": [],
+ "refusals": []
+}

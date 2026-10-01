@@ -5,7 +5,7 @@ import assert from "node:assert/strict";
 import {
   checkGroup, checkPerson, checkExpense, isValidId,
   MAX_AMOUNT_PAISE, MAX_CURRENCY_LENGTH, MAX_NAME_LENGTH, MAX_DESC_LENGTH, MAX_SPLIT, MAX_ID_LENGTH, MAX_PEOPLE,
-  MAX_EXPENSES, MAX_SPLIT_ENTRIES
+  MAX_EXPENSES, MAX_SPLIT_ENTRIES, SETTLEMENT
 } from "../ledger-rules.js";
 import { MAX_AMOUNT_PAISE as MONEY_MAX } from "../money.js";
 
@@ -110,4 +110,31 @@ test("an expense's people: the payer and 1 to 100 split members, each once, all 
   assert.equal(checkExpense(expense({ paidBy: "zed" }), people), "paidBy");
   assert.equal(checkExpense(expense({ paidBy: "" }), people), "paidBy");
   assert.equal(checkExpense(expense({ paidBy: "asha" }), new Set(people)), null);
+});
+
+test("a settle-up (SF-023) is an expense with kind 'settlement', paid to exactly one other person", function(){
+  const pay = function(changes){ return expense(Object.assign({ desc: "Payment", paidBy: "ben", split: ["asha"], kind: SETTLEMENT }, changes)); };
+  assert.equal(SETTLEMENT, "settlement");
+  assert.equal(checkExpense(pay(), people), null);
+  assert.equal(checkExpense(pay()), null);
+  // Old data and ordinary expenses have no kind at all.
+  assert.equal(checkExpense(expense(), people), null);
+  // Any other kind, or a kind that isn't text, is refused by name.
+  for(const kind of ["expense", "Settlement", "", null, 1, true, ["settlement"]]){
+    assert.equal(checkExpense(pay({ kind: kind }), people), "kind", JSON.stringify(kind));
+  }
+  // To one person, who isn't the payer.
+  assert.equal(checkExpense(pay({ split: ["asha", "chitra"] }), people), "split");
+  assert.equal(checkExpense(pay({ split: ["ben"] }), people), "split");
+  assert.equal(checkExpense(pay({ split: [] }), people), "split");
+  // The people checks still apply.
+  assert.equal(checkExpense(pay({ split: ["zed"] }), people), "split");
+  assert.equal(checkExpense(pay({ paidBy: "zed", split: ["asha"] }), people), "paidBy");
+  // It is still exactly these fields.
+  assert.equal(checkExpense(Object.assign(pay(), { note: "cash" }), people), "fields");
+  const noDesc = pay();
+  delete noDesc.desc;
+  assert.equal(checkExpense(noDesc, people), "fields");
+  assert.equal(checkExpense(null), "fields");
+  assert.equal(checkExpense("settlement"), "fields");
 });

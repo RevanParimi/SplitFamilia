@@ -76,21 +76,33 @@ export function checkPerson(body){
   return isText(body.name, MAX_NAME_LENGTH) ? null : "name";
 }
 
-// An expense: { id, date, desc, amountPaise, paidBy, split }, with the amount in whole paise.
-// `peopleIds` (a Set or an array) are the group's people: the payer must be one of them, and so
-// must each of the 1 to MAX_SPLIT people it is split among, each named once. Leave it out to
-// check only the shape.
+// A settle-up (SF-023) is an expense marked kind: "settlement": the person who paid back is the
+// payer, and the one paid is the only person in the split. So "Ben paid Asha ₹100" moves ₹100 of
+// Ben's debt to Asha, with the same balance maths as any expense. The app only records a payment
+// made outside it; it never moves money.
+export const SETTLEMENT = "settlement";
+const EXPENSE_KEYS = ["id", "date", "desc", "amountPaise", "paidBy", "split"];
+
+// An expense: { id, date, desc, amountPaise, paidBy, split }, with the amount in whole paise, and
+// `kind: "settlement"` for a settle-up (an expense without `kind` is an ordinary one, as all the
+// data before SF-023 is). `peopleIds` (a Set or an array) are the group's people: the payer must
+// be one of them, and so must each of the 1 to MAX_SPLIT people it is split among, each named
+// once. Leave it out to check only the shape.
 export function checkExpense(body, peopleIds){
-  if(!hasExactly(body, ["id", "date", "desc", "amountPaise", "paidBy", "split"])) return "fields";
+  const withKind = body !== null && typeof body === "object" && Object.prototype.hasOwnProperty.call(body, "kind");
+  if(!hasExactly(body, withKind ? EXPENSE_KEYS.concat("kind") : EXPENSE_KEYS)) return "fields";
   if(!isValidId(body.id)) return "id";
   if(!isDate(body.date)) return "date";
   if(!isText(body.desc, MAX_DESC_LENGTH)) return "desc";
   const paise = body.amountPaise;
   if(!Number.isSafeInteger(paise) || paise < 1 || paise > MAX_AMOUNT_PAISE) return "amountPaise";
   if(!isValidId(body.paidBy)) return "paidBy";
+  if(withKind && body.kind !== SETTLEMENT) return "kind";
   const split = body.split;
   if(!Array.isArray(split) || split.length < 1 || split.length > MAX_SPLIT) return "split";
   if(!split.every(isValidId) || new Set(split).size !== split.length) return "split";
+  // A settle-up is paid to exactly one other person.
+  if(withKind && (split.length !== 1 || split[0] === body.paidBy)) return "split";
   if(peopleIds === undefined) return null;
   const people = asSet(peopleIds);
   if(!people.has(body.paidBy)) return "paidBy";

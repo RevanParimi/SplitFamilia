@@ -8,6 +8,8 @@ import { gunzipSync } from "node:zlib";
 import { startTestServer, api, raw } from "./helpers/test-server.js";
 import { MAX_BODY_BYTES, WRITE_LIMIT, WRITE_WINDOW_MS } from "../server/api.js";
 import { MAX_EXPENSES, MAX_SPLIT_ENTRIES } from "../ledger-rules.js";
+import { computeBalances, simplifyDebts } from "../money.js";
+import { forBalances } from "../outbox.js";
 
 const GROUP = "goa-trip-2026"; // an old-style code, made from the group's name
 const NEW_GROUP = "goa-trip-7k2m9xqpwd"; // a new-style code with its random part
@@ -192,6 +194,8 @@ test("denied (F-7): every operation with each code the app would never make", as
     ["DELETE", "/api/people/ben", undefined],
     ["POST", "/api/expenses", expense({ id: "e9" })],
     ["DELETE", "/api/expenses/e1", undefined],
+    ["PUT", "/api/expenses/e1", expense({ id: "e1-edit" })],
+    ["POST", "/api/expenses", expense({ id: "pay", paidBy: "ben", split: ["asha"], kind: "settlement" })],
     ["GET", "/api/group/events", undefined]
   ];
   for(const bad of BAD_CODES){
@@ -318,10 +322,12 @@ test("the largest expense allowed fits in one request: 100 people with 64-charac
   assert.equal((await addExpense(code, body)).status, 201);
 });
 
-test("denied: editing a person or an expense (SF-022 and SF-023 will open what they need)", async function(){
+test("denied: editing a person, and changing an expense other than by PUT (SF-022's edit)", async function(){
   const code = await freshGroup();
-  for(const [method, path] of [["PUT", "/api/people/asha"], ["PATCH", "/api/people/asha"], ["PUT", "/api/expenses/e1"], ["PATCH", "/api/expenses/e1"]]){
-    assert.equal((await api(t.base, method, path, { code: code, body: { name: "Asha K" } })).status, 405, method + " " + path);
+  for(const [method, path, allow] of [["PUT", "/api/people/asha", "DELETE"], ["PATCH", "/api/people/asha", "DELETE"], ["PATCH", "/api/expenses/e1", "PUT, DELETE"], ["POST", "/api/expenses/e1", "PUT, DELETE"]]){
+    const res = await api(t.base, method, path, { code: code, body: { name: "Asha K" } });
+    assert.equal(res.status, 405, method + " " + path);
+    assert.equal(res.headers.get("allow"), allow, method + " " + path);
   }
   // Sending an existing ID again doesn't overwrite it.
   assert.equal((await addPerson(code, { id: "asha", name: "Asha K" })).status, 200);
@@ -330,6 +336,174 @@ test("denied: editing a person or an expense (SF-022 and SF-023 will open what t
   assert.equal(group.people[0].name, "Asha");
   assert.equal(group.expenses[0].amountPaise, 30000);
   assert.equal(group.version, 4);
+});
+
+// ---------- SF-022: editing an expense ----------
+
+const edit = function(code, oldId, body){ return api(t.base, "PUT", "/api/expenses/" + oldId, { code: code, body: body }); };
+// The group's balances in paise, worked out by money.js from what the server answers.
+async function balancesOf(code){
+  const group = (await get(code)).body;
+  return Object.fromEntries(computeBalances(group.people, forBalances(group.expenses)));
+}
+const sum = function(b){ return Object.values(b).reduce(function(a, v){ return a + v; }, 0); };
+
+test("SF-022: an edit changes the balances by exactly the difference, and they still sum to 0", async function(){
+  // By hand. e1: ₹300.00 paid by Asha, split Asha and Ben: Asha +30000 − 15000 = +15000, Ben −15000.
+  // Edited to ₹325.50: Asha +32550 − 16275 = +16275, Ben −16275: each moves by half the
+  // ₹25.50 difference, 1275 paise. Then paid by Ben for Asha alone: Asha −32550, Ben +32550.
+  const code = await freshGroup();
+  assert.deepEqual(await balancesOf(code), { asha: 15000, ben: -15000 });
+  const first = await edit(code, "e1", expense({ id: "e1-v2", amountPaise: 32550 }));
+  assert.equal(first.status, 200);
+  assert.deepEqual(first.body, { version: 5 });
+  const after = await balancesOf(code);
+  assert.deepEqual(after, { asha: 16275, ben: -16275 });
+  assert.equal(after.asha - 15000, 1275);
+  assert.equal(sum(after), 0);
+  // The expense is counted once: the edited one, under its new ID, and the old one is gone.
+  const group = (await get(code)).body;
+  assert.deepEqual(group.expenses, [expense({ id: "e1-v2", amountPaise: 32550 })]);
+  assert.equal(group.version, 5);
+  // Description, payer and split change too, with the same checks as adding.
+  assert.equal((await edit(code, "e1-v2", expense({ id: "e1-v3", desc: "Hotel, 2 nights", amountPaise: 32550, paidBy: "ben", split: ["asha"] }))).status, 200);
+  assert.deepEqual(await balancesOf(code), { asha: -32550, ben: 32550 });
+  assert.deepEqual((await get(code)).body.expenses.map(function(e){ return [e.id, e.desc]; }), [["e1-v3", "Hotel, 2 nights"]]);
+});
+
+test("SF-022: an edit sent again (its answer lost) succeeds and adds nothing; the version moved once", async function(){
+  const code = await freshGroup();
+  const body = expense({ id: "e1-v2", amountPaise: 45000 });
+  assert.deepEqual((await edit(code, "e1", body)).body, { version: 5 });
+  const again = await edit(code, "e1", body);
+  assert.equal(again.status, 200);
+  assert.deepEqual(again.body, { version: 5 });
+  // Even after the edited expense was itself deleted, the replay brings nothing back.
+  assert.equal((await api(t.base, "DELETE", "/api/expenses/e1-v2", { code: code })).status, 200);
+  assert.deepEqual((await edit(code, "e1", body)).body, { version: 6 });
+  assert.deepEqual((await get(code)).body.expenses, []);
+});
+
+test("SF-022: two phones edit the same expense: the second gets 409 gone, so it is never counted twice", async function(){
+  const code = await freshGroup();
+  assert.equal((await edit(code, "e1", expense({ id: "phone-a", amountPaise: 40000 }))).status, 200);
+  const late = await edit(code, "e1", expense({ id: "phone-b", amountPaise: 50000 }));
+  assert.equal(late.status, 409);
+  assert.deepEqual(late.body, { error: "failed-precondition", field: "gone" });
+  assert.deepEqual((await get(code)).body.expenses.map(function(e){ return [e.id, e.amountPaise]; }), [["phone-a", 40000]]);
+  // An edit of a deleted expense, or of one that never was, is refused the same way.
+  assert.equal((await api(t.base, "DELETE", "/api/expenses/phone-a", { code: code })).status, 200);
+  assert.deepEqual((await edit(code, "phone-a", expense({ id: "phone-c" }))).body, { error: "failed-precondition", field: "gone" });
+  assert.deepEqual((await edit(code, "never", expense({ id: "phone-d" }))).body, { error: "failed-precondition", field: "gone" });
+  const group = (await get(code)).body;
+  assert.deepEqual(group.expenses, []);
+  assert.equal(group.version, 6);
+  // An edit for a group that doesn't exist doesn't create anything.
+  assert.equal((await edit("no-such-group", "e1", expense({ id: "x" }))).status, 404);
+  assert.equal((await get("no-such-group")).status, 404);
+});
+
+test("SF-022: denied: an edit that isn't ledger-shaped, keeps the old ID, or names someone not in the group", async function(){
+  const code = await freshGroup();
+  const bad = [
+    [{ id: "e1" }, "id"], [{ id: "v2", amountPaise: 0 }, "amountPaise"], [{ id: "v2", desc: "" }, "desc"],
+    [{ id: "v2", split: [] }, "split"], [{ id: "v2", split: ["asha", "zed"] }, "split"],
+    [{ id: "v2", paidBy: "zed" }, "paidBy"], [{ id: "v2", note: "x" }, "fields"], [{ id: "v2", amountPaise: undefined }, "fields"],
+    [{ id: "a b" }, "id"], [{ id: "v2", kind: "gift" }, "kind"]
+  ];
+  for(const [changes, field] of bad){
+    const res = await edit(code, "e1", expense(changes));
+    assert.equal(res.status, 400, JSON.stringify(changes));
+    assert.deepEqual(res.body, { error: "invalid-argument", field: field }, JSON.stringify(changes));
+  }
+  assert.deepEqual((await api(t.base, "PUT", "/api/expenses/a%20b", { code: code, body: expense({ id: "v2" }) })).body, { error: "invalid-argument", field: "id" });
+  const group = (await get(code)).body;
+  assert.deepEqual(group.expenses, [expense()]);
+  assert.equal(group.version, 4);
+});
+
+test("SF-022: each edit counts as one more expense and its split entries towards the group's limits", async function(){
+  const g = await startTestServer({ maxExpenses: 3 });
+  try{
+    const code = "edit-trip";
+    const put = function(path, body){ return api(g.base, "PUT", path, { code: code, body: body }); };
+    await put("/api/group", { currency: "₹" });
+    for(const id of ["asha", "ben"]) await api(g.base, "POST", "/api/people", { code: code, body: { id: id, name: id } });
+    assert.equal((await api(g.base, "POST", "/api/expenses", { code: code, body: expense() })).status, 201); // 1 expense
+    assert.equal((await put("/api/expenses/e1", expense({ id: "v2" }))).status, 200); // 2
+    assert.equal((await put("/api/expenses/v2", expense({ id: "v3" }))).status, 200); // 3
+    const full = await put("/api/expenses/v3", expense({ id: "v4" }));
+    assert.equal(full.status, 409);
+    assert.deepEqual(full.body, { error: "failed-precondition", field: "group-full" });
+    // A replay of an edit already made still succeeds.
+    assert.equal((await put("/api/expenses/v2", expense({ id: "v3" }))).status, 200);
+  }finally{
+    await g.close();
+  }
+  const h = await startTestServer({ maxSplitEntries: 3 });
+  try{
+    const code = "entries-edit";
+    await api(h.base, "PUT", "/api/group", { code: code, body: { currency: "₹" } });
+    for(const id of ["asha", "ben"]) await api(h.base, "POST", "/api/people", { code: code, body: { id: id, name: id } });
+    assert.equal((await api(h.base, "POST", "/api/expenses", { code: code, body: expense() })).status, 201); // 2 entries
+    const full = await api(h.base, "PUT", "/api/expenses/e1", { code: code, body: expense({ id: "v2" }) }); // 4 > 3
+    assert.deepEqual(full.body, { error: "failed-precondition", field: "group-full" });
+    assert.equal((await api(h.base, "PUT", "/api/expenses/e1", { code: code, body: expense({ id: "v2", split: ["ben"] }) })).status, 200); // 3
+  }finally{
+    await h.close();
+  }
+});
+
+// ---------- SF-023: recording a settle-up ----------
+
+const settle = function(code, id, from, to, paise){
+  return addExpense(code, { id: id, date: "2026-09-30T06:00:00.000Z", desc: "Payment", amountPaise: paise, paidBy: from, split: [to], kind: "settlement" });
+};
+const debts = async function(code){ return simplifyDebts(new Map(Object.entries(await balancesOf(code)))); };
+
+test("SF-023: Ben owes Asha ₹100; recording 'Ben paid Asha ₹100' brings both to 0", async function(){
+  // By hand: ₹200.00 paid by Asha, split Asha and Ben: Asha +10000, Ben −10000, so Ben owes Asha
+  // ₹100.00. The settle-up is paid by Ben, split to Asha alone: Ben +10000, Asha −10000.
+  const code = await emptyGroup();
+  for(const id of ["asha", "ben"]) await addPerson(code, { id: id, name: id });
+  await addExpense(code, expense({ amountPaise: 20000 }));
+  assert.deepEqual(await debts(code), [{ from: "ben", to: "asha", amount: 10000 }]);
+  const res = await settle(code, "pay1", "ben", "asha", 10000);
+  assert.equal(res.status, 201);
+  assert.deepEqual(await balancesOf(code), { asha: 0, ben: 0 });
+  assert.deepEqual(await debts(code), []);
+  // It reads back marked as a settle-up; the ordinary expense has no kind.
+  const [e1, pay1] = (await get(code)).body.expenses;
+  assert.equal("kind" in e1, false);
+  assert.equal(pay1.kind, "settlement");
+  assert.deepEqual(pay1.split, ["asha"]);
+});
+
+test("SF-023: a part payment of ₹40 leaves Ben owing Asha ₹60; it can be edited and deleted like an expense", async function(){
+  const code = await emptyGroup();
+  for(const id of ["asha", "ben"]) await addPerson(code, { id: id, name: id });
+  await addExpense(code, expense({ amountPaise: 20000 }));
+  assert.equal((await settle(code, "pay1", "ben", "asha", 4000)).status, 201);
+  // Ben −10000 + 4000 = −6000; Asha +10000 − 4000 = +6000.
+  assert.deepEqual(await debts(code), [{ from: "ben", to: "asha", amount: 6000 }]);
+  // Edited to ₹100 (the edit keeps it a settle-up), it settles the rest.
+  const body = { id: "pay1-v2", date: "2026-09-30T06:00:00.000Z", desc: "Payment", amountPaise: 10000, paidBy: "ben", split: ["asha"], kind: "settlement" };
+  assert.equal((await edit(code, "pay1", body)).status, 200);
+  assert.deepEqual(await balancesOf(code), { asha: 0, ben: 0 });
+  assert.equal((await get(code)).body.expenses[1].kind, "settlement");
+  assert.equal((await api(t.base, "DELETE", "/api/expenses/pay1-v2", { code: code })).status, 200);
+  assert.deepEqual(await balancesOf(code), { asha: 10000, ben: -10000 });
+});
+
+test("SF-023: denied: a settle-up to more than one person, to the payer, or of another kind", async function(){
+  const code = await freshGroup();
+  const pay = function(changes){ return Object.assign({ id: "pay", date: "2026-09-30T06:00:00.000Z", desc: "Payment", amountPaise: 100, paidBy: "ben", split: ["asha"], kind: "settlement" }, changes); };
+  for(const [changes, field] of [[{ split: ["asha", "ben"] }, "split"], [{ split: ["ben"] }, "split"], [{ kind: "refund" }, "kind"], [{ kind: null }, "kind"], [{ split: ["zed"] }, "split"]]){
+    const res = await addExpense(code, pay(changes));
+    assert.equal(res.status, 400, JSON.stringify(changes));
+    assert.deepEqual(res.body, { error: "invalid-argument", field: field }, JSON.stringify(changes));
+  }
+  assert.equal((await get(code)).body.expenses.length, 1);
 });
 
 test("denied: every other path", async function(){

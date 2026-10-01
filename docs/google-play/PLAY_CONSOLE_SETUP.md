@@ -122,8 +122,9 @@ and [Set up your app's prices](https://support.google.com/googleplay/android-dev
 | Contact email | The SplitFamilia email from section 3 | Shown to Play Store users. |
 | Declarations | Developer Program Policies, US export laws, Play App Signing Terms of Service | Read them before you accept. |
 
-The store listing text, graphics and Data safety answers come later (SF-015 and SF-016 prepare
-drafts). The privacy policy comes from SF-017.
+The store listing text, graphics and Data safety answers come later. The listing draft and its
+graphics are ready in [STORE_LISTING.md](STORE_LISTING.md) and [assets/](assets/README.md)
+(SF-015); SF-016 prepares the Data safety answers, and SF-017 the privacy policy.
 
 ## 6. Play App Signing, the upload key and the app signing key
 

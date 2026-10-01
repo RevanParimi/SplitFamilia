@@ -2,9 +2,10 @@
 // Railway volume in production. Money is stored as whole paise (₹100.00 is 10000), never as a
 // decimal. Every query uses bound parameters.
 //
-// Changes are never overwritten: a person or an expense is added once under its ID, and a delete
-// only marks it deleted. So sending the same change twice (an offline phone retrying, SF-036)
-// adds nothing, even after someone else has deleted that row.
+// Changes are never overwritten: a person or an expense is added once under its ID, a delete
+// only marks it deleted, and an edit marks the old expense deleted and adds the new one under a
+// new ID (SF-022). So sending the same change twice (an offline phone retrying, SF-036) adds
+// nothing, even after someone else has deleted that row.
 import { DatabaseSync } from "node:sqlite";
 import { mkdirSync } from "node:fs";
 import { dirname } from "node:path";
@@ -56,7 +57,11 @@ const MIGRATIONS = [
      person_id TEXT NOT NULL,
      PRIMARY KEY (group_code, expense_id, position),
      FOREIGN KEY (group_code, expense_id) REFERENCES expenses(group_code, id) ON DELETE CASCADE
-   ) STRICT;`
+   ) STRICT;`,
+  // 2. Settle-ups (SF-023): an expense marked 'settlement'; NULL for an ordinary one, as every
+  // expense before this was. A server from before this migration still reads and adds expenses
+  // in a database that has it (it ignores the column), so rolling back the code is safe.
+  `ALTER TABLE expenses ADD COLUMN kind TEXT CHECK (kind IS NULL OR kind = 'settlement');`
 ];
 export const SCHEMA_VERSION = MIGRATIONS.length;
 
@@ -120,22 +125,31 @@ export function openLedger(file, options){
       "(SELECT 1 FROM expense_split s WHERE s.group_code = e.group_code AND s.expense_id = e.id AND s.person_id = ?)) LIMIT 1"
     ),
     expenses: db.prepare(
-      "SELECT id, date, description, amount_paise, paid_by FROM expenses WHERE group_code = ? AND deleted_at IS NULL ORDER BY rowid"
+      "SELECT id, date, description, amount_paise, paid_by, kind FROM expenses WHERE group_code = ? AND deleted_at IS NULL ORDER BY rowid"
     ),
     splits: db.prepare(
       "SELECT s.expense_id, s.person_id FROM expense_split s JOIN expenses e ON e.group_code = s.group_code AND e.id = s.expense_id " +
       "WHERE s.group_code = ? AND e.deleted_at IS NULL ORDER BY s.expense_id, s.position"
     ),
     addExpense: db.prepare(
-      "INSERT INTO expenses (group_code, id, date, description, amount_paise, paid_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) " +
+      "INSERT INTO expenses (group_code, id, date, description, amount_paise, paid_by, kind, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?) " +
       "ON CONFLICT (group_code, id) DO NOTHING"
     ),
     expenseExists: db.prepare("SELECT 1 AS found FROM expenses WHERE group_code = ? AND id = ?"),
+    expenseLive: db.prepare("SELECT 1 AS found FROM expenses WHERE group_code = ? AND id = ? AND deleted_at IS NULL"),
     expenseCount: db.prepare("SELECT COUNT(*) AS n FROM expenses WHERE group_code = ?"),
     splitEntryCount: db.prepare("SELECT COUNT(*) AS n FROM expense_split WHERE group_code = ?"),
     addSplit: db.prepare("INSERT INTO expense_split (group_code, expense_id, position, person_id) VALUES (?, ?, ?, ?)"),
     deleteExpense: db.prepare("UPDATE expenses SET deleted_at = ? WHERE group_code = ? AND id = ? AND deleted_at IS NULL")
   };
+
+  // Adds one expense and its split, unless its ID is already there (even deleted). → true when
+  // added. Inside a transaction.
+  function insertExpense(code, e){
+    const added = q.addExpense.run(code, e.id, e.date, e.desc, e.amountPaise, e.paidBy, e.kind || null, now()).changes === 1;
+    if(added) e.split.forEach(function(personId, i){ q.addSplit.run(code, e.id, i, personId); });
+    return added;
+  }
 
   // The group's version: 1 when it is created, and one more after each change. null when there is
   // no such group.
@@ -148,8 +162,8 @@ export function openLedger(file, options){
     groupVersion: groupVersion,
 
     // Everything the page shows: { currency, version, people: [{ id, name }], expenses: [{ id,
-    // date, desc, amountPaise, paidBy, split }] }, in the order they were added. null when there
-    // is no such group.
+    // date, desc, amountPaise, paidBy, split }] }, in the order they were added, with
+    // kind: "settlement" on a settle-up only (SF-023). null when there is no such group.
     readGroup: function(code){
       const group = q.group.get(code);
       if(!group) return null;
@@ -163,10 +177,12 @@ export function openLedger(file, options){
         version: group.version,
         people: q.people.all(code).map(function(p){ return { id: p.id, name: p.name }; }),
         expenses: q.expenses.all(code).map(function(e){
-          return {
+          const row = {
             id: e.id, date: e.date, desc: e.description, amountPaise: e.amount_paise,
             paidBy: e.paid_by, split: splits.get(e.id) || []
           };
+          if(e.kind !== null) row.kind = e.kind;
+          return row;
         })
       };
     },
@@ -219,6 +235,11 @@ export function openLedger(file, options){
       return q.expenseExists.get(code, id) !== undefined;
     },
 
+    // Is there an expense with this ID that isn't deleted (or replaced by an edit)?
+    expenseLive: function(code, id){
+      return q.expenseLive.get(code, id) !== undefined;
+    },
+
     // How many expenses the group has ever had, deleted ones included (for MAX_EXPENSES).
     expenseCount: function(code){
       return q.expenseCount.get(code).n;
@@ -232,12 +253,24 @@ export function openLedger(file, options){
     // → { added, version }, as addPerson. The amount is whole paise.
     addExpense: function(code, expense){
       return inTransaction(db, function(){
-        const added = q.addExpense.run(
-          code, expense.id, expense.date, expense.desc, expense.amountPaise, expense.paidBy, now()
-        ).changes === 1;
-        if(!added) return { added: false, version: groupVersion(code) };
-        expense.split.forEach(function(personId, i){ q.addSplit.run(code, expense.id, i, personId); });
-        return { added: true, version: q.bump.get(code).version };
+        const added = insertExpense(code, expense);
+        return { added: added, version: added ? q.bump.get(code).version : groupVersion(code) };
+      });
+    },
+
+    // An edit (SF-022): expense `oldId` is marked deleted and `expense`, under its own new ID,
+    // takes its place, with one version step for both. Nothing is overwritten, so sending the
+    // same edit again adds nothing, and an edit of an expense someone else has already deleted or
+    // edited is refused instead of counting it twice. → { replaced, version }: replaced is false,
+    // and nothing changes, when the new ID is already there or `oldId` isn't a live expense.
+    // The caller checks both first, and answers each in its own way.
+    replaceExpense: function(code, oldId, expense){
+      return inTransaction(db, function(){
+        if(q.expenseExists.get(code, expense.id) !== undefined || q.deleteExpense.run(now(), code, oldId).changes !== 1){
+          return { replaced: false, version: groupVersion(code) };
+        }
+        insertExpense(code, expense);
+        return { replaced: true, version: q.bump.get(code).version };
       });
     },
 
@@ -254,9 +287,7 @@ export function openLedger(file, options){
           if(q.addPerson.run(code, p.id, p.name, now()).changes === 1) people++;
         });
         group.expenses.forEach(function(e){
-          if(q.addExpense.run(code, e.id, e.date, e.desc, e.amountPaise, e.paidBy, now()).changes !== 1) return;
-          e.split.forEach(function(personId, i){ q.addSplit.run(code, e.id, i, personId); });
-          expenses++;
+          if(insertExpense(code, e)) expenses++;
         });
         const version = !created && (people > 0 || expenses > 0) ? q.bump.get(code).version : groupVersion(code);
         return { created: created, version: version, added: { people: people, expenses: expenses } };

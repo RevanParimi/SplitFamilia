@@ -99,7 +99,7 @@ function loadWorker(files){
 }
 
 const SHELL_FILES = ["index.html", "money.js?v=" + VERSION, "group-code.js?v=" + VERSION, "sync-status.js?v=" + VERSION,
-  "ledger-rules.js?v=" + VERSION, "ledger-client.js?v=" + VERSION, "outbox.js?v=" + VERSION,
+  "ledger-rules.js?v=" + VERSION, "ledger-client.js?v=" + VERSION, "outbox.js?v=" + VERSION, "recent-groups.js?v=" + VERSION,
   "manifest.json", "icon-192.png", "icon-512.png"];
 function site(pageBody){
   const files = {};

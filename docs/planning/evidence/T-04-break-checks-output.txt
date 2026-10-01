@@ -1,0 +1,73 @@
+CAUGHT C1 (SF-022) an edit adds the new expense but leaves the old one counted: 7 failing, 60 passing
+    ✖ offline: an edit waits as 1 change; online, the server holds the edited expense once (SF-022)
+    ✖ two phones edit the same expense offline: the second is refused in plain words, and it counts once
+    ✖ SF-022: an edit changes the balances by exactly the difference, and they still sum to 0
+CAUGHT C2 (SF-022) an edit of an expense already deleted or edited is applied (counted twice): 3 failing, 64 passing
+    ✖ two phones edit the same expense offline: the second is refused in plain words, and it counts once
+    ✖ SF-022: two phones edit the same expense: the second gets 409 gone, so it is never counted twice
+    ✖ an edit (SF-022) marks the old expense deleted and adds the new one, in one version step
+CAUGHT C3 (SF-022) an edit sent again (its answer lost) is refused instead of succeeding: 2 failing, 39 passing
+    ✖ SF-022: an edit sent again (its answer lost) succeeds and adds nothing; the version moved once
+    ✖ SF-022: each edit counts as one more expense and its split entries towards the group's limits
+CAUGHT C4 (SF-022) edits don't count towards the 5,000-expense limit: 1 failing, 40 passing
+    ✖ SF-022: each edit counts as one more expense and its split entries towards the group's limits
+CAUGHT C5 (SF-022) an edit may keep the old ID: 1 failing, 40 passing
+    ✖ SF-022: denied: an edit that isn't ledger-shaped, keeps the old ID, or names someone not in the group
+CAUGHT C6 (SF-022) on the phone, an edit leaves the old expense in the view (counted twice offline): 4 failing, 15 passing
+    ✖ an edit takes the old expense's place under its new ID, as the server makes it
+    ✖ an offline edit counts as a waiting change, and balances move by exactly the difference (SF-022)
+    ✖ an expense added and then edited while offline waits as 2 changes and shows once
+CAUGHT C7 (SF-022) an edit is sent as a new expense (POST), not to the old one's path: 3 failing, 11 passing
+    ✖ an edit is a PUT of the new expense to the old one's path; a settle-up is sent as kind 'settlement'
+    ✖ offline: an edit waits as 1 change; online, the server holds the edited expense once (SF-022)
+    ✖ two phones edit the same expense offline: the second is refused in plain words, and it counts once
+CAUGHT C8 (SF-022) an edit another phone beat says nothing useful: 2 failing, 23 passing
+    ✖ two phones edit the same expense offline: the second is refused in plain words, and it counts once
+    ✖ SF-022: an edit another phone got to first, or that doesn't fit, says so in plain words
+CAUGHT C9 (SF-023) a settle-up may be split among several people or paid to the payer: 2 failing, 46 passing
+    ✖ a settle-up (SF-023) is an expense with kind 'settlement', paid to exactly one other person
+    ✖ SF-023: denied: a settle-up to more than one person, to the payer, or of another kind
+CAUGHT C10 (SF-023) any kind is accepted: 4 failing, 44 passing
+    ✖ a settle-up (SF-023) is an expense with kind 'settlement', paid to exactly one other person
+    ✖ SF-022: denied: an edit that isn't ledger-shaped, keeps the old ID, or names someone not in the group
+    ✖ SF-023: denied: a settle-up to more than one person, to the payer, or of another kind
+CAUGHT C11 (SF-023) the server forgets the settle-up mark when it reads: 4 failing, 63 passing
+    ✖ Ben pays Asha back through the outbox: a settle-up of the whole debt leaves nobody owing (SF-023)
+    ✖ SF-023: Ben owes Asha ₹100; recording 'Ben paid Asha ₹100' brings both to 0
+    ✖ SF-023: a part payment of ₹40 leaves Ben owing Asha ₹60; it can be edited and deleted like an expense
+CAUGHT C12 (SF-023) the server doesn't store the settle-up mark: 4 failing, 63 passing
+    ✖ Ben pays Asha back through the outbox: a settle-up of the whole debt leaves nobody owing (SF-023)
+    ✖ SF-023: Ben owes Asha ₹100; recording 'Ben paid Asha ₹100' brings both to 0
+    ✖ SF-023: a part payment of ₹40 leaves Ben owing Asha ₹60; it can be edited and deleted like an expense
+CAUGHT C13 (SF-023) the phone doesn't send the settle-up mark: 2 failing, 12 passing
+    ✖ an edit is a PUT of the new expense to the old one's path; a settle-up is sent as kind 'settlement'
+    ✖ Ben pays Asha back through the outbox: a settle-up of the whole debt leaves nobody owing (SF-023)
+CAUGHT C14 (SF-023) the phone's view doesn't mark a waiting settle-up: 1 failing, 18 passing
+    ✖ a settle-up (SF-023) is marked on the phone as on the server, and brings the balances to 0
+CAUGHT C15 (SF-029) opening a group already in the list adds a duplicate: 3 failing, 5 passing
+    ✖ opening a group puts it at the top; opening one already there moves it up, with no duplicate
+    ✖ past 20, the group opened longest ago is dropped
+    ✖ a group started here offers 'Invite your group' until the link is copied or 'Not now'
+CAUGHT C16 (SF-029) the list isn't capped at 20: 1 failing, 7 passing
+    ✖ past 20, the group opened longest ago is dropped
+CAUGHT C17 (SF-029) invalid stored codes are kept: 1 failing, 7 passing
+    ✖ invalid entries are ignored: bad codes, bad times, duplicates, and text that isn't a list
+CAUGHT C18 (SF-029) removing one group removes the rest too: 1 failing, 7 passing
+    ✖ removing one entry leaves the rest in order, and only touches this list
+CAUGHT C19 (SF-029) the new module isn't cached for offline: 5 failing, 23 passing
+    ✖ install fetches the app's own files past the browser's HTTP cache (cache: 'reload')
+    ✖ install caches the shell and nothing from another site, so the app can start offline
+    ✖ offline, the page and every module come from the cache
+CAUGHT C20 (SF-028) an alert() comes back for a form check: 1 failing, 27 passing
+    ✖ index.html shows form checks under their fields: no alert() or confirm() pop-ups (SF-028)
+CAUGHT C21 (SF-028) N-1: a link pasted with a full stop after it is refused again: 1 failing, 14 passing
+    ✖ invite parsing: a link pasted from a sentence keeps its code (the T-02 review's N-1)
+CAUGHT C22 (SF-028) the group's name keeps its random part: 1 failing, 14 passing
+    ✖ a group's name comes from its code, without the random part (SF-028)
+CAUGHT C23 (SF-028) the description field's limit drifts from the server's: 1 failing, 27 passing
+    ✖ the page's inputs and ledger-rules.js keep the same limits, and the amount limit is money.js's (SF-033)
+CAUGHT C24 (SF-028) the cache is bumped but the page still imports ?v=7: 3 failing, 25 passing
+    ✖ install caches the shell and nothing from another site, so the app can start offline
+    ✖ offline, the page and every module come from the cache
+    ✖ module imports carry the cache version, and the service worker caches exactly those URLs
+All 24 breaks caught; every file restored byte for byte.

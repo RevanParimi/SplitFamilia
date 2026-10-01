@@ -18,9 +18,12 @@ const FIELD_TEXT = {
   "in-use": "That person is in an expense now, so they can't be removed. Delete their expenses first.",
   "group-full:person": "This group already has 100 people.",
   "group-full:expense": "This group is full: it can't take more expenses.",
+  "group-full:expense-edit": "This group is full: it can't take more expenses.",
   "split": "Someone it's split among isn't in the group any more, or it's split among more than 100 people.",
   "paidBy": "The person who paid isn't in the group any more.",
-  "code": "That group link isn't valid."
+  "code": "That group link isn't valid.",
+  // An edit of an expense another phone deleted or edited first (SF-022).
+  "gone": "Someone else changed or deleted it first, so this edit wasn't saved."
 };
 
 const own = function(obj, key){ return typeof key === "string" && Object.prototype.hasOwnProperty.call(obj, key); };

@@ -3,7 +3,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
-  isValidGroupId, MAX_GROUP_ID_LENGTH, slugify, CODE_ALPHABET, CODE_LENGTH, randomCode, newGroupId, parseInvite, movedLink, HOME
+  isValidGroupId, MAX_GROUP_ID_LENGTH, slugify, CODE_ALPHABET, CODE_LENGTH, randomCode, newGroupId, parseInvite, movedLink, HOME,
+  groupName
 } from "../group-code.js";
 
 // Fills the bytes from a fixed list, like a stubbed crypto.getRandomValues.
@@ -129,6 +130,32 @@ test("invite parsing: typed codes and old group names", function(){
   const long = "a".repeat(60) + "-" + BYTES_CODE;
   assert.equal(parseInvite(long), long);
   ["", "   ", "!!!", "गोवा"].forEach(function(text){ assert.equal(parseInvite(text), null, text); });
+});
+
+test("invite parsing: a link pasted from a sentence keeps its code (the T-02 review's N-1)", function(){
+  const code = "goa-trip-7k2m9xqpwd";
+  const link = "https://splitfamilia.up.railway.app/?g=" + code;
+  for(const text of [link + ".", link + ",", link + ")", "(" + link + ")", "(" + link + ").", "\"" + link + "\"", "<" + link + ">",
+    "“" + link + "”", link + "!", link + "?", code + ".", "(" + code + ")", "'" + code + "'"]){
+    assert.equal(parseInvite(text), code, text);
+  }
+  // Only what's around it: a code's own hyphens and letters are kept, and nothing else changes.
+  assert.equal(parseInvite("Goa Trip 2026."), "goa-trip-2026");
+  assert.equal(parseInvite("https://host/?g=goa-trip-2026&x=1)"), "goa-trip-2026");
+  ["(", ".", "\"\"", "()."].forEach(function(text){ assert.equal(parseInvite(text), null, text); });
+});
+
+test("a group's name comes from its code, without the random part (SF-028)", function(){
+  assert.equal(groupName("goa-trip-7k2m9xqpwd"), "Goa trip");
+  assert.equal(groupName(newGroupId("Diwali party 2026", fixedBytes(BYTES))), "Diwali party 2026");
+  assert.equal(groupName("goa-trip-2026"), "Goa trip 2026"); // an old code: its last part is a year
+  assert.equal(groupName("group-" + BYTES_CODE), "Group"); // a name with no usable letters
+  assert.equal(groupName("family"), "Family");
+  // A code that is only a random-looking part keeps it.
+  assert.equal(groupName("abcdefghij"), "Abcdefghij");
+  // A last part of 10 with a letter outside the alphabet (l, o, 0 or 1) isn't random.
+  assert.equal(groupName("trip-to-goa-olympiad12"), "Trip to goa olympiad12");
+  assert.equal(groupName("trip-lonavala1"), "Trip lonavala1");
 });
 
 // ---------- the old address (SF-038) ----------

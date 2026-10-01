@@ -1,0 +1,24 @@
+PC-007 against https://splitfamilia.up.railway.app/ and commit db0580b, 2026-09-30T19:06:03.632Z
+1. /healthz → 200 {"status":"ok","database":"ok","storage":"volume"}
+1. / → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /money.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /group-code.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /sync-status.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /ledger-rules.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /ledger-client.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /outbox.js?v=6 → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /service-worker.js → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. /manifest.json → 200 | byte-identical to db0580b: true | no-cache | nosniff
+1. the worker's cache: splitsheet-v6
+1. POST /api/import with no token → 404
+2. group 1: 1 people, 0 expenses, fingerprint e3b0c44298fc
+2. group 2: 9 people, 26 expenses, fingerprint 5c5024e6c5ea
+2. group 3: 0 people, 0 expenses, fingerprint e3b0c44298fc
+3. group 1: status · live | people shown 1 of 1 | ledger rows 0 of 0 | balance rows 0, equal to the server's: true
+3. group 2: status · live | people shown 9 of 9 | ledger rows 26 of 26 | balance rows 8, equal to the server's: true
+3. test group 3: opened, · live
+3. test expense added: bar · live | server: 1 person, 1 expense of 100 paise
+3. test expense and person deleted: bar · live | server: 0 people, 0 expenses
+4. GitHub Pages serves this commit's index.html: true
+4. https://revanparimi.github.io/SplitFamilia/?g=<group 2> → "SplitFamilia has moved" shown: true | app shown: false | the button opens the same group on the new address: true
+page errors: 0 | dialogs: 0

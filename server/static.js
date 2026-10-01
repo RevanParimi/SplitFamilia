@@ -17,6 +17,7 @@ export const STATIC_FILES = {
   "/ledger-rules.js": JS,
   "/ledger-client.js": JS,
   "/outbox.js": JS,
+  "/recent-groups.js": JS,
   "/manifest.json": "application/json",
   "/icon-192.png": "image/png",
   "/icon-512.png": "image/png",

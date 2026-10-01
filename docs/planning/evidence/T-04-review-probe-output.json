@@ -1,0 +1,353 @@
+{
+ "P1": {
+  "edit": {
+   "replaced": true,
+   "version": 7
+  },
+  "newRead": {
+   "version": 7,
+   "expenses": [
+    "hotel 30000 p-ben>p-asha+p-ben+p-chitra",
+    "[settlement] pay2 10000 p-asha>p-ben"
+   ]
+  },
+  "oldRead": {
+   "version": 7,
+   "expenses": [
+    "hotel 30000 p-ben>p-asha+p-ben+p-chitra",
+    "pay2 10000 p-asha>p-ben"
+   ]
+  },
+  "oldAdded": {
+   "added": true,
+   "version": 8
+  },
+  "oldAfter": {
+   "version": 8,
+   "expenses": [
+    "hotel 30000 p-ben>p-asha+p-ben+p-chitra",
+    "pay2 10000 p-asha>p-ben",
+    "taxi 900 p-chitra>p-asha+p-ben+p-chitra"
+   ]
+  },
+  "schema": [
+   {
+    "version": 2
+   }
+  ],
+  "forwardAgain": {
+   "version": 8,
+   "expenses": [
+    "hotel 30000 p-ben>p-asha+p-ben+p-chitra",
+    "[settlement] pay2 10000 p-asha>p-ben",
+    "taxi 900 p-chitra>p-asha+p-ben+p-chitra"
+   ]
+  }
+ },
+ "P7_newServer": {
+  "put": "404 {\"error\":\"not-found\"}",
+  "get": "404 {\"error\":\"not-found\"}"
+ },
+ "P7_newServerHasGroup": false,
+ "P7_liveV6Server": {
+  "put": "405 {\"error\":\"invalid-argument\",\"field\":\"method\"}",
+  "get": "404 {\"error\":\"not-found\"}"
+ },
+ "P2_editStatus": 200,
+ "P2_v6": {
+  "cache": null,
+  "status": "· live",
+  "balances": "Ben owes Asha ₹650.00 Chitra owes Asha ₹100.00",
+  "ledger": "30 Sept Dinner paid by Asha · split: Asha, Ben ₹1,500.00 × 30 Sept Payment paid by Asha · split: Ben ₹100.00 × 29 Sept Hotel paid by Ben · split: Asha, Ben, Chitra ₹300.00 ×",
+  "caches": [
+   "splitsheet-v6"
+  ]
+ },
+ "P3_status": "live",
+ "P3_home": {
+  "title": "A very long family group name for the hills and back again trip",
+  "status": "live",
+  "balances": [
+   "Asha owes Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaf",
+   "₹33,33,338.34",
+   "<b>Chitra</b> owes Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaf",
+   "₹33,33,328.32"
+  ],
+  "ledger": [
+   "<img src=x onerror=\"window.__pwned=1\"> | 30 Sep · paid by <b>Chitra</b> · split among 2 | ₹10.01",
+   "SupercalifragilisticexpialidociousSuperc | 29 Sep · paid by Wolfeschlegelsteinhausenbergerdorffvoralter | ₹99,99,999.99"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null,
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  }
+ },
+ "P3_people": {
+  "scroll": "ok",
+  "over": []
+ },
+ "P3_edit": {
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  },
+  "amount": "9999999.99",
+  "payer": "Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaf"
+ },
+ "P3_confirm": {
+  "title": 226,
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  }
+ },
+ "P3_pay": {
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  },
+  "from": "Asha",
+  "to": "Wolfeschlegelsteinhausenbergerdorffvoralternwarengewissenhaf"
+ },
+ "P3_markup": {
+  "pwned": false,
+  "imgs": 0,
+  "bold": 0,
+  "nameShown": true,
+  "descShown": true
+ },
+ "P3_menu": {
+  "scroll": "ok",
+  "over": []
+ },
+ "P3_welcome": {
+  "title": "",
+  "status": "connecting…",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null,
+  "recent": [
+   "A very long family group name for the hills and back again trip | Opened just now"
+  ],
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  }
+ },
+ "P4_before": {
+  "status": "live",
+  "title": "Race trip",
+  "balances": [
+   "Ben owes Asha",
+   "₹150.00"
+  ],
+  "ledger": [
+   "Dinner | 30 Sep · paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P4_offline": {
+  "title": "Race trip",
+  "status": "offline: 1 change waiting to sync",
+  "balances": [
+   "Ben owes Asha",
+   "₹200.00"
+  ],
+  "ledger": [
+   "Dinner | 30 Sep · paid by Asha · split among everyone | ₹400.00 | waiting"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P4_otherPhoneDelete": 200,
+ "P4_refusedWithSheetOpen": {
+  "title": "Race trip",
+  "status": "live",
+  "balances": null,
+  "ledger": null,
+  "sheet": "Add expense",
+  "notice": "Couldn't save the expense “Dinner”. Someone else changed or deleted it first, so this edit wasn't saved.",
+  "recent": null,
+  "noticeOnTop": false,
+  "hitIs": "split-summary"
+ },
+ "P4_afterClose": {
+  "status": "live",
+  "title": "Race trip",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": "Couldn't save the expense “Dinner”. Someone else changed or deleted it first, so this edit wasn't saved.",
+  "recent": null,
+  "noticeOnTop": true
+ },
+ "P4_server": {
+  "currency": "₹",
+  "version": 5,
+  "people": [
+   "Asha",
+   "Ben"
+  ],
+  "expenses": []
+ },
+ "P5_live": "live",
+ "P5_offline": {
+  "title": "Waiting trip",
+  "status": "offline: 1 change waiting to sync",
+  "balances": [
+   "Ben owes Asha",
+   "₹250.00"
+  ],
+  "ledger": [
+   "Taxi | 1 Oct · paid by Asha · split among everyone | ₹500.00 | waiting"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P5_welcomeOffline": {
+  "title": "",
+  "status": "connecting…",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null,
+  "recent": [
+   "Waiting trip | Opened just now",
+   "Race trip | Opened just now",
+   "A very long family group name for the hills and back again trip | Opened just now"
+  ]
+ },
+ "P5_afterRemove": {
+  "title": "",
+  "status": "connecting…",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null,
+  "recent": [
+   "Race trip | Opened just now",
+   "A very long family group name for the hills and back again trip | Opened just now"
+  ]
+ },
+ "P5_otherGroupOffline": {
+  "title": "Race trip",
+  "status": "offline: changes will sync when you're back online",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P5_otherGroupOnline": {
+  "status": "live",
+  "title": "Race trip",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P5_serverWaitingGroup": {
+  "currency": "₹",
+  "version": 4,
+  "people": [
+   "Asha",
+   "Ben"
+  ],
+  "expenses": [
+   "Taxi 50000 p-asha>p-asha+p-ben"
+  ]
+ },
+ "P5_store": {
+  "copies": [
+   "a-very-long-family-group-name-for-the-hills-and-back-again-trip-a9a9ijkeit",
+   "race-trip-a9a9ijkeit"
+  ],
+  "outbox": []
+ },
+ "P6_before": {
+  "status": "live",
+  "title": "Settle trip",
+  "balances": [
+   "Asha owes Ben",
+   "₹100.00"
+  ],
+  "ledger": [
+   "Hotel | 30 Sep · paid by Ben · split among everyone | ₹200.00"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P6_prefill": "100.00",
+ "P6_offline": {
+  "title": "Settle trip",
+  "status": "offline: 2 changes waiting to sync",
+  "balances": [
+   "Asha owes Ben",
+   "₹55.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹45.00 | waiting",
+   "Hotel | 30 Sep · paid by Ben · split among everyone | ₹200.00"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P6_online": {
+  "status": "live",
+  "title": "Settle trip",
+  "balances": [
+   "Asha owes Ben",
+   "₹55.00"
+  ],
+  "ledger": [
+   "Asha paid Ben | 1 Oct · payment | ₹45.00",
+   "Hotel | 30 Sep · paid by Ben · split among everyone | ₹200.00"
+  ],
+  "sheet": null,
+  "notice": null,
+  "recent": null
+ },
+ "P6_server": {
+  "currency": "₹",
+  "version": 6,
+  "people": [
+   "Asha",
+   "Ben"
+  ],
+  "expenses": [
+   "Hotel 20000 p-ben>p-asha+p-ben",
+   "[settlement] Payment 4500 p-asha>p-ben"
+  ]
+ },
+ "P6_serverRows": [
+  {
+   "amount_paise": 20000,
+   "kind": null,
+   "deleted": 0
+  },
+  {
+   "amount_paise": 3000,
+   "kind": "settlement",
+   "deleted": 1
+  },
+  {
+   "amount_paise": 4500,
+   "kind": "settlement",
+   "deleted": 0
+  }
+ ],
+ "dialogs": [],
+ "errors": [],
+ "timeouts": []
+}

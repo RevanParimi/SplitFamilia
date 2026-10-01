@@ -190,3 +190,82 @@ test("a change sent twice (its answer lost) leaves one row on the real server", 
   assert.equal(t.app.ledger.query("SELECT COUNT(*) AS n FROM expenses WHERE group_code = ?", [code])[0].n, 1);
   assert.equal(t.app.ledger.query("SELECT COUNT(*) AS n FROM expense_split WHERE group_code = ?", [code])[0].n, 1);
 });
+
+// ---------- SF-022 and SF-023: edits and settle-ups through the real server ----------
+
+const editOf = function(code, oldId, newId, paise, paidBy, split){
+  return Object.assign(expense(code, newId, paise, paidBy, split), { kind: "expense-edit", replaces: oldId });
+};
+
+test("an edit is a PUT of the new expense to the old one's path; a settle-up is sent as kind 'settlement'", function(){
+  const edit = Object.assign(editOf("g", "tea", "tea-v2", 1250, "asha", ["asha", "ben"]), { key: 3, waiting: true, desc: "Tea" });
+  assert.deepEqual(changeRequest(edit), { method: "PUT", path: "/api/expenses/tea", body: {
+    id: "tea-v2", date: "2026-09-30T06:00:00.000Z", desc: "Tea", amountPaise: 1250, paidBy: "asha", split: ["asha", "ben"]
+  } });
+  const pay = Object.assign(expense("g", "pay1", 4000, "ben", ["asha"]), { desc: "Payment", settlement: true });
+  assert.deepEqual(changeRequest(pay).body, { id: "pay1", date: "2026-09-30T06:00:00.000Z", desc: "Payment", amountPaise: 4000, paidBy: "ben", split: ["asha"], kind: "settlement" });
+  assert.equal(changeRequest(Object.assign({}, pay, { kind: "expense-edit", replaces: "pay0" })).body.kind, "settlement");
+  // Only `settlement: true` makes a settle-up.
+  assert.equal("kind" in changeRequest(Object.assign({}, pay, { settlement: "yes" })).body, false);
+});
+
+test("offline: an edit waits as 1 change; online, the server holds the edited expense once (SF-022)", async function(){
+  const code = newCode();
+  for(const c of [{ kind: "group", code: code, currency: "₹" }, person(code, "asha", "Asha"), person(code, "ben", "Ben"),
+    expense(code, "tea", 1000, "asha", ["asha", "ben"])]) await sendChange(c, opts());
+  const net = { online: false };
+  const box = createOutbox({ store: memoryStore(), send: function(c){ return sendChange(c, opts({ fetch: phoneFetch(net) })); } });
+  await box.add(editOf(code, "tea", "tea-v2", 1250, "asha", ["asha", "ben"]));
+  assert.equal((await box.flush()).state, "wait");
+  assert.equal(box.count(code), 1);
+  net.online = true;
+  assert.deepEqual(await box.flush(), { state: "done" });
+  const group = (await getGroup(code, opts())).group;
+  assert.deepEqual(group.expenses.map(function(e){ return [e.id, e.amountPaise]; }), [["tea-v2", 1250]]);
+  assert.deepEqual(Object.fromEntries(computeBalances(group.people, forBalances(group.expenses))), { asha: 625, ben: -625 });
+});
+
+test("two phones edit the same expense offline: the second is refused in plain words, and it counts once", async function(){
+  const code = newCode();
+  for(const c of [{ kind: "group", code: code, currency: "₹" }, person(code, "asha", "Asha"),
+    expense(code, "tea", 1000, "asha", ["asha"])]) await sendChange(c, opts());
+  const refused = [];
+  const phones = [0, 1].map(function(){
+    return createOutbox({ store: memoryStore(), send: function(c){ return sendChange(c, opts()); },
+      onRefused: function(c, body){ refused.push(friendlyError({ code: body.error, field: body.field }, c.kind)); } });
+  });
+  await phones[0].add(editOf(code, "tea", "tea-a", 1100, "asha", ["asha"]));
+  await phones[1].add(editOf(code, "tea", "tea-b", 1200, "asha", ["asha"]));
+  assert.deepEqual(await phones[0].flush(), { state: "done" });
+  assert.deepEqual(await phones[1].flush(), { state: "done" });
+  assert.deepEqual(refused, ["Someone else changed or deleted it first, so this edit wasn't saved."]);
+  assert.deepEqual((await getGroup(code, opts())).group.expenses.map(function(e){ return e.id; }), ["tea-a"]);
+  assert.equal(phones[1].count(code), 0);
+});
+
+test("an edit or a settle-up with a bad code is refused, and changes nothing (F-7)", async function(){
+  const code = newCode();
+  for(const c of [{ kind: "group", code: code, currency: "₹" }, person(code, "asha", "Asha"), person(code, "ben", "Ben"),
+    expense(code, "tea", 1000, "asha", ["asha"])]) await sendChange(c, opts());
+  for(const bad of ["Goa-Trip", "goa--trip", "a".repeat(81), ""]){
+    const edit = await sendChange(editOf(bad, "tea", "tea-v2", 1, "asha", ["asha"]), opts());
+    assert.equal(edit.status, 400, bad);
+    assert.deepEqual(edit.body, { error: "invalid-argument", field: "code" }, bad);
+    const pay = await sendChange(Object.assign(expense(bad, "pay", 1, "ben", ["asha"]), { settlement: true }), opts());
+    assert.equal(pay.status, 400, bad);
+  }
+  const group = (await getGroup(code, opts())).group;
+  assert.deepEqual(group.expenses.map(function(e){ return [e.id, e.amountPaise]; }), [["tea", 1000]]);
+});
+
+test("Ben pays Asha back through the outbox: a settle-up of the whole debt leaves nobody owing (SF-023)", async function(){
+  const code = newCode();
+  for(const c of [{ kind: "group", code: code, currency: "₹" }, person(code, "asha", "Asha"), person(code, "ben", "Ben"),
+    expense(code, "hotel", 20000, "asha", ["asha", "ben"])]) await sendChange(c, opts());
+  const box = createOutbox({ store: memoryStore(), send: function(c){ return sendChange(c, opts()); } });
+  await box.add(Object.assign(expense(code, "pay1", 10000, "ben", ["asha"]), { desc: "Payment", settlement: true }));
+  assert.deepEqual(await box.flush(), { state: "done" });
+  const group = (await getGroup(code, opts())).group;
+  assert.equal(group.expenses[1].kind, "settlement");
+  assert.deepEqual(Object.fromEntries(computeBalances(group.people, forBalances(group.expenses))), { asha: 0, ben: 0 });
+});

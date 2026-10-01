@@ -1,8 +1,8 @@
 # SplitFamilia
 
 A shared-expense ledger for families and friends: add the people in a group, log who paid for
-what, and see who owes whom in the fewest payments. Any trip or occasion: a holiday, a wedding,
-a festival, a weekend away.
+what, see who owes whom as a short list of payments, and record payments made outside the app.
+Any trip or occasion: a holiday, a wedding, a festival, a weekend away.
 
 - **Live app:** https://splitfamilia.up.railway.app
 - **Coming next:** an Android app on Google Play (a Trusted Web Activity wrapping the live app).
@@ -14,7 +14,8 @@ visit: the phone keeps a copy of its group, and changes made offline wait on the
 they sync. Changes reach every open phone live. There is no sign-in; a group's private invite
 link is its key.
 
-Until T-09's switch-over the live app still uses Firebase Firestore; the move is in
+Since T-09's switch-over (2026-10-01) the live app uses only its own server; how the data moved
+from Firebase Firestore is in
 [docs/google-play/MOVE_FROM_FIREBASE.md](docs/google-play/MOVE_FROM_FIREBASE.md).
 
 ## Where things are
@@ -30,6 +31,7 @@ SplitFamilia/
 ├── ledger-rules.js         what a group may hold (limits), checked by the page and the server
 ├── ledger-client.js        the page's side of the server: read a group, send a change, live updates
 ├── outbox.js               the phone's copy of its group, and its changes waiting to sync
+├── recent-groups.js        "Your groups": the groups opened on this phone, and the dates the page writes
 ├── service-worker.js       offline start: caches the app (never the API)
 ├── manifest.json           the installable-app description (name, icons, colours)
 ├── icon-192.png, icon-512.png, apple-touch-icon.png
@@ -60,8 +62,9 @@ SplitFamilia/
 │
 │  Documentation
 ├── docs/
-│   ├── google-play/        owner guides for the release: Play Console, Railway, the move from Firebase, audit
-│   ├── design/             the approved UI design (Claude Design): notes, prototype, mock-ups
+│   ├── google-play/        owner guides for the release: Play Console, Railway, the move from Firebase,
+│   │                       audit, the store listing draft, and assets/ (store graphics and screenshots)
+│   ├── design/             the approved UI design (Claude Design): notes, prototype, mock-ups, and the icon's source
 │   └── planning/           the plan: state, handoff, stories, receipts, review checklist
 ├── CLAUDE.md               working rules for Claude Code sessions
 └── README.md               this file
@@ -89,7 +92,7 @@ needs `http://localhost` or HTTPS, not `file://`.
 
 | Command | What it runs | Needs |
 |---|---|---|
-| `npm test` | The balance maths, group codes, sync status, the outbox, the real service worker against a fake network, the server (files, database, API, live updates) and the page's client in-process on 127.0.0.1 with a temporary database, the move script against fake Firestore answers, and checks that the page, worker, server and `Dockerfile` agree | Node 24 (for `node:sqlite`); no install, no network |
+| `npm test` | The balance maths, group codes, sync status, the outbox, the recent-groups list, the real service worker against a fake network, the server (files, database, API, live updates) and the page's client in-process on 127.0.0.1 with a temporary database, the move script against fake Firestore answers, and checks that the page, worker, server and `Dockerfile` agree | Node 24 (for `node:sqlite`); no install, no network |
 
 ## Deploying
 

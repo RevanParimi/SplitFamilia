@@ -84,3 +84,9 @@ test("syncing that stopped for good wins over everything else", function(){
   assert.equal(status({ failed: true }), "not syncing");
   assert.equal(status({ failed: true, online: false, pending: 2 }), "not syncing");
 });
+
+test("SF-022: an edit another phone got to first, or that doesn't fit, says so in plain words", function(){
+  assert.equal(friendlyError({ code: "failed-precondition", field: "gone" }, "expense-edit"),
+    "Someone else changed or deleted it first, so this edit wasn't saved.");
+  assert.equal(friendlyError({ code: "failed-precondition", field: "group-full" }, "expense-edit"), "This group is full: it can't take more expenses.");
+});

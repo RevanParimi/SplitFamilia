@@ -19,13 +19,22 @@ export function outcome(status){
 }
 
 // A group as the page shows it: { currency, version, people: [{ id, name }], expenses: [{ id,
-// date, desc, amountPaise, paidBy, split }] }. applyChange returns a new group with one change
-// made, as the server would make it: an ID already there is left as it is, and deleting what
-// isn't there changes nothing. `mark` is copied onto a row the change adds (the page marks rows
-// that are still waiting).
+// date, desc, amountPaise, paidBy, split }] }, a settle-up's expense with kind: "settlement".
+// applyChange returns a new group with one change made, as the server would make it: an ID
+// already there is left as it is, deleting what isn't there changes nothing, and an edit of an
+// expense that isn't there changes nothing (the server refuses it). `mark` is copied onto a row
+// the change adds (the page marks rows that are still waiting).
 export function applyChange(group, change, mark){
   const out = { currency: group.currency, version: group.version, people: group.people.slice(), expenses: group.expenses.slice() };
   const has = function(list, id){ return list.some(function(x){ return x.id === id; }); };
+  const expenseRow = function(){
+    const row = {
+      id: change.id, date: change.date, desc: change.desc, amountPaise: change.amountPaise,
+      paidBy: change.paidBy, split: change.split.slice()
+    };
+    if(change.settlement === true) row.kind = "settlement";
+    return Object.assign(row, mark);
+  };
   switch(change.kind){
     case "group":
       out.currency = change.currency;
@@ -37,11 +46,13 @@ export function applyChange(group, change, mark){
       out.people = out.people.filter(function(p){ return p.id !== change.id; });
       break;
     case "expense":
-      if(!has(out.expenses, change.id)){
-        out.expenses.push(Object.assign({
-          id: change.id, date: change.date, desc: change.desc, amountPaise: change.amountPaise,
-          paidBy: change.paidBy, split: change.split.slice()
-        }, mark));
+      if(!has(out.expenses, change.id)) out.expenses.push(expenseRow());
+      break;
+    case "expense-edit":
+      // The edited expense takes the old one's place under its new ID (SF-022).
+      if(!has(out.expenses, change.id) && has(out.expenses, change.replaces)){
+        out.expenses = out.expenses.filter(function(e){ return e.id !== change.replaces; });
+        out.expenses.push(expenseRow());
       }
       break;
     case "expense-delete":
@@ -173,7 +184,8 @@ export function memoryStore(){
     },
     remove: async function(key){ outbox.delete(key); },
     getCopy: async function(code){ return copies.has(code) ? clone(copies.get(code)) : null; },
-    putCopy: async function(code, group){ copies.set(code, clone(group)); }
+    putCopy: async function(code, group){ copies.set(code, clone(group)); },
+    deleteCopy: async function(code){ copies.delete(code); }
   };
 }
 
@@ -215,7 +227,10 @@ export function openBrowserStore(idb){
       getCopy: function(code){
         return run("copies", "readonly", function(s){ return s.get(code); }).then(function(v){ return v ? v.group : null; });
       },
-      putCopy: function(code, group){ return run("copies", "readwrite", function(s){ s.put({ code: code, group: group }); }); }
+      putCopy: function(code, group){ return run("copies", "readwrite", function(s){ s.put({ code: code, group: group }); }); },
+      // "Remove from this device" (SF-029) drops the phone's copy of that group. Its waiting
+      // changes stay in the outbox and are still sent.
+      deleteCopy: function(code){ return run("copies", "readwrite", function(s){ s.delete(code); }); }
     };
   }
 }

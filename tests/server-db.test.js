@@ -47,7 +47,72 @@ test("migrations run once: a second start changes nothing and keeps the data", f
   assert.equal(versions[0].version, SCHEMA_VERSION);
   assert.deepEqual(tables(ledger), before);
   assert.deepEqual(ledger.readGroup("goa-trip-2026").people, [{ id: "asha", name: "Asha" }]);
-  assert.equal(SCHEMA_VERSION, 1);
+  assert.equal(SCHEMA_VERSION, 2);
+});
+
+test("migration 2 (SF-023) adds settle-ups to a version-1 database and keeps every expense as it was", function(){
+  // A database as T-08 and T-09 made it: migration 1 only, with an expense in it.
+  const { DatabaseSync } = process.getBuiltinModule("node:sqlite");
+  ledger = openLedger(file);
+  ledger.setCurrency("g", "₹");
+  ledger.addPerson("g", { id: "asha", name: "Asha" });
+  ledger.addPerson("g", { id: "ben", name: "Ben" });
+  ledger.addExpense("g", expense());
+  ledger.close();
+  ledger = null;
+  const raw = new DatabaseSync(file);
+  raw.exec("ALTER TABLE expenses DROP COLUMN kind; UPDATE schema_version SET version = 1;");
+  assert.deepEqual(raw.prepare("SELECT name FROM pragma_table_info('expenses') WHERE name = 'kind'").all(), []);
+  raw.close();
+  ledger = openLedger(file);
+  assert.equal(ledger.query("SELECT version FROM schema_version")[0].version, 2);
+  // The old expense reads back exactly as before: no kind.
+  assert.deepEqual(ledger.readGroup("g").expenses, [expense()]);
+  assert.equal(ledger.groupVersion("g"), 4);
+  // A server from before migration 2 adds expenses without the column: they are ordinary ones.
+  ledger.query("INSERT INTO expenses (group_code, id, date, description, amount_paise, paid_by, created_at) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id",
+    ["g", "old-code", "2026-09-30T06:00:00.000Z", "Tea", 1000, "ben", "2026-10-01T00:00:00.000Z"]);
+  assert.equal(ledger.readGroup("g").expenses[1].kind, undefined);
+  // Only 'settlement' fits the column.
+  assert.throws(function(){
+    ledger.query("UPDATE expenses SET kind = 'gift' WHERE id = ? RETURNING id", ["e1"]);
+  }, /CHECK constraint failed/);
+});
+
+test("a settle-up keeps its kind, and an ordinary expense has none", function(){
+  ledger = openLedger(file);
+  ledger.setCurrency("g", "₹");
+  ledger.addPerson("g", { id: "asha", name: "Asha" });
+  ledger.addPerson("g", { id: "ben", name: "Ben" });
+  ledger.addExpense("g", expense());
+  assert.deepEqual(ledger.addExpense("g", expense({ id: "pay1", desc: "Payment", amountPaise: 10000, paidBy: "ben", split: ["asha"], kind: "settlement" })), { added: true, version: 5 });
+  const [e1, pay1] = ledger.readGroup("g").expenses;
+  assert.equal("kind" in e1, false);
+  assert.deepEqual(pay1, { id: "pay1", date: "2026-09-29T06:30:00.000Z", desc: "Payment", amountPaise: 10000, paidBy: "ben", split: ["asha"], kind: "settlement" });
+  assert.deepEqual(ledger.query("SELECT id, kind FROM expenses ORDER BY rowid").map(function(r){ return [r.id, r.kind]; }), [["e1", null], ["pay1", "settlement"]]);
+});
+
+test("an edit (SF-022) marks the old expense deleted and adds the new one, in one version step", function(){
+  ledger = openLedger(file);
+  ledger.setCurrency("g", "₹");
+  ledger.addPerson("g", { id: "asha", name: "Asha" });
+  ledger.addPerson("g", { id: "ben", name: "Ben" });
+  ledger.addExpense("g", expense());
+  assert.equal(ledger.groupVersion("g"), 4);
+  const edited = expense({ id: "e1-v2", amountPaise: 32550, split: ["asha", "ben"] });
+  assert.equal(ledger.expenseLive("g", "e1"), true);
+  assert.deepEqual(ledger.replaceExpense("g", "e1", edited), { replaced: true, version: 5 });
+  assert.deepEqual(ledger.readGroup("g").expenses, [edited]);
+  assert.equal(ledger.expenseLive("g", "e1"), false);
+  assert.equal(ledger.expenseExists("g", "e1"), true);
+  // The same edit again, or another edit of the old one, changes nothing.
+  assert.deepEqual(ledger.replaceExpense("g", "e1", edited), { replaced: false, version: 5 });
+  assert.deepEqual(ledger.replaceExpense("g", "e1", expense({ id: "e1-v3", amountPaise: 1 })), { replaced: false, version: 5 });
+  assert.equal(ledger.expenseExists("g", "e1-v3"), false);
+  // Both rows count towards the limits: 2 expenses, 4 split entries.
+  assert.equal(ledger.expenseCount("g"), 2);
+  assert.equal(ledger.splitEntryCount("g"), 4);
+  assert.deepEqual(ledger.readGroup("g").expenses.map(function(e){ return e.amountPaise; }), [32550]);
 });
 
 test("a round trip keeps whole paise exactly, stored as integers", function(){

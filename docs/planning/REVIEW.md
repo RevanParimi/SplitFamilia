@@ -55,7 +55,13 @@ These are the starting set. Adjust them as stories are written.
   deterministic member, the same on every phone.
 - **All balances in a group sum to zero.** Following the suggested settlements brings every
   balance to exactly zero.
-- **Edits and deletes recompute balances everywhere,** and no expense is counted twice.
+- **Edits and deletes recompute balances everywhere,** and no expense is counted twice. An edit
+  (T-04) replaces the expense under a new ID; an edit of an expense another phone already
+  deleted or edited is refused (409 `gone`), and a resent edit adds nothing.
+- **A settle-up only records a payment made outside the app** (`kind: "settlement"`, paid to
+  exactly one other person). The app never moves money.
+- **No pop-ups for form checks (T-04):** messages go under their fields or in the one message
+  bar; deleting an expense or removing a person asks first, naming it.
 - **Access:** a group's data is readable and writable only through the server's API, by whoever
   has its code. The group link or code is a capability: treat it like a password.
 - **The server's API (from T-08):** a request is answered only for a valid code sent in the

@@ -2,16 +2,22 @@
 
 ## The project today
 
-- A shared-expense ledger for a family trip ("Splitsheet"): track who paid what and who owes whom.
+- A shared-expense ledger for a family trip (SplitFamilia, first called "Splitsheet"): track who
+  paid what and who owes whom.
 - **Stack:** one static page, `index.html` (HTML, CSS, a small classic start-up script and a
-  `<script type="module">`), plus six modules with no imports of their own:
+  `<script type="module">`), plus seven modules with no imports of their own:
   - `money.js` (the balance maths, in whole paise);
   - `group-code.js` (checking group codes, making new ones, reading invite links, and the
     "moved" link for the old GitHub Pages address);
   - `sync-status.js` (the sync status and plain error messages);
   - `ledger-rules.js` (the limits, shared with the server);
   - `ledger-client.js` (reading a group, sending a change, the live connection);
-  - `outbox.js` (the phone's copy of its group in IndexedDB, and the changes waiting to sync).
+  - `outbox.js` (the phone's copy of its group in IndexedDB, and the changes waiting to sync);
+  - `recent-groups.js` ("Your groups": the groups opened on this phone, and the page's dates).
+
+  The UI follows the approved design (`docs/design/DESIGN_NOTES.md`, T-04's SF-028): sheets
+  (`<dialog>`), a group menu, a guide for new groups, confirmations before deleting, and form
+  errors under their fields (no `alert()`).
 
   Also `manifest.json` and `service-worker.js` (a PWA; its cache is named `splitsheet-vN`, the
   page imports the modules as `./name.js?v=N` with the same N; it never touches `/api/`). No
@@ -23,7 +29,9 @@
   - The group code travels in the `X-Group-Code` header, never in a URL. The server logs at most
     a method, a status and an error code.
   - The data is in SQLite (`server/db.js`): whole paise; deletes only mark a row deleted; a
-    repeated ID is ignored. The file is on the Railway volume, or in `data/` locally
+    repeated ID is ignored; an edit (`PUT /api/expenses/<id>`, SF-022) marks the old expense
+    deleted and adds the new one under a new ID; a settle-up is an expense marked
+    `kind: "settlement"` (SF-023, migration 2). The file is on the Railway volume, or in `data/` locally
     (git-ignored).
   - Limits (`ledger-rules.js`, D-17, D-18): 100 people and a split of 100; 5,000 expenses and
     20,000 split entries per group (deleted ones included); per address, 30 unknown codes and
@@ -32,8 +40,10 @@
   - `POST /api/import` (SF-037) exists only while Railway's `IMPORT_TOKEN` is set; the copy
     from Firestore is `scripts/move-from-firestore.mjs` (not shipped).
   - `/healthz` answers 503 when the database can't be opened.
-  - **T-09 (the page on this server) is implemented but not yet switched over**: until the
-    owner runs `docs/google-play/MOVE_FROM_FIREBASE.md`, the live page still uses Firestore.
+  - **The switch-over is done (T-09, 2026-10-01 about 00:35 IST):** the live page uses this
+    server, and the family's groups were copied and checked to the paisa. Firestore stays
+    read-only until the safety period ends (`docs/google-play/MOVE_FROM_FIREBASE.md` step 8,
+    PC-008).
 - **Hosting files (SF-011, SF-031):** `Dockerfile` (`node:24.21.0-alpine`, only the app's files
   and `server/`), `.dockerignore`, `railway.json` (health check `/healthz`) and
   `.well-known/assetlinks.json`. A new file the page or the server needs must be added to the
@@ -43,12 +53,13 @@
   the top level. Keep it current when a file is added or moved. The approved UI design is in
   `docs/design/` (see its README).
 - **Firebase is gone from the repo (T-09, SF-038):** no rules, settings, SDK or emulator tests;
-  `npm test` checks that nothing shipped mentions it. The live Firestore project remains until
-  the switch-over's last step (`docs/google-play/MOVE_FROM_FIREBASE.md`, a two-push plan: the
-  server's part, the copy, then the page's part).
+  `npm test` checks that nothing shipped mentions it. The old Firestore project remains,
+  read-only, until the switch-over's last step (`docs/google-play/MOVE_FROM_FIREBASE.md` step 8:
+  the owner deletes it after the 7-day safety period).
 - **Data:** SQLite on the Railway volume, through the server's API (D-13). Money is whole paise
   (`amountPaise`). The phone keeps a copy of its group and its waiting changes in IndexedDB
-  (`outbox.js`); `localStorage` keeps only the current group (`splitsheet-group`). A group can
+  (`outbox.js`); `localStorage` keeps the current group (`splitsheet-group`) and "Your groups"
+  (`splitfamilia-recent`, up to 20 codes with their last-opened times; SF-029). A group can
   also come from the URL (`?g=<code>`).
 - **Run it:** `npm start` (the server, as on Railway: page, API and `/healthz` on
   http://localhost:8080, database in `data/`; restart it after editing a page file). The page
@@ -57,7 +68,8 @@
   `node:sqlite`; run on Node 24.21), and no `npm install` or network. There are no
   dependencies at all.
   - `tests/money.test.js`, `tests/group-code.test.js`, `tests/sync-status.test.js`,
-    `tests/ledger-rules.test.js` and `tests/outbox.test.js` cover the pure modules.
+    `tests/ledger-rules.test.js`, `tests/outbox.test.js` and `tests/recent-groups.test.js` cover
+    the pure modules.
   - `tests/service-worker.test.js` runs the real worker against a fake cache and network.
   - `tests/server-*.test.js` and `tests/page-client.test.js` run the real server in-process on
     127.0.0.1, with a temporary database (`tests/helpers/test-server.js`): files, database, API,
@@ -74,8 +86,8 @@
   - There is no Android project yet. SF-012 wraps the hosted PWA in a Trusted Web Activity.
   - The web app is hosted on **Railway** (`https://splitfamilia.up.railway.app`), like
     `../StockAgent-main`. GitHub Pages (`https://revanparimi.github.io/SplitFamilia/`) still
-    serves a copy until the switch-over's last step; a push to `main` updates both. After T-09's
-    page ships, the copy there only shows "SplitFamilia has moved".
+    publishes each push to `main` until the switch-over's last step. Since T-09's push B its page
+    only shows "SplitFamilia has moved", with a button to the same group on Railway.
 - **Product direction:** ship with good features and a good-looking UI, then keep improving after
   the Play release. Aim for solid, not high-end. Because the app is a TWA, web deploys update the
   Android app without a new Play upload.

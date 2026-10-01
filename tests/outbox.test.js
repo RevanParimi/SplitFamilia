@@ -246,3 +246,77 @@ test("money.js reads back exactly the server's paise for every amount allowed", 
   }
   assert.deepEqual(bad, []);
 });
+
+// ---------- SF-022 and SF-023: edits and settle-ups on the phone ----------
+
+const editOf = function(oldId, newId, paise, paidBy, split){
+  return Object.assign(expense(newId, paise, paidBy, split), { kind: "expense-edit", replaces: oldId });
+};
+const row = function(e){ return { id: e.id, date: e.date, desc: e.desc, amountPaise: e.amountPaise, paidBy: e.paidBy, split: e.split }; };
+
+test("an edit takes the old expense's place under its new ID, as the server makes it", function(){
+  const g = { currency: "₹", version: 4, people: [{ id: "asha", name: "Asha" }, { id: "ben", name: "Ben" }],
+    expenses: [row(expense("tea", 1000, "asha", ["asha", "ben"])), row(expense("taxi", 25000, "ben", ["asha", "ben"]))] };
+  const next = applyChange(g, editOf("tea", "tea-v2", 1250, "asha", ["asha", "ben"]), { waiting: true });
+  assert.deepEqual(next.expenses.map(function(e){ return [e.id, e.amountPaise, Boolean(e.waiting)]; }), [["taxi", 25000, false], ["tea-v2", 1250, true]]);
+  assert.equal(next.version, 4);
+  assert.deepEqual(g.expenses.map(function(e){ return e.id; }), ["tea", "taxi"]);
+  // The same edit again, or an edit of an expense that isn't there (the server refuses it), changes nothing.
+  assert.deepEqual(applyChange(next, editOf("tea", "tea-v2", 1250, "asha", ["asha", "ben"])), next);
+  assert.deepEqual(applyChange(g, editOf("gone", "gone-v2", 5, "asha", ["asha"])), g);
+});
+
+test("an offline edit counts as a waiting change, and balances move by exactly the difference (SF-022)", async function(){
+  // By hand: Tea ₹10.00 by Asha split Asha and Ben: Asha +500, Ben −500. Edited offline to
+  // ₹12.50: Asha +1250 − 625 = +625, Ben −625. A difference of ₹2.50, half each: 125 paise.
+  const server = fakeServer();
+  server.online = false;
+  const { box } = setup(server);
+  const copy = { currency: "₹", version: 4, people: [{ id: "asha", name: "Asha" }, { id: "ben", name: "Ben" }],
+    expenses: [row(expense("tea", 1000, "asha", ["asha", "ben"]))] };
+  const before = Object.fromEntries(computeBalances(copy.people, forBalances(copy.expenses)));
+  assert.deepEqual(before, { asha: 500, ben: -500 });
+  await box.add(editOf("tea", "tea-v2", 1250, "asha", ["asha", "ben"]));
+  assert.equal((await box.flush()).state, "wait");
+  assert.equal(box.count(CODE), 1);
+  const view = overlay(copy, box.changes(), CODE);
+  const after = Object.fromEntries(computeBalances(view.people, forBalances(view.expenses)));
+  assert.deepEqual(after, { asha: 625, ben: -625 });
+  assert.equal(after.asha - before.asha, 125);
+  assert.equal(after.asha + after.ben, 0);
+  // Counted once: only the edited expense is in the view.
+  assert.deepEqual(view.expenses.map(function(e){ return e.id; }), ["tea-v2"]);
+});
+
+test("an expense added and then edited while offline waits as 2 changes and shows once", function(){
+  const add = expense("cab", 30000, "ben", ["asha", "ben"]);
+  const view = overlay(null, [person("asha", "Asha"), person("ben", "Ben"), add, editOf("cab", "cab-v2", 33000, "ben", ["asha", "ben"])], CODE);
+  assert.deepEqual(view.expenses.map(function(e){ return [e.id, e.amountPaise, e.waiting]; }), [["cab-v2", 33000, true]]);
+});
+
+test("a settle-up (SF-023) is marked on the phone as on the server, and brings the balances to 0", function(){
+  // By hand: ₹200.00 by Asha split Asha and Ben: Ben owes Asha ₹100.00. Ben pays ₹40.00, then ₹60.00.
+  const settle = function(id, paise){ return Object.assign(expense(id, paise, "ben", ["asha"]), { desc: "Payment", settlement: true }); };
+  const base = [person("asha", "Asha"), person("ben", "Ben"), expense("hotel", 20000, "asha", ["asha", "ben"])];
+  let view = overlay(null, base.concat([settle("pay1", 4000)]), CODE);
+  assert.equal(view.expenses[1].kind, "settlement");
+  assert.equal("kind" in view.expenses[0], false);
+  assert.equal("settlement" in view.expenses[1], false);
+  assert.deepEqual(Object.fromEntries(computeBalances(view.people, forBalances(view.expenses))), { asha: 6000, ben: -6000 });
+  view = overlay(null, base.concat([settle("pay1", 4000), settle("pay2", 6000)]), CODE);
+  assert.deepEqual(Object.fromEntries(computeBalances(view.people, forBalances(view.expenses))), { asha: 0, ben: 0 });
+  // An edit of a settle-up keeps it one.
+  view = overlay(null, base.concat([settle("pay1", 4000), Object.assign(editOf("pay1", "pay1-v2", 10000, "ben", ["asha"]), { settlement: true })]), CODE);
+  assert.deepEqual(view.expenses.map(function(e){ return [e.id, e.kind]; }), [["hotel", undefined], ["pay1-v2", "settlement"]]);
+});
+
+test("the store forgets a group's copy when asked (SF-029's 'Remove from this device'), and nothing else", async function(){
+  const store = memoryStore();
+  await store.putCopy("a-group", { currency: "₹", version: 1, people: [], expenses: [] });
+  await store.putCopy("b-group", { currency: "$", version: 2, people: [], expenses: [] });
+  await store.add(person("asha", "Asha"));
+  await store.deleteCopy("a-group");
+  assert.equal(await store.getCopy("a-group"), null);
+  assert.equal((await store.getCopy("b-group")).currency, "$");
+  assert.equal((await store.loadOutbox()).length, 1);
+});

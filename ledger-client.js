@@ -54,7 +54,11 @@ export async function getGroup(code, options){
 // - { kind: "group", code, currency }                  → PUT /api/group (creates a new group)
 // - { kind: "person", code, id, name }                 → POST /api/people
 // - { kind: "person-delete", code, id }                → DELETE /api/people/<id>
-// - { kind: "expense", code, id, date, desc, amountPaise, paidBy, split } → POST /api/expenses
+// - { kind: "expense", code, id, date, desc, amountPaise, paidBy, split } → POST /api/expenses;
+//   with settlement: true for a settle-up (SF-023), sent as kind: "settlement"
+// - { kind: "expense-edit", code, replaces, id, date, desc, amountPaise, paidBy, split } (SF-022)
+//   → PUT /api/expenses/<replaces>, the edited expense under its new ID `id`; settlement: true
+//   as above
 // - { kind: "expense-delete", code, id }               → DELETE /api/expenses/<id>
 // Other fields a change carries (such as `key` or a deleted row's name for messages) are not sent.
 export function changeRequest(change){
@@ -62,12 +66,19 @@ export function changeRequest(change){
     case "group": return { method: "PUT", path: GROUP_PATH, body: { currency: change.currency } };
     case "person": return { method: "POST", path: "/api/people", body: { id: change.id, name: change.name } };
     case "person-delete": return { method: "DELETE", path: "/api/people/" + encodeURIComponent(change.id) };
-    case "expense": return { method: "POST", path: "/api/expenses", body: {
-      id: change.id, date: change.date, desc: change.desc, amountPaise: change.amountPaise, paidBy: change.paidBy, split: change.split
-    } };
+    case "expense": return { method: "POST", path: "/api/expenses", body: expenseBody(change) };
+    case "expense-edit": return { method: "PUT", path: "/api/expenses/" + encodeURIComponent(change.replaces), body: expenseBody(change) };
     case "expense-delete": return { method: "DELETE", path: "/api/expenses/" + encodeURIComponent(change.id) };
     default: throw new Error("unknown change");
   }
+}
+
+function expenseBody(change){
+  const body = {
+    id: change.id, date: change.date, desc: change.desc, amountPaise: change.amountPaise, paidBy: change.paidBy, split: change.split
+  };
+  if(change.settlement === true) body.kind = "settlement";
+  return body;
 }
 
 // Sends one change. → { status, body, retryAfter }, as request().

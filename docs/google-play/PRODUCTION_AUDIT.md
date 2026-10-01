@@ -43,6 +43,21 @@ T-09 (implemented 2026-09-30; not yet reviewed or switched over) changes these f
 - **Local storage:** the phone keeps a copy of its group and its waiting changes in IndexedDB
   (`outbox.js`); `localStorage` still holds only the current group's code.
 
+T-04 (implemented 2026-10-01 IST; not yet reviewed or deployed) changes these for SF-021:
+- **Local storage and "Logout":** `localStorage` also keeps "Your groups"
+  (`splitfamilia-recent`, `recent-groups.js`): up to 20 group codes opened on this phone, each
+  with its last-opened time. "Switch group" no longer forgets the group; it goes back to that
+  list. "Remove from this device" takes one group off the list and deletes the phone's copy of
+  it; the group on the server is untouched. The Data safety answers (SF-016) and the privacy
+  policy (SF-017) must say so.
+- **Payments:** a settle-up ("Ben paid Asha ₹100") only records a payment made outside the app
+  (an expense marked `kind: "settlement"`); the app never moves money (SF-016's financial
+  features answer).
+- **Error handling:** form checks are shown under their fields; the page has no `alert()` left.
+  The only pop-up is the browser's own "Copy this link" box, if copying to the clipboard fails.
+- **Database:** migration 2 adds the `kind` column. An edit marks the old expense deleted and
+  adds the new one, so each edit counts towards the 5,000-expense and 20,000-entry limits.
+
 A row counts as fixed only once its task is reviewed and deployed. SF-021 re-checks every row.
 
 Statuses:
