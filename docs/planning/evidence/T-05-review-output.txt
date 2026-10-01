@@ -1,0 +1,135 @@
+T-05 fresh-session review: key outputs, 2026-10-02 about 00:50-01:20 IST.
+<scratch> is the session scratchpad (outside the repo and OneDrive); deleted at the end.
+Passwords were random, read from files and never printed; the keys and password files were
+deleted (0 left). Nothing here is a secret.
+
+== R1 Input (Node, the receipt's 29 hashes) =====================================================
+29 of 29 files: OK (the files on disk, LF except the PNG)
+android/ tree, 40 files:
+  as "hash  file" (coreutils on Linux):   be299b878ef5e7af8c119fe3b0772292c83e6e176cd2eb0e2acd7d32566fac0d
+  as "hash *file" (Git Bash sha256sum):   f1fae0f5353dabe1827b4eaf87cb04abea7ba4b44f9a3b7d4e9392b9e4b5105c  MATCH (receipt)
+Re-run after the break checks and builds: unchanged; git status 26 entries, as at the start;
+no android/build, android/.gradle or android/keystore.properties in the repo.
+
+== R2 npm test (repo, Node 24.21.0) =============================================================
+ℹ tests 219
+ℹ pass 219
+ℹ fail 0
+
+== R3 Break checks (node docs/planning/evidence/T-05-break-checks.mjs) =========================
+baseline: tests/android.test.js exit 0, 0 failing
+CAUGHT K1 ... CAUGHT K13 (each: 1 test failed)
+13/13 breaks caught; after restoring: exit 0, 0 failing
+
+== R4 Clean clone (git clone of HEAD cc489a5, the 65 uncommitted files laid over it and committed
+==    in that scratch clone only, then cloned again; core.autocrlf=true from Git's system config)
+git status --short: (empty)
+gradlew CRLF? False   gradlew.bat CRLF? True   shortcuts.xml CRLF? False   build.gradle CRLF? True
+npm ci: up to date, audited 1 package; found 0 vulnerabilities
+npm test (CRLF checkout): tests 219, pass 219, fail 0
+
+== R5 Gradle in the clone (ANDROID_HOME set per process; JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true)
+gradlew clean          BUILD SUCCESSFUL in 11s
+gradlew lintRelease    BUILD SUCCESSFUL in 33s
+  lint-results-release.xml: Warning 15 (UnusedAttribute 1, SourceLockedOrientationActivity 1,
+  UnusedResources 7, IconLauncherShape 5, MonochromeLauncherIcon 1); errors 0
+  No "compileSdk" / "tested up to" warning from the Android Gradle plugin 8.9.1 in any log.
+
+== R6 Signing: failures (bundleRelease unless named) ============================================
+S1 no key, bundleRelease:   exit 1  "SplitFamilia release signing: no upload key: set the
+   SPLITFAMILIA_UPLOAD_* environment variables, or copy android/keystore.properties.example to
+   android/keystore.properties and fill it in. See docs/google-play/BUILD_RELEASE.md. (The release
+   build never uses the debug key.)"  BUILD FAILED in 2s
+S1 no key, assembleRelease: exit 1  the same message
+S2 only SPLITFAMILIA_UPLOAD_STORE_FILE set: exit 1  "... set all four upload-key environment
+   variables (missing: SPLITFAMILIA_UPLOAD_STORE_PASSWORD, SPLITFAMILIA_UPLOAD_KEY_ALIAS,
+   SPLITFAMILIA_UPLOAD_KEY_PASSWORD) ..."
+S3 keystore.properties naming C:/nonexistent/review.jks: exit 1  "... the upload keystore file
+   was not found: C:/nonexistent/review.jks ..."
+S3b keystore.properties without keyPassword: exit 1  "... android/keystore.properties is missing
+   keyPassword ..."
+S4 all four variables, wrong password: exit 1  Gradle: "Failed to read key upload from store
+   "<scratch>\rv-keys\review-B.jks": keystore password was incorrect"  BUILD FAILED in 25s;
+   the wrong password does not appear in the log
+S7 no key, packageReleaseUniversalApk: exit 1  the "no upload key" message
+After every failing run: no .aab or .apk under app/build/outputs.
+
+== R7 Signing: which key wins (two throwaway RSA 2048 keys, CN=T05 Review Key A / B, O=Scratch)
+S5a keystore.properties -> key A, the four variables -> key B: BUILD SUCCESSFUL; 2,132,847 bytes
+    jarsigner: - Signed by "CN=T05 Review Key B, O=Scratch"      (the variables win, as SF-013 says)
+S5b keystore.properties -> key A, no variables: BUILD SUCCESSFUL
+    jarsigner: X.509, CN=T05 Review Key A, O=Scratch             (the file is used)
+Either password in any log: False
+git status --short --ignored in the clone: !! android/.gradle/  !! android/app/build/  !! android/build/
+
+== R8 The bundle (guide section 8) ==============================================================
+jarsigner -verify -verbose -certs: jar verified.  Warnings: self-signed; no timestamp; JDK 21's
+  "internal inconsistencies ... JarInputStream" (base/root/DebugProbesKt.bin)
+bundletool 1.18.3 validate: exit 0
+bundletool dump manifest:
+  <manifest ... android:compileSdkVersion="36" ... android:versionCode="1" android:versionName="1.0.0" package="com.splitfamilia.app" ...>
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="36"/>
+  <permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="0x00000002"/>
+  <uses-permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+jar tf: BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map present (guide section 7)
+T-05-android-checks.mjs android: M1-M6, V1-V4, B1-B3, D1-D4 PASS; "all checks passed" (exit 0)
+  D1 base/dex/classes.dex: 1017 classes; D2 all 9 manifest classes kept;
+  D4 super J.h = com.google.androidbrowserhelper.trusted.LauncherActivity; TwaLauncher kept as J.K
+T-05-android-checks.mjs on the S5a bundle (key B): all checks passed
+
+== R9 What resource shrinking removed (app/build/outputs/mapping/release/resources.txt) =========
+"android.content.res.Resources#getIdentifier present: true" (safe mode); 701 unused entries.
+The app's own among them:
+  bool:enableSiteSettingsShortcut      (generation-time switch; not read at run time)
+  color:shortcut_background, drawable:shortcut_legacy_background   (no shortcuts)
+  string:fullScopeUrl                  (Meta Quest builds only)
+  xml:image_share_filepaths            (a library's)
+  raw:web_app_manifest                 <- Bubblewrap's offline copy of the web manifest for
+                                          Chrome OS (bubblewrap issue #88); a stock Bubblewrap
+                                          build (no shrinkResources) keeps it.  F-15
+jar tf on the bundle: no res/raw entry.
+Kept and named by the merged manifest: splash, ic_launcher, assetStatements, webManifestUrl,
+launchUrl, the colours, providerAuthority, fallbackType, orientation.
+
+== R10 Regeneration (npx @bubblewrap/cli@1.25.0 update --skipVersionUpgrade on the clone's
+==     twa-manifest.json alone, in a scratch folder; JDK and SDK from a scratch config.json)
+"Generating Android Project. Project updated successfully." 37 files.
+node docs/planning/evidence/T-05-review-regen-diff.mjs android <scratch>\rv-regen
+ONLY IN REPO   .gitattributes
+DIFFERS        app/build.gradle
+    repo  + // SplitFamilia (SF-013): release shrinking and upload-key signing. Not part of Bubblewrap's
+    repo  + // template: add this line back after `bubblewrap update`.
+    repo  + apply from: 'release.gradle'
+ONLY IN REPO   app/release.gradle
+DIFFERS        app/src/main/res/xml/shortcuts.xml   (regen has Bubblewrap's licence header)
+ONLY IN REPO   keystore.properties.example
+DIFFERS        manifest-checksum.txt
+    repo  + 19959be809202e44829d1f3d89c629b970e5aad7
+    regen + 8874269536bab1307308fdf871c0d59913b36327
+repo 40 files, regen 37 files
+Every icon, splash PNG, the manifest, Java sources and resources: byte-identical (text as LF).
+SHA-1 of twa-manifest.json: LF (repo) 19959be8...  = the committed checksum;
+                            CRLF (Windows checkout) 8874269... = the regenerated checksum.  N-18
+
+== R11 Docs against the code and official pages =================================================
+REVIEWER_ACCESS.md labels in index.html: "Start a new group" 506, "Start group" 642, "Who's sharing
+  costs?" 1187, "Add people" 663, "Add a person" 535, "Add" 625, "Add the first expense" 1188,
+  "Add expense" 571, "What was it for?" 666, "Amount" 671, "Paid by" 677, "Delete" 701,
+  "All settled up." 1219, "Record payment" 725, "Copy invite link" 594, "Balances" 558,
+  "Expenses" 565, the "never moves money" line 721; the "×" is the close button's SVG cross (580).
+  Step 4 by hand: 30,000 paise / 3 = 10,000 each; Asha +20,000, Ben -10,000, Chitra -10,000.
+PLAY_CONSOLE_DECLARATIONS.md cross-check table: all 22 cited file:line ranges hold what the
+  table says (ledger-client.js 9, 66, 67, 69-70; ledger-rules.js 66-70, 73-77, 84-100;
+  server/db.js 28-33, 34-41, 42-64, 122, 143; server/api.js 41, 49-55, 129-135, 251, 372-378,
+  439; index.html 15-16, 873, 1390; recent-groups.js 7; outbox.js 198-202).
+Official pages re-checked 2026-10-02 IST:
+  developer.android.com/google/play/requirements/target-sdk: "Starting August 31 2026: New apps
+    and app updates must target Android 16 (API level 36) or higher" (extension to 2026-11-01).
+  support.google.com/googleplay/android-developer/answer/9842756: "automatically enrolled in
+    quantum-ready, hybrid signing"; "you must copy the fingerprints for three keys and register
+    each of them"; "Protected with Play > Play Store distribution > Go to Play app signing".
+  answer/13849271: the option "My app doesn't provide any financial features"; five categories.
+  answer/9859455: the App content list includes COVID-19 contact tracing and status apps.
+  docs.railway.com/guides/logs: HTTP logs hold @srcIp and @clientUa; Pro keeps 30 days.
+Personal data scan (android/, the T-05 evidence, the four new docs, tests/android.test.js): no
+  name, email, local user path or key; only the break check's deliberate fake "hunter2hunter2".

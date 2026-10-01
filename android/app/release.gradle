@@ -1,0 +1,84 @@
+// SplitFamilia's release build: shrinking and upload-key signing (SF-013).
+//
+// Applied from the end of app/build.gradle. It lives in its own file because `bubblewrap update`
+// rewrites build.gradle; after an update, add the `apply from: 'release.gradle'` line back
+// (docs/google-play/BUILD_RELEASE.md, "Regenerating the project").
+//
+// The upload key never lives in this repository. A release build reads it from, in this order:
+//   1. the environment variables SPLITFAMILIA_UPLOAD_STORE_FILE, SPLITFAMILIA_UPLOAD_STORE_PASSWORD,
+//      SPLITFAMILIA_UPLOAD_KEY_ALIAS and SPLITFAMILIA_UPLOAD_KEY_PASSWORD (all four, if any is set);
+//   2. otherwise android/keystore.properties (git-ignored; start from keystore.properties.example).
+// Without a complete key, every release packaging task stops with a message. A release build
+// never falls back to the debug key. Debug builds keep the debug key and need nothing.
+
+def UPLOAD_KEY_ENV = [
+    storeFile: 'SPLITFAMILIA_UPLOAD_STORE_FILE',
+    storePassword: 'SPLITFAMILIA_UPLOAD_STORE_PASSWORD',
+    keyAlias: 'SPLITFAMILIA_UPLOAD_KEY_ALIAS',
+    keyPassword: 'SPLITFAMILIA_UPLOAD_KEY_PASSWORD',
+]
+
+// Returns [values: [...]] or [error: '...']. Never puts a password in a message.
+def readUploadKey = {
+    def values
+    def env = UPLOAD_KEY_ENV.collectEntries { key, name -> [(key): System.getenv(name)?.trim()] }
+    if (env.values().any { it }) {
+        def missing = UPLOAD_KEY_ENV.findAll { key, name -> !env[key] }.values()
+        if (missing) {
+            return [error: "set all four upload-key environment variables (missing: ${missing.join(', ')})"]
+        }
+        values = env
+    } else {
+        def file = rootProject.file('keystore.properties')
+        if (!file.exists()) {
+            return [error: 'no upload key: set the SPLITFAMILIA_UPLOAD_* environment variables, or ' +
+                    'copy android/keystore.properties.example to android/keystore.properties and fill it in']
+        }
+        def props = new Properties()
+        file.withInputStream { props.load(it) }
+        values = UPLOAD_KEY_ENV.keySet().collectEntries { key -> [(key): props.getProperty(key)?.trim()] }
+        def missing = values.findAll { key, value -> !value }.keySet()
+        if (missing) {
+            return [error: "android/keystore.properties is missing ${missing.join(', ')}"]
+        }
+    }
+    if (!rootProject.file(values.storeFile).isFile()) {
+        return [error: "the upload keystore file was not found: ${values.storeFile}"]
+    }
+    return [values: values]
+}
+
+def uploadKey = readUploadKey()
+
+android {
+    if (uploadKey.values) {
+        signingConfigs {
+            upload {
+                storeFile rootProject.file(uploadKey.values.storeFile)
+                storePassword uploadKey.values.storePassword
+                keyAlias uploadKey.values.keyAlias
+                keyPassword uploadKey.values.keyPassword
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            signingConfig uploadKey.values ? signingConfigs.upload : null
+        }
+    }
+}
+
+// The tasks that make or install a release APK or AAB. Lint and compile tasks are not here, so
+// `gradlew lintRelease` runs without a key.
+def RELEASE_PACKAGING_TASKS = ['assembleRelease', 'bundleRelease', 'packageRelease',
+                               'packageReleaseBundle', 'signReleaseBundle', 'installRelease']
+
+gradle.taskGraph.whenReady { graph ->
+    def wanted = graph.allTasks.findAll { it.project == project && it.name in RELEASE_PACKAGING_TASKS }
+    if (wanted && uploadKey.error) {
+        throw new GradleException("SplitFamilia release signing: ${uploadKey.error}. " +
+                'See docs/google-play/BUILD_RELEASE.md. (The release build never uses the debug key.)')
+    }
+}

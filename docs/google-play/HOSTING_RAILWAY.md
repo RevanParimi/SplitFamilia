@@ -152,17 +152,20 @@ After the T-08 push (pending check PC-005): `https://<host>/healthz` answers 200
 3a, and the family group opens exactly as before. The page itself doesn't change in T-08, so
 phones see no difference.
 
-## 5. The Android fingerprints (later, in T-05 and after the first Play upload)
+## 5. The Android fingerprints (after you create the upload key, and after the first Play upload)
 
-`assetlinks.json` holds two placeholders. Both values are public, not secret:
+`assetlinks.json` holds two placeholders. The values are public, not secret. The exact steps
+are in [BUILD_RELEASE.md](BUILD_RELEASE.md), section 9:
 
 - `<UPLOAD_KEY_SHA256>`: the SHA-256 fingerprint of your upload key, from
-  `keytool -list -v -keystore <your upload keystore>`. SF-013 explains how.
+  `keytool -list -v -keystore <your upload keystore> -alias upload`.
 - `<PLAY_APP_SIGNING_SHA256>`: the SHA-256 fingerprint of the key Google signs the app with.
-  **VERIFY IN PLAY CONSOLE:** after the first upload, it is under your app → **Test and release
-  → App integrity → App signing**.
+  A new app gets Play's "quantum-ready, hybrid signing", and Play then lists **three** keys to
+  register; list every fingerprint it shows (checked 2026-10-01 IST). **VERIFY IN PLAY
+  CONSOLE:** after the first upload, under **Protected with Play → Play Store distribution → Go
+  to Play app signing** (older guides say Test and release → App integrity → App signing).
 
-Until both are real, the Android app shows a browser address bar at the top. SF-021's final
+Until they are real, the Android app shows a browser address bar at the top. SF-021's final
 audit fails the release while a placeholder remains. A change to this file deploys like any
 other (a push to `main`).
 

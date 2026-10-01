@@ -219,8 +219,11 @@ test("assetlinks.json names the Android app, with real or clearly marked fingerp
   assert.equal(links[0].target.namespace, "android_app");
   assert.equal(links[0].target.package_name, "com.splitfamilia.app");
   // Each is a placeholder such as <UPLOAD_KEY_SHA256> or a real SHA-256 fingerprint (AB:CD:…).
-  // SF-021 fails the release while a placeholder remains.
+  // SF-021 fails the release while a placeholder remains. The upload key's, plus Play's app
+  // signing keys: a new app gets quantum-ready hybrid signing, and Play then lists three keys
+  // to register (T-05, BUILD_RELEASE.md), so up to five.
   const prints = links[0].target.sha256_cert_fingerprints;
-  assert.equal(prints.length, 2);
+  assert.ok(prints.length >= 2 && prints.length <= 5, prints.length + " fingerprints");
+  assert.equal(new Set(prints).size, prints.length, "a fingerprint is listed twice");
   prints.forEach(function(p){ assert.match(p, /^(<[A-Z0-9_]+>|([0-9A-F]{2}:){31}[0-9A-F]{2})$/, p); });
 });

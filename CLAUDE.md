@@ -79,11 +79,18 @@
   - `tests/wiring.test.js` checks the page's imports against the service worker, and the
     server's file list, the `Dockerfile` and `ledger-rules.js` against each other, and that
     Firebase stays out.
+  - `tests/android.test.js` checks the Android app's settings without building it (package,
+    host, no permissions, API level, versions, and the `apply from: 'release.gradle'` line that
+    `bubblewrap update` drops). Builds are checked by `docs/planning/evidence/T-05-*`.
 - **Owner's time zone:** IST (UTC+05:30). Write every date and time with its zone.
 - **Current goal (from 2026-09-28):** release on Google Play as **SplitFamilia**
   (`com.splitfamilia.app`). The owner's brief is saved verbatim in
   `docs/planning/brief/2026-09-28-google-play-release-brief.md`.
-  - There is no Android project yet. SF-012 wraps the hosted PWA in a Trusted Web Activity.
+  - The Android app is `android/` (T-05): a Trusted Web Activity made with Bubblewrap that
+    opens the hosted site. Its release signing is `android/app/release.gradle` (upload key from
+    `SPLITFAMILIA_UPLOAD_*` variables or the git-ignored `android/keystore.properties`). Build it
+    outside OneDrive, by `docs/google-play/BUILD_RELEASE.md`; the approach and settings are in
+    `docs/google-play/ANDROID_APPROACH.md`.
   - The web app is hosted on **Railway** (`https://splitfamilia.up.railway.app`), like
     `../StockAgent-main`. GitHub Pages (`https://revanparimi.github.io/SplitFamilia/`) still
     publishes each push to `main` until the switch-over's last step. Since T-09's push B its page

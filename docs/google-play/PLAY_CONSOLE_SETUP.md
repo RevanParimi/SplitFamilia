@@ -134,14 +134,16 @@ There are two keys:
 
 - **The app signing key** is held by Google. Google uses it to sign the APKs that phones
   download. For new apps, **Play App Signing is turned on automatically** with a key Google
-  generates. You never hold this key.
+  generates. You never hold this key. (Since 2026 a new app gets Play's "quantum-ready, hybrid
+  signing": Google holds three app signing keys, and the Android app's `assetlinks.json` lists
+  all three fingerprints; checked 2026-10-01 IST, see [BUILD_RELEASE.md](BUILD_RELEASE.md).)
 - **The upload key** is yours. You sign each app bundle (`.aab`) with it before uploading, which
   proves the upload came from you. Google recommends that the two keys be different.
 
 What this means for you:
 
-1. **MANUAL ACTION REQUIRED (in T-05):** Create the upload key yourself, following the build guide
-   that SF-014 writes. This repository will never create your real upload key or store it.
+1. **MANUAL ACTION REQUIRED:** Create the upload key yourself, following
+   [BUILD_RELEASE.md](BUILD_RELEASE.md) section 3. This repository will never create your real upload key or store it.
 2. **MANUAL ACTION REQUIRED:** Keep the upload key file (`.jks`) and its passwords in two safe
    places outside this repository, for example a password manager plus an offline backup.
    The repository's `.gitignore` blocks keystores and key settings from being committed.
@@ -198,5 +200,5 @@ The closed test itself starts after T-05 produces the signed app bundle. The rel
 | 6 | Confirm every verification shows complete | VERIFY IN PLAY CONSOLE |
 | 7 | Create the app: SplitFamilia, App, Free | MANUAL ACTION REQUIRED |
 | 8 | Recruit 15–20 testers and collect their Play Store Google account emails | MANUAL ACTION REQUIRED |
-| 9 | Create and back up the upload key (T-05, from SF-014's guide) | MANUAL ACTION REQUIRED |
+| 9 | Create and back up the upload key ([BUILD_RELEASE.md](BUILD_RELEASE.md) section 3) | MANUAL ACTION REQUIRED |
 | 10 | At the first upload, confirm `com.splitfamilia.app` is accepted | VERIFY IN PLAY CONSOLE |

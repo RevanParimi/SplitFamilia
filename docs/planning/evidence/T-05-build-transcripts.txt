@@ -1,0 +1,889 @@
+T-05 build and check transcripts (2026-10-01 IST), redacted: <scratch> is the session
+scratchpad, <repo> the repository, %USERPROFILE% the user folder. Passwords never appear (the
+throwaway keys' passwords were random, are <redacted> where a command showed them, and were
+deleted with the keys). The throwaway keys' fingerprints are masked.
+
+
+==================================================================================
+A. SF-012 and SF-013 in a scratchpad copy of android/ (Git Bash): the debug build, the no-key and incomplete-key failures, the throwaway key, signed bundles from the environment variables and from keystore.properties
+(sf012-013-build.txt)
+==================================================================================
+
+### SF-012: debug build (no upload key needed)
+$ ./gradlew assembleDebug --console=plain
+> Task :app:generateShorcutsFile UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:javaPreCompileDebug
+> Task :app:generateDebugResValues
+> Task :app:checkDebugAarMetadata
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :app:mergeDebugResources
+
+> Task :app:processDebugMainManifest
+package="com.splitfamilia.app" found in source AndroidManifest.xml: <scratch>\b1\app\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.splitfamilia.app" from the source AndroidManifest.xml: <scratch>\b1\app\src\main\AndroidManifest.xml.
+
+> Task :app:processDebugManifest
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets
+> Task :app:compressDebugAssets
+> Task :app:processDebugJavaRes NO-SOURCE
+> Task :app:checkDebugDuplicateClasses
+> Task :app:desugarDebugFileDependencies
+> Task :app:mergeDebugJavaResource
+> Task :app:processDebugManifestForPackage
+> Task :app:mergeDebugJniLibFolders
+> Task :app:mergeDebugNativeLibs NO-SOURCE
+> Task :app:stripDebugDebugSymbols NO-SOURCE
+> Task :app:mergeLibDexDebug
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :app:processDebugResources
+
+> Task :app:compileDebugJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:mergeExtDexDebug
+> Task :app:packageDebug
+> Task :app:createDebugApkListingFileRedirect
+> Task :app:assembleDebug
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 42s
+31 actionable tasks: 31 executed
+[exit 0]
+
+### SF-013 negative: release bundle with no upload key
+$ ./gradlew bundleRelease --console=plain
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Script '<scratch>\b1\app\release.gradle' line: 81
+
+* What went wrong:
+SplitFamilia release signing: no upload key: set the SPLITFAMILIA_UPLOAD_* environment variables, or copy android/keystore.properties.example to android/keystore.properties and fill it in. See docs/google-play/BUILD_RELEASE.md. (The release build never uses the debug key.)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5s
+[exit 1]
+
+### SF-013: throwaway upload key (scratchpad only; deleted after the checks)
+$ keytool -genkeypair -keystore throwaway-upload.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000 -storepass <redacted> -keypass <redacted> -dname CN=SplitFamilia T-05 throwaway test key
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 10,000 days
+	for: CN=SplitFamilia T-05 throwaway test key
+[exit 0]
+
+### SF-013 negative: only one of the four variables set
+$ ./gradlew bundleRelease --console=plain
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Script '<scratch>\b1\app\release.gradle' line: 81
+
+* What went wrong:
+SplitFamilia release signing: set all four upload-key environment variables (missing: SPLITFAMILIA_UPLOAD_STORE_PASSWORD, SPLITFAMILIA_UPLOAD_KEY_ALIAS, SPLITFAMILIA_UPLOAD_KEY_PASSWORD). See docs/google-play/BUILD_RELEASE.md. (The release build never uses the debug key.)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 3s
+[exit 1]
+
+### SF-013: signed release bundle, key from the environment variables
+$ ./gradlew bundleRelease --console=plain
+> Task :app:generateShorcutsFile UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:javaPreCompileRelease
+> Task :app:checkReleaseAarMetadata
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:generateReleaseResValues
+> Task :app:mapReleaseSourceSetPaths
+> Task :app:generateReleaseResources
+> Task :app:packageReleaseResources
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease
+> Task :app:parseReleaseLocalResources
+
+> Task :app:processReleaseMainManifest
+package="com.splitfamilia.app" found in source AndroidManifest.xml: <scratch>\b1\app\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.splitfamilia.app" from the source AndroidManifest.xml: <scratch>\b1\app\src\main\AndroidManifest.xml.
+
+> Task :app:processReleaseManifest
+> Task :app:mergeReleaseArtProfile
+> Task :app:extractProguardFiles
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:processReleaseManifestForPackage
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:writeReleaseAppMetadata
+> Task :app:collectReleaseDependencies
+> Task :app:configureReleaseDependencies
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:parseReleaseIntegrityConfig
+> Task :app:validateSigningRelease
+> Task :app:mergeReleaseJavaResource
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseResources
+
+> Task :app:compileReleaseJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:minifyReleaseWithR8
+> Task :app:buildReleasePreBundle
+> Task :app:compileReleaseArtProfile
+> Task :app:packageReleaseBundle
+> Task :app:signReleaseBundle
+> Task :app:produceReleaseBundleIdeListingFile
+> Task :app:createReleaseBundleListingFileRedirect
+> Task :app:bundleRelease
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 24s
+38 actionable tasks: 38 executed
+[exit 0]
+
+### SF-013 negative: keystore.properties without keyPassword
+$ ./gradlew bundleRelease --console=plain
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Script '<scratch>\b1\app\release.gradle' line: 81
+
+* What went wrong:
+SplitFamilia release signing: android/keystore.properties is missing keyPassword. See docs/google-play/BUILD_RELEASE.md. (The release build never uses the debug key.)
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 3s
+[exit 1]
+
+### SF-013: signed release bundle, key from android/keystore.properties (scratchpad copy only)
+$ ./gradlew bundleRelease --console=plain
+> Task :app:generateShorcutsFile UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo UP-TO-DATE
+> Task :app:mergeReleaseShaders UP-TO-DATE
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets UP-TO-DATE
+> Task :app:checkReleaseDuplicateClasses UP-TO-DATE
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:generateReleaseResValues UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest UP-TO-DATE
+> Task :app:processReleaseManifest UP-TO-DATE
+> Task :app:processReleaseManifestForPackage UP-TO-DATE
+> Task :app:processReleaseResources UP-TO-DATE
+> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :app:mergeReleaseArtProfile UP-TO-DATE
+> Task :app:expandReleaseArtProfileWildcards UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:mergeReleaseGeneratedProguardFiles UP-TO-DATE
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:mergeReleaseJavaResource UP-TO-DATE
+> Task :app:mergeReleaseStartupProfile UP-TO-DATE
+> Task :app:minifyReleaseWithR8 UP-TO-DATE
+> Task :app:mergeReleaseJniLibFolders UP-TO-DATE
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:writeReleaseAppMetadata UP-TO-DATE
+> Task :app:buildReleasePreBundle UP-TO-DATE
+> Task :app:compileReleaseArtProfile UP-TO-DATE
+> Task :app:collectReleaseDependencies UP-TO-DATE
+> Task :app:configureReleaseDependencies UP-TO-DATE
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:parseReleaseIntegrityConfig UP-TO-DATE
+> Task :app:packageReleaseBundle UP-TO-DATE
+> Task :app:validateSigningRelease UP-TO-DATE
+> Task :app:signReleaseBundle
+> Task :app:produceReleaseBundleIdeListingFile UP-TO-DATE
+> Task :app:createReleaseBundleListingFileRedirect UP-TO-DATE
+> Task :app:bundleRelease
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 4s
+38 actionable tasks: 1 executed, 37 up-to-date
+[exit 0]
+
+### SF-013: the keystore.properties bundle is signed by the throwaway key
+$ jarsigner -verify -verbose -certs app/build/outputs/bundle/release/app-release.aab | grep -E "jar verified|Signed by"
+- Signed by "CN=SplitFamilia T-05 throwaway test key"
+jar verified.
+[exit 0]
+
+
+==================================================================================
+B. SF-013: verifying the environment-variable bundle (jarsigner, bundletool validate, bundletool dump manifest)
+(sf013-verify.txt)
+==================================================================================
+
+### SF-013: jarsigner -verify -verbose -certs (first 10 lines, then the verdict; 315 signed entries listed in full in the scratchpad run)
+$ jarsigner -verify -verbose -certs app/build/outputs/bundle/release/app-release.aab
+
+sm        56 Thu Jan 01 01:01:02 IST 1981 BUNDLE-METADATA/com.android.tools.build.gradle/app-metadata.properties
+
+      >>> Signer
+      X.509, CN=SplitFamilia T-05 throwaway test key
+      Signature algorithm: SHA384withRSA, 2048-bit key
+      [certificate is valid from 01/10/26, 8:32?pm to 16/02/54, 8:32?pm]
+      [Invalid certificate chain: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target]
+
+[... per-entry lines ...]
+    Digest algorithm: SHA-256
+    Signature algorithm: SHA256withRSA, 2048-bit key
+
+jar verified.
+
+Warning: 
+This jar contains entries whose certificate chain is invalid. Reason: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
+This jar contains entries whose signer certificate is self-signed.
+This jar contains signatures that do not include a timestamp. Without a timestamp, users may not be able to validate this jar after any of the signer certificates expire (as early as 2054-02-16).
+POSIX file permission and/or symlink attributes detected. These attributes are ignored when signing and are not protected by the signature.
+
+This JAR file contains internal inconsistencies that may result in different contents when reading via JarFile and JarInputStream:
+- Manifest is missing when reading via JarInputStream
+[... 316 lines: 'Entry <name> is signed in JarFile but is not signed in JarInputStream' ...]
+[exit 0]
+
+### SF-013: bundletool validate
+$ java -jar %USERPROFILE%/AppData/Local/Android/bundletool/bundletool-all-1.18.3.jar validate --bundle=app/build/outputs/bundle/release/app-release.aab
+App Bundle information
+------------
+Feature modules:
+	Feature module: base
+		File: dex/classes.dex
+		File: res/anim/abc_tooltip_enter.xml
+		File: res/anim/abc_tooltip_exit.xml
+		[... 303 more "File:" lines ...]
+[exit 0]
+
+### SF-013: bundletool dump manifest
+$ java -jar %USERPROFILE%/AppData/Local/Android/bundletool/bundletool-all-1.18.3.jar dump manifest --bundle=app/build/outputs/bundle/release/app-release.aab
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" android:compileSdkVersionCodename="16" android:versionCode="1" android:versionName="1.0.0" package="com.splitfamilia.app" platformBuildVersionCode="36" platformBuildVersionName="16">
+      
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="36"/>
+      
+  <queries>
+            
+    <intent>
+                  
+      <action android:name="android.intent.action.VIEW"/>
+                  
+      <category android:name="android.intent.category.BROWSABLE"/>
+                  
+      <data android:scheme="https"/>
+              
+    </intent>
+        
+  </queries>
+      
+  <permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="0x00000002"/>
+      
+  <uses-permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+      
+  <application android:allowBackup="true" android:appComponentFactory="androidx.core.app.CoreComponentFactory" android:extractNativeLibs="true" android:icon="@mipmap/ic_launcher" android:label="@string/appName" android:manageSpaceActivity="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity" android:name="com.splitfamilia.app.Application" android:supportsRtl="true" android:theme="@android:style/Theme.Translucent.NoTitleBar">
+            
+    <meta-data android:name="asset_statements" android:resource="@string/assetStatements"/>
+            
+    <meta-data android:name="web_manifest_url" android:value="@string/webManifestUrl"/>
+            
+    <meta-data android:name="twa_generator" android:value="@string/generatorApp"/>
+            
+    <activity android:enabled="true" android:excludeFromRecents="true" android:exported="false" android:name="com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity">
+                  
+      <meta-data android:name="android.support.customtabs.trusted.MANAGE_SPACE_URL" android:value="@string/launchUrl"/>
+                  
+      <intent-filter>
+                        
+        <action android:name="android.intent.action.APPLICATION_PREFERENCES"/>
+                        
+        <category android:name="android.intent.category.DEFAULT"/>
+                    
+      </intent-filter>
+              
+    </activity>
+            
+    <activity android:alwaysRetainTaskState="true" android:exported="true" android:label="@string/launcherName" android:name="com.splitfamilia.app.LauncherActivity">
+                  
+      <meta-data android:name="android.support.customtabs.trusted.DEFAULT_URL" android:value="@string/launchUrl"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR" android:resource="@color/colorPrimary"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.STATUS_BAR_COLOR_DARK" android:resource="@color/colorPrimaryDark"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR" android:resource="@color/navigationColor"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.NAVIGATION_BAR_COLOR_DARK" android:resource="@color/navigationColorDark"/>
+                  
+      <meta-data android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR" android:resource="@color/navigationDividerColor"/>
+                  
+      <meta-data android:name="androix.browser.trusted.NAVIGATION_BAR_DIVIDER_COLOR_DARK" android:resource="@color/navigationDividerColorDark"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.SPLASH_IMAGE_DRAWABLE" android:resource="@drawable/splash"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.SPLASH_SCREEN_BACKGROUND_COLOR" android:resource="@color/backgroundColor"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.SPLASH_SCREEN_FADE_OUT_DURATION" android:value="@integer/splashScreenFadeOutDuration"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.FILE_PROVIDER_AUTHORITY" android:value="@string/providerAuthority"/>
+                  
+      <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.FALLBACK_STRATEGY" android:value="@string/fallbackType"/>
+                  
+      <meta-data android:name="android.support.customtabs.trusted.SCREEN_ORIENTATION" android:value="@string/orientation"/>
+                  
+      <intent-filter>
+                        
+        <action android:name="android.intent.action.MAIN"/>
+                        
+        <category android:name="android.intent.category.LAUNCHER"/>
+                    
+      </intent-filter>
+                  
+      <intent-filter android:autoVerify="true">
+                        
+        <action android:name="android.intent.action.VIEW"/>
+                        
+        <category android:name="android.intent.category.DEFAULT"/>
+                        
+        <category android:name="android.intent.category.BROWSABLE"/>
+                        
+        <data android:host="@string/hostName" android:scheme="https"/>
+                    
+      </intent-filter>
+              
+    </activity>
+            
+    <activity android:name="com.google.androidbrowserhelper.trusted.FocusActivity"/>
+            
+    <activity android:configChanges="0x00000480" android:name="com.google.androidbrowserhelper.trusted.WebViewFallbackActivity"/>
+            
+    <provider android:authorities="@string/providerAuthority" android:exported="false" android:grantUriPermissions="true" android:name="androidx.core.content.FileProvider">
+                  
+      <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/filepaths"/>
+              
+    </provider>
+            
+    <service android:enabled="@bool/enableNotification" android:exported="@bool/enableNotification" android:name="com.splitfamilia.app.DelegationService">
+                  
+      <intent-filter>
+                        
+        <action android:name="android.support.customtabs.trusted.TRUSTED_WEB_ACTIVITY_SERVICE"/>
+                        
+        <category android:name="android.intent.category.DEFAULT"/>
+                    
+      </intent-filter>
+              
+    </service>
+            
+    <provider android:authorities="com.splitfamilia.app.androidx-startup" android:exported="false" android:name="androidx.startup.InitializationProvider">
+                  
+      <meta-data android:name="androidx.emoji2.text.EmojiCompatInitializer" android:value="androidx.startup"/>
+                  
+      <meta-data android:name="androidx.lifecycle.ProcessLifecycleInitializer" android:value="androidx.startup"/>
+                  
+      <meta-data android:name="androidx.profileinstaller.ProfileInstallerInitializer" android:value="androidx.startup"/>
+              
+    </provider>
+            
+    <receiver android:directBootAware="false" android:enabled="true" android:exported="true" android:name="androidx.profileinstaller.ProfileInstallReceiver" android:permission="android.permission.DUMP">
+                  
+      <intent-filter>
+                        
+        <action android:name="androidx.profileinstaller.action.INSTALL_PROFILE"/>
+                    
+      </intent-filter>
+                  
+      <intent-filter>
+                        
+        <action android:name="androidx.profileinstaller.action.SKIP_FILE"/>
+                    
+      </intent-filter>
+                  
+      <intent-filter>
+                        
+        <action android:name="androidx.profileinstaller.action.SAVE_PROFILE"/>
+                    
+      </intent-filter>
+                  
+      <intent-filter>
+                        
+        <action android:name="androidx.profileinstaller.action.BENCHMARK_OPERATION"/>
+                    
+      </intent-filter>
+              
+    </receiver>
+        
+  </application>
+  
+</manifest>
+[exit 0]
+
+
+==================================================================================
+C. SF-012 and SF-013: the checks script on that build
+(sf012-013-checks.txt)
+==================================================================================
+
+### SF-012/SF-013: merged manifest, resource values, bundle manifest and R8 checks
+$ node <repo>/docs/planning/evidence/T-05-android-checks.mjs .
+PASS M1 merged release manifest requests only INTERNET or the app-private androidx permission (uses-permission: com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS M2 no notification, location, billing, advertising-ID, phone, camera or contacts permission
+PASS M3 every permission the app declares is its own and signature-level (DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION=signature)
+PASS M4 cleartext traffic not allowed (no usesCleartextTraffic="true", no network security config; targetSdk 36 defaults to off)
+PASS M5 a verified (autoVerify) VIEW filter for https on the host, every path, so invite links open the app
+PASS M6 the notification delegation service is switched by enableNotification (false below)
+PASS V1 host is the Railway domain (D-10) (splitfamilia.up.railway.app)
+PASS V2 start URL is the page's start_url (https://splitfamilia.up.railway.app/index.html)
+PASS V3 app and launcher name SplitFamilia (D-2)
+PASS V4 status bar #4F46E5 and splash #FFFFFF (manifest.json), navigation bar #FFFFFF, notifications off (colorPrimary=#4F46E5, colorPrimaryDark=#4F46E5, navigationColor=#FFFFFF, navigationColorDark=#FFFFFF, navigationDividerColor=#FFFFFF, navigationDividerColorDark=#FFFFFF, backgroundColor=#FFFFFF)
+PASS B1 bundle: package com.splitfamilia.app, versionCode 1, versionName 1.0.0 (D-1) (com.splitfamilia.app, 1, 1.0.0)
+PASS B2 bundle: targetSdk 36 (Play's requirement), compileSdk >= targetSdk, minSdk 21 (Bubblewrap's default) (target 36, compile 36, min 21)
+PASS B3 bundle: the same permissions as the merged manifest (com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS D1 the bundle's DEX parsed (base/dex/classes.dex: 1017 classes)
+PASS D2 R8 kept all 9 classes the manifest names (com.splitfamilia.app.Application, com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity, com.splitfamilia.app.LauncherActivity, com.google.androidbrowserhelper.trusted.FocusActivity, com.google.androidbrowserhelper.trusted.WebViewFallbackActivity, androidx.core.content.FileProvider, com.splitfamilia.app.DelegationService, androidx.startup.InitializationProvider, androidx.profileinstaller.ProfileInstallReceiver)
+PASS D3 R8 ran (mapping.txt written)
+PASS D4 LauncherActivity still extends androidbrowserhelper's LauncherActivity, and it and TwaLauncher are in the DEX (super J.h = com.google.androidbrowserhelper.trusted.LauncherActivity; TwaLauncher kept as J.K)
+all checks passed
+[exit 0]
+
+
+==================================================================================
+D. SF-013: Android lint on the release variant
+(sf013-lint.txt)
+==================================================================================
+
+### SF-013: Android lint on the release variant (no upload key set)
+$ ./gradlew lintRelease --console=plain
+> Task :app:generateShorcutsFile UP-TO-DATE
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preReleaseBuild UP-TO-DATE
+> Task :app:javaPreCompileRelease UP-TO-DATE
+> Task :app:checkReleaseAarMetadata UP-TO-DATE
+> Task :app:generateReleaseResValues UP-TO-DATE
+> Task :app:mapReleaseSourceSetPaths UP-TO-DATE
+> Task :app:generateReleaseResources UP-TO-DATE
+> Task :app:mergeReleaseResources UP-TO-DATE
+> Task :app:packageReleaseResources UP-TO-DATE
+> Task :app:parseReleaseLocalResources UP-TO-DATE
+> Task :app:createReleaseCompatibleScreenManifests
+> Task :app:extractDeepLinksRelease UP-TO-DATE
+> Task :app:processReleaseMainManifest UP-TO-DATE
+> Task :app:processReleaseManifest
+> Task :app:processReleaseManifestForPackage UP-TO-DATE
+> Task :app:extractProguardFiles UP-TO-DATE
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:processReleaseResources
+> Task :app:compileReleaseJavaWithJavac UP-TO-DATE
+> Task :app:generateReleaseLintReportModel
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:generateReleaseUnitTestLintModel
+> Task :app:lintAnalyzeRelease
+> Task :app:lintAnalyzeReleaseUnitTest
+
+> Task :app:lintReportRelease
+Wrote HTML report to <scratch>/b1/app/build/reports/lint-results-release.html
+
+> Task :app:lintRelease
+[Incubating] Problems report is available at: <scratch>/b1/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 57s
+23 actionable tasks: 10 executed, 13 up-to-date
+[exit 0]
+
+### SF-013: lint findings (app/build/reports/lint-results-release.txt, paths shortened)
+app\src\main\AndroidManifest.xml:145: Warning: Attribute autoVerify is only used in API level 23 and higher (current min is 21) [UnusedAttribute]
+app\src\main\java\com\splitfamilia\app\LauncherActivity.java:39: Warning: You should not lock orientation of your activities, so that you can support a good user experience for any device or orientation [SourceLockedOrientationActivity]
+app\build.gradle: Warning: The resource R.bool.enableSiteSettingsShortcut appears to be unused [UnusedResources]
+app\build.gradle: Warning: The resource R.bool.enableSiteSettingsShortcut appears to be unused [UnusedResources]
+app\build.gradle: Warning: The resource R.string.fullScopeUrl appears to be unused [UnusedResources]
+app\build.gradle: Warning: The resource R.string.fullScopeUrl appears to be unused [UnusedResources]
+app\src\main\res\values\colors.xml:17: Warning: The resource R.color.shortcut_background appears to be unused [UnusedResources]
+app\src\main\res\drawable-anydpi\shortcut_legacy_background.xml:16: Warning: The resource R.drawable.shortcut_legacy_background appears to be unused [UnusedResources]
+app\src\main\res\raw\web_app_manifest.json: Warning: The resource R.raw.web_app_manifest appears to be unused [UnusedResources]
+app\src\main\res\mipmap-hdpi\ic_launcher.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+app\src\main\res\mipmap-mdpi\ic_launcher.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+app\src\main\res\mipmap-xhdpi\ic_launcher.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+app\src\main\res\mipmap-xxhdpi\ic_launcher.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+app\src\main\res\mipmap-xxxhdpi\ic_launcher.png: Warning: Launcher icons should not fill every pixel of their square region; see the design guide for details [IconLauncherShape]
+app\src\main\res\mipmap-anydpi-v26\ic_launcher.xml:16: Warning: The application adaptive icon is missing a monochrome tag [MonochromeLauncherIcon]
+0 errors, 15 warnings
+
+
+==================================================================================
+E. SF-014: BUILD_RELEASE.md section 1 in PowerShell, into a throwaway SDK folder in the scratchpad
+(sf014-ps-section1.txt)
+==================================================================================
+downloaded: 154957218 bytes
+moved: True
+
+Unzipping build-tools/35.0.0... [.............................................]   0% (      0 B/ 138.1 MB) ETA: ----- 
+Unzipping build-tools/35.0.0... [#########....................................]  20% (  28.2 MB/ 138.1 MB) ETA:    4s 
+Unzipping build-tools/35.0.0... [##################...........................]  40% (  56.6 MB/ 138.1 MB) ETA:    3s 
+Unzipping build-tools/35.0.0... [####################################.........]  82% ( 114.6 MB/ 138.1 MB) ETA:    1s 
+Unzipping build-tools/35.0.0... [######################################.......]  85% ( 117.9 MB/ 138.1 MB) ETA:    1s 
+Unzipping build-tools/35.0.0... [############################################.]  98% ( 135.4 MB/ 138.1 MB) ETA:    1s 
+Unzipping build-tools/35.0.0... [#############################################] 100% ( 138.1 MB/ 138.1 MB) ETA: ----- 
+installed: .sdk, build-tools, cmdline-tools, licenses, platform-tools, platforms | platforms: android-36 | build-tools: 35.0.0
+bundletool: A099CFA1543F55593BC2ED16A70A7C67FE54B1747BB7301F37FDFD6D91028E29
+took 277 s
+
+
+==================================================================================
+F. SF-014: sections 3 to 5 in PowerShell, in a clean clone (before the shortcuts.xml fix)
+(sf014-ps-sections3-5.txt)
+==================================================================================
+
+### Section 3: keytool -genkeypair (password from -storepass:env instead of the prompt)
+> keytool -genkeypair -v -keystore <keys>\splitfamilia-upload.jks -alias upload -keyalg RSA -keysize 4096 -validity 10000 -dname "CN=SplitFamilia, O=SplitFamilia"
+Generating 4,096 bit RSA key pair and self-signed certificate (SHA384withRSA) with a validity of 10,000 days
+	for: CN=SplitFamilia, O=SplitFamilia
+[Storing <scratch>\t05\owner-key\splitfamilia-upload.jks]
+
+### Section 4 option B: the SecureString conversion gives back the password (fed by ConvertTo-SecureString instead of Read-Host)
+> [System.Net.NetworkCredential]::new('', $p).Password
+matches: True
+
+### Section 5: node_modules
+> if (Test-Path node_modules) { ... }
+node_modules present in the fresh clone: False, so that line has nothing to do
+
+### Section 5: npm ci
+> npm ci
+
+up to date, audited 1 package in 37s
+
+found 0 vulnerabilities
+
+### Section 5: npm test (last 9 lines)
+> npm test
+✔ assetlinks.json names the Android app, with real or clearly marked fingerprints (SF-011) (4.4785ms)
+ℹ tests 219
+ℹ suites 0
+ℹ pass 219
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8784.0762
+
+
+==================================================================================
+G. SF-014: sections 5 to 9 and option A in PowerShell, same clone, built against the throwaway SDK (only the guide's three packages)
+(sf014-ps-sections5-8.txt)
+==================================================================================
+
+### Section 5: .\gradlew.bat clean (39 s)
+> .\gradlew.bat clean
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 38s
+2 actionable tasks: 2 up-to-date
+
+### Section 5: .\gradlew.bat lintRelease (67 s; last 6 lines)
+> .\gradlew.bat lintRelease
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 6s
+23 actionable tasks: 23 executed
+
+### Section 5: lint summary
+> Get-Content app\build\reports\lint-results-release.txt | Select-Object -Last 1
+0 errors, 15 warnings
+
+### Section 6: .\gradlew.bat bundleRelease (52 s; last 3 lines)
+> .\gradlew.bat bundleRelease
+
+BUILD SUCCESSFUL in 51s
+38 actionable tasks: 22 executed, 16 up-to-date
+
+### Section 7: the .aab
+> Get-Item android\app\build\outputs\bundle\release\app-release.aab
+<scratch>\clone\android\app\build\outputs\bundle\release\app-release.aab 2133630 bytes
+
+### Section 8: jarsigner
+> jarsigner -verify -verbose -certs $aab | Select-String "jar verified|Signed by"
+
+- Signed by "CN=SplitFamilia, O=SplitFamilia"
+jar verified.
+
+
+
+### Section 8: bundletool validate (first 5 lines; 306 File: lines; exit 0)
+> java -jar $bundletool validate --bundle=$aab
+App Bundle information
+------------
+Feature modules:
+	Feature module: base
+
+### Section 8: bundletool dump manifest
+> java -jar $bundletool dump manifest --bundle=$aab | Select-String "versionCode|SdkVersion|uses-permission"
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" android:compileSdkVersion="36" 
+android:compileSdkVersionCodename="16" android:versionCode="1" android:versionName="1.0.0" 
+package="com.splitfamilia.app" platformBuildVersionCode="36" platformBuildVersionName="16">
+  <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="36"/>
+  <uses-permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/>
+
+
+
+### Section 8: the checks script
+> node docs\planning\evidence\T-05-android-checks.mjs android
+PASS M1 merged release manifest requests only INTERNET or the app-private androidx permission (uses-permission: com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS M2 no notification, location, billing, advertising-ID, phone, camera or contacts permission
+PASS M3 every permission the app declares is its own and signature-level (DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION=signature)
+PASS M4 cleartext traffic not allowed (no usesCleartextTraffic="true", no network security config; targetSdk 36 defaults to off)
+PASS M5 a verified (autoVerify) VIEW filter for https on the host, every path, so invite links open the app
+PASS M6 the notification delegation service is switched by enableNotification (false below)
+PASS V1 host is the Railway domain (D-10) (splitfamilia.up.railway.app)
+PASS V2 start URL is the page's start_url (https://splitfamilia.up.railway.app/index.html)
+PASS V3 app and launcher name SplitFamilia (D-2)
+PASS V4 status bar #4F46E5 and splash #FFFFFF (manifest.json), navigation bar #FFFFFF, notifications off (colorPrimary=#4F46E5, colorPrimaryDark=#4F46E5, navigationColor=#FFFFFF, navigationColorDark=#FFFFFF, navigationDividerColor=#FFFFFF, navigationDividerColorDark=#FFFFFF, backgroundColor=#FFFFFF)
+PASS B1 bundle: package com.splitfamilia.app (D-1), versionCode 1 and versionName 1.0.0 (twa-manifest.json) (com.splitfamilia.app, 1, 1.0.0)
+PASS B2 bundle: targetSdk 36 (Play's requirement), compileSdk >= targetSdk, minSdk 21 (Bubblewrap's default) (target 36, compile 36, min 21)
+PASS B3 bundle: the same permissions as the merged manifest (com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS D1 the bundle's DEX parsed (base/dex/classes.dex: 1017 classes)
+PASS D2 R8 kept all 9 classes the manifest names (com.splitfamilia.app.Application, com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity, com.splitfamilia.app.LauncherActivity, com.google.androidbrowserhelper.trusted.FocusActivity, com.google.androidbrowserhelper.trusted.WebViewFallbackActivity, androidx.core.content.FileProvider, com.splitfamilia.app.DelegationService, androidx.startup.InitializationProvider, androidx.profileinstaller.ProfileInstallReceiver)
+PASS D3 R8 ran (mapping.txt written)
+PASS D4 LauncherActivity still extends androidbrowserhelper's LauncherActivity, and it and TwaLauncher are in the DEX (super J.h = com.google.androidbrowserhelper.trusted.LauncherActivity; TwaLauncher kept as J.K)
+all checks passed
+
+### Section 9: the upload key's SHA-256 (a throwaway key; middle masked)
+> keytool -list -v -keystore <keys>\splitfamilia-upload.jks -alias upload | Select-String SHA256:
+SHA256: 00:38:<28 pairs>:E4:8C  (32 pairs, the format assetlinks.json takes: True)
+
+### Section 4 option A + 6: keystore.properties, then .\gradlew.bat clean bundleRelease (last 2 lines)
+> Copy-Item keystore.properties.example keystore.properties; (filled in); .\gradlew.bat clean bundleRelease
+BUILD SUCCESSFUL in 1m
+40 actionable tasks: 37 executed, 3 up-to-date
+
+### Section 8 (option A build): jarsigner
+> jarsigner -verify -verbose -certs app\build\outputs\bundle\release\app-release.aab | Select-String "jar verified|Signed by"
+
+- Signed by "CN=SplitFamilia, O=SplitFamilia"
+jar verified.
+
+
+
+### Option A: git status in the clone after building (the filled-in file and build output are ignored)
+> git status --short --ignored
+[... 96 lines "warning: could not open directory 'android/app/build/intermediates/…': Filename too long" (git, the long scratchpad path) ...]
+ M app/src/main/res/xml/shortcuts.xml
+!! .gradle/
+!! app/build/
+!! build/
+!! keystore.properties
+
+
+==================================================================================
+H. SF-014: the bash forms in a second clean clone; its last step found the build rewriting shortcuts.xml
+(sf014-bash-clone.txt)
+==================================================================================
+
+### SF-014 (bash): clean clone
+$ git clone -q <scratch>/c0 <scratch>/clone2
+
+[exit 0]
+
+### SF-014 (bash): line endings after checkout (core.autocrlf=true)
+$ file android/gradlew android/gradlew.bat
+android/gradlew:     POSIX shell script, Unicode text, UTF-8 text executable
+android/gradlew.bat: DOS batch file, ASCII text, with CRLF line terminators
+[exit 0]
+
+### SF-014 (bash): rm -rf node_modules; npm ci
+$ bash -c rm -rf node_modules && npm ci
+
+up to date, audited 1 package in 40s
+
+found 0 vulnerabilities
+[exit 0]
+
+### SF-014 (bash): npm test
+$ bash -c npm test 2>&1 | tail -8
+ℹ tests 219
+ℹ suites 0
+ℹ pass 219
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8888.9146
+[exit 0]
+
+### SF-012 (bash, clean clone): ./gradlew clean assembleDebug
+$ bash -c ./gradlew clean assembleDebug --console=plain 2>&1 | tail -2
+BUILD SUCCESSFUL in 23s
+33 actionable tasks: 31 executed, 2 up-to-date
+[exit 0]
+
+### SF-013 (bash, clean clone): ./gradlew lint
+$ bash -c ./gradlew lint --console=plain 2>&1 | tail -2; tail -1 app/build/reports/lint-results-debug.txt
+BUILD SUCCESSFUL in 21s
+26 actionable tasks: 11 executed, 15 up-to-date
+0 errors, 17 warnings
+[exit 0]
+
+### SF-014 (bash, option B with read -rsp): ./gradlew bundleRelease
+$ bash -c ./gradlew bundleRelease --console=plain 2>&1 | tail -2
+BUILD SUCCESSFUL in 49s
+38 actionable tasks: 37 executed, 1 up-to-date
+[exit 0]
+
+### SF-014 (bash): jarsigner
+$ bash -c jarsigner -verify -verbose -certs app/build/outputs/bundle/release/app-release.aab | grep -E 'jar verified|Signed by'
+- Signed by "CN=SplitFamilia, O=SplitFamilia"
+jar verified.
+[exit 0]
+
+### SF-014 (bash): the checks script
+$ bash -c BUNDLETOOL="%USERPROFILE%/AppData/Local/Android/bundletool/bundletool-all-1.18.3.jar" node docs/planning/evidence/T-05-android-checks.mjs android | tail -1
+all checks passed
+[exit 0]
+
+### SF-014 (bash): git status after the builds (tracked files untouched; outputs ignored)
+$ bash -c git status --short; git status --short --ignored 2>/dev/null | grep '^!!'
+ M android/app/src/main/res/xml/shortcuts.xml
+!! android/.gradle/
+!! android/app/build/
+!! android/build/
+[exit 0]
+
+
+==================================================================================
+I. SF-014: a third clean clone after the fix (shortcuts.xml committed as the build writes it, and checked out with LF)
+(sf014-bash-clone2.txt)
+==================================================================================
+
+### SF-014: line endings after a fresh checkout
+$ file android/gradlew android/gradlew.bat android/app/src/main/res/xml/shortcuts.xml
+android/gradlew:                            POSIX shell script, Unicode text, UTF-8 text executable
+android/gradlew.bat:                        DOS batch file, ASCII text, with CRLF line terminators
+android/app/src/main/res/xml/shortcuts.xml: ASCII text
+[exit 0]
+
+### SF-014: ./gradlew assembleDebug bundleRelease in a fresh clone
+$ bash -c ./gradlew assembleDebug bundleRelease --console=plain 2>&1 | tail -2
+BUILD SUCCESSFUL in 1m 7s
+69 actionable tasks: 69 executed
+[exit 0]
+
+### SF-014: git status after building (should list nothing)
+$ git status --short
+
+[exit 0]

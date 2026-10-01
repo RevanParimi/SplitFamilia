@@ -1,0 +1,9 @@
+# Keep the Gradle wrapper usable from a fresh clone on any OS: the shell script needs LF even on
+# Windows (core.autocrlf=true), the batch file CRLF, and the wrapper jar and icons stay binary.
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.png binary
+# Every build rewrites this file with LF endings (Bubblewrap's generateShorcutsFile task), so
+# check it out with LF too; otherwise core.autocrlf marks it modified after each build.
+app/src/main/res/xml/shortcuts.xml text eol=lf

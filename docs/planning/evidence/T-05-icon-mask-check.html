@@ -1,0 +1,15 @@
+<!-- T-05 (SF-012): the icon mask check. Copy icon-512.png and android/app/src/main/res/mipmap-xxxhdpi/ic_maskable.png and ic_launcher.png next to this file, then screenshot it, e.g. msedge --headless=new --window-size=1350,430 --screenshot=T-05-icon-mask-check.png file:///…/T-05-icon-mask-check.html -->
+<!doctype html><meta charset="utf-8"><style>
+body{margin:0;padding:24px;background:#e9e7e2;font:15px/1.35 system-ui,sans-serif;color:#1c1a18;display:flex;gap:28px;align-items:flex-start}
+figure{margin:0;width:300px}figcaption{margin-top:10px}
+.a{position:relative;width:300px;height:300px}.a img{width:300px;height:300px;display:block}
+.a .ring{position:absolute;left:30px;top:30px;width:240px;height:240px;border:2px dashed #e11d48;border-radius:50%;box-sizing:border-box}
+.ad{position:relative;width:240px;height:240px;margin:30px;overflow:hidden;background:#fff}
+.ad img{position:absolute;left:-31.67px;top:-31.67px;width:303.33px;height:303.33px}
+.circle{border-radius:50%}.squircle{border-radius:28%}
+.legacy img{width:240px;height:240px;margin:30px;display:block}
+</style>
+<figure><div class="a"><img src="icon-512.png"><div class="ring"></div></div><figcaption><b>A.</b> icon-512.png (the PWA's maskable icon) with the maskable safe zone: the central circle, 80% of the width (dashed).</figcaption></figure>
+<figure><div class="ad circle"><img src="ic_maskable.png"></div><figcaption><b>B.</b> The app's adaptive icon under a <b>circle</b> mask: Bubblewrap's ic_maskable inset 8.5 dp in the 108 dp layer, the central 72 dp shown.</figcaption></figure>
+<figure><div class="ad squircle"><img src="ic_maskable.png"></div><figcaption><b>C.</b> The same under a rounded-square mask.</figcaption></figure>
+<figure class="legacy"><img src="ic_launcher.png"><figcaption><b>D.</b> ic_launcher.png, the full-square icon for Android 5 to 7 (no adaptive icons there).</figcaption></figure>
