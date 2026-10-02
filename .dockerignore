@@ -4,6 +4,7 @@
 # Keep this list and the Dockerfile's COPY lines in step (tests/wiring.test.js checks both).
 *
 !index.html
+!privacy.html
 !manifest.json
 !service-worker.js
 !money.js

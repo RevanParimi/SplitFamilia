@@ -114,7 +114,7 @@ test("invite parsing: a full link, a bare code, and a link without a code", func
 });
 
 test("invite parsing: other links", function(){
-  assert.equal(parseInvite("  http://localhost:8000/?x=1&g=goa-2026  "), "goa-2026");
+  assert.equal(parseInvite("  http://localhost:8000/?x=1&g=trek-1999  "), "trek-1999");
   assert.equal(parseInvite("splitfamilia.example/?g=goa-trip-7k2m9xqpwd"), "goa-trip-7k2m9xqpwd");
   assert.equal(parseInvite("https://host/?g=goa/trip"), null);
   assert.equal(parseInvite("https://host/?g=goa%2Ftrip"), null);

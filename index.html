@@ -133,6 +133,8 @@
   .welcome .grow{flex:1;min-height:32px;}
   .welcome-actions{display:flex;flex-direction:column;gap:10px;}
   .fine-print{margin-top:16px;font-size:13px;line-height:1.45;color:var(--ink-faint);text-align:center;}
+  /* SF-018: the privacy policy, linked from the welcome screen and the group menu */
+  .policy-link{display:inline-flex;align-items:center;min-height:44px;font-weight:600;}
   .banner{margin-top:20px;padding:12px 14px;border-radius:14px;background:var(--owe-soft);color:var(--owe);font-size:14px;font-weight:600;}
   .section-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:10px;}
   .section-head h2{font-size:18px;}
@@ -388,9 +390,12 @@
   .confirm p{margin-top:8px;font-size:15px;color:var(--ink-soft);}
   .confirm-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:8px;margin-top:22px;}
 
-  /* one message at a time: save errors, sync errors, anything unexpected (SF-009) */
+  /* one message at a time: save errors, sync errors, anything unexpected (SF-009). It is also a
+     popover, shown in the top layer above an open sheet (the T-04 review's F-14); top, width,
+     height and overflow undo the browser's own popover box. */
   .notice{
-    position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:40;max-width:560px;margin:0 auto;
+    position:fixed;left:12px;right:12px;top:auto;bottom:calc(env(safe-area-inset-bottom) + 16px);z-index:40;max-width:560px;margin:0 auto;
+    width:auto;height:auto;overflow:visible;
     display:flex;align-items:flex-start;gap:10px;padding:0 4px 0 14px;border-radius:16px;
     background:var(--owe-soft);border:1px solid var(--owe);color:var(--owe);
     box-shadow:0 8px 28px rgba(28,26,24,.14);animation:sf-up .22s ease;
@@ -507,7 +512,7 @@
     <button type="button" class="btn outline big" id="join-link-btn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.07 0l3-3a5 5 0 0 0-7.07-7.07l-1 1"/><path d="M14 11a5 5 0 0 0-7.07 0l-3 3a5 5 0 0 0 7.07 7.07l1-1"/></svg>Join with a link</button>
     <button type="button" class="text-btn install-btn" hidden>Install app</button>
   </div>
-  <p class="fine-print">Groups are kept on SplitFamilia's server. Anyone with a group's invite link can open it on any phone.</p>
+  <p class="fine-print">Groups are kept on SplitFamilia's server. Anyone with a group's invite link can open it on any phone.<br /><a class="policy-link" href="privacy.html">Privacy policy</a></p>
 </main>
 
 <main class="welcome" id="moved-screen" hidden>
@@ -610,6 +615,7 @@
         <span class="row-main"><span class="row-title">Install app</span><span class="row-sub">Add SplitFamilia to your home screen</span></span>
       </button>
       <p class="menu-note">Changes sync live to everyone with this group's link.<span class="web-only" id="ios-tip"> On iPhone/iPad: open in Safari, tap Share, then "Add to Home Screen" to install.</span></p>
+      <p class="menu-note"><a class="policy-link" href="privacy.html">Privacy policy</a></p>
     </div>
   </div>
 
@@ -736,7 +742,7 @@
   </div>
 </dialog>
 
-<div class="notice" id="notice" role="alert" hidden>
+<div class="notice" id="notice" role="alert" popover="manual" hidden>
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>
   <span id="notice-text"></span>
   <button type="button" id="notice-close" aria-label="Dismiss message"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
@@ -746,14 +752,14 @@
   // The page talks only to its own server (SF-035): ledger-client.js reads the group, sends each
   // change and keeps a live connection; outbox.js keeps the phone's copy and the changes waiting
   // to sync (SF-036). recent-groups.js keeps the list of groups opened on this phone (SF-029).
-  // "?v=7" matches the service worker's cache name; bump them together (see service-worker.js).
-  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=7";
-  import { isValidGroupId, newGroupId, parseInvite, movedLink, groupName } from "./group-code.js?v=7";
-  import { friendlyError, syncStatusText } from "./sync-status.js?v=7";
-  import { checkGroup, checkPerson, checkExpense, MAX_PEOPLE, MAX_SPLIT, SETTLEMENT } from "./ledger-rules.js?v=7";
-  import { getGroup, sendChange, watchGroup } from "./ledger-client.js?v=7";
-  import { createOutbox, memoryStore, openBrowserStore, overlay, applyChange, forBalances, EMPTY_GROUP } from "./outbox.js?v=7";
-  import { RECENT_KEY, readRecent, rememberGroup, forgetGroup, wantsInvite, inviteDone, shortDate, openedText } from "./recent-groups.js?v=7";
+  // "?v=8" matches the service worker's cache name; bump them together (see service-worker.js).
+  import { computeBalances, simplifyDebts, toPaise, expenseProblem, formatPaise, parseAmountInput } from "./money.js?v=8";
+  import { isValidGroupId, newGroupId, parseInvite, movedLink, groupName } from "./group-code.js?v=8";
+  import { friendlyError, syncStatusText } from "./sync-status.js?v=8";
+  import { checkGroup, checkPerson, checkExpense, MAX_PEOPLE, MAX_SPLIT, SETTLEMENT } from "./ledger-rules.js?v=8";
+  import { getGroup, sendChange, watchGroup } from "./ledger-client.js?v=8";
+  import { createOutbox, memoryStore, openBrowserStore, overlay, applyChange, forBalances, EMPTY_GROUP } from "./outbox.js?v=8";
+  import { RECENT_KEY, readRecent, rememberGroup, forgetGroup, wantsInvite, inviteDone, shortDate, openedText } from "./recent-groups.js?v=8";
 
   const $ = function(id){ return document.getElementById(id); };
   const ICON_ALERT = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>';
@@ -781,11 +787,32 @@
   // code: never what someone typed, and never a group code.
   const notice = $("notice");
   const noticeText = $("notice-text");
+  // The bar must stay seen and usable while a sheet or the confirmation is open (the T-04
+  // review's F-14). It is a manual popover, so it is drawn in the top layer, above the dialog. An
+  // open modal dialog makes everything outside it inert (no taps, hidden from screen readers), so
+  // the bar also moves inside the topmost open dialog, and back to the page when that closes. A
+  // browser without popovers leaves it where it was, as before (under an open sheet).
+  function placeNotice(){
+    if(typeof notice.showPopover !== "function") return;
+    const confirmOpen = $("confirm").open;
+    const host = confirmOpen ? $("confirm") : $("sheet").open ? $("sheet") : document.body;
+    if(notice.parentNode !== host) host.appendChild(notice);
+    if(notice.hidden) return;
+    try{
+      // Shown again even when already open, so it is above a dialog opened after it.
+      if(notice.matches(":popover-open")) notice.hidePopover();
+      notice.showPopover();
+    }catch(e){ /* it still shows, as before */ }
+  }
   function showNotice(text){
     noticeText.textContent = text;
     notice.hidden = false;
+    placeNotice();
   }
-  $("notice-close").addEventListener("click", function(){ notice.hidden = true; });
+  $("notice-close").addEventListener("click", function(){
+    notice.hidden = true;
+    if(typeof notice.hidePopover === "function" && notice.matches(":popover-open")) notice.hidePopover();
+  });
 
   // From here on, anything that goes wrong without its own message gets one friendly message.
   let unexpectedShown = false;
@@ -818,6 +845,7 @@
   function openModal(d){
     if(typeof d.showModal === "function") d.showModal();
     else d.setAttribute("open", "");
+    placeNotice();
   }
   function closeModal(d){
     if(typeof d.close === "function") d.close();
@@ -826,11 +854,19 @@
       d.dispatchEvent(new Event("close"));
     }
   }
+  // Runs the open panel's close hook, once, and forgets it. A panel opener that sets its own
+  // state (openExpense, openPay) calls this first, so the old hook can't clear the new state
+  // (the T-04 review's N-14: possible where a panel opens over itself without showModal).
+  function endPanel(){
+    const hook = sheetCloseHook;
+    sheetCloseHook = null;
+    if(hook) hook();
+  }
   // Shows one panel in the sheet. `onClose` runs once when the sheet closes, however it closes.
   function openSheet(panelId, title, onClose){
     sheet.querySelectorAll(".panel").forEach(function(p){ p.hidden = p.id !== panelId; });
     $("sheet-title").textContent = title;
-    if(sheetPanel !== null && sheetCloseHook) sheetCloseHook();
+    if(sheetPanel !== null) endPanel();
     sheetCloseHook = onClose || null;
     sheetPanel = panelId;
     if(!sheet.open){
@@ -841,10 +877,9 @@
   function closeSheet(){ if(sheet.open) closeModal(sheet); }
   sheet.addEventListener("close", function(){
     document.body.classList.remove("sheet-open");
-    const hook = sheetCloseHook;
-    sheetCloseHook = null;
     sheetPanel = null;
-    if(hook) hook();
+    placeNotice();
+    endPanel();
   });
   // A tap on the dimmed page around the sheet closes it.
   sheet.addEventListener("click", function(e){ if(e.target === sheet) closeSheet(); });
@@ -868,6 +903,7 @@
     if(action) action();
   });
   confirmBox.addEventListener("click", function(e){ if(e.target === confirmBox){ confirmAction = null; closeModal(confirmBox); } });
+  confirmBox.addEventListener("close", placeNotice);
 
   // ---------- the groups on this phone (SF-029) ----------
   const GROUP_KEY = "splitsheet-group";
@@ -1437,6 +1473,7 @@
       return people.length ? people[0].id : "";
     }
     function openExpense(exp){
+      endPanel();
       form = {
         editing: exp,
         paidBy: exp ? exp.paidBy : lastPayer(),
@@ -1636,6 +1673,7 @@
     // pay: { from, to, full (the whole debt, for a new one), editing (the settle-up being edited) }
     let pay = null;
     function openPay(p){
+      endPanel();
       pay = p;
       const editing = p.editing || null;
       $("pay-amount").value = editing ? plainPaise(toPaise(editing.amount)) : plainPaise(p.full);

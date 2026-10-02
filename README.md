@@ -27,6 +27,7 @@ SplitFamilia/
 │
 │  The app: these files are the website, served as they are
 ├── index.html              the whole interface (HTML, CSS, start-up script and main module)
+├── privacy.html            the privacy policy page (docs/google-play/PRIVACY_POLICY.md, word for word)
 ├── money.js                balance maths in whole paise
 ├── group-code.js           group codes and invite links (and the "moved" notice for the old address)
 ├── sync-status.js          the sync status and plain error messages
@@ -68,8 +69,9 @@ SplitFamilia/
 │  Documentation
 ├── docs/
 │   ├── google-play/        owner guides for the release: Play Console, Railway, the move from Firebase,
-│   │                       the Android app and its build, the Play Console declarations, audit,
-│   │                       the store listing draft, and assets/ (store graphics and screenshots)
+│   │                       the Android app and its build, the Play Console declarations, the privacy
+│   │                       policy, release testing, the release checklist, the audit and readiness
+│   │                       report, the store listing draft, and assets/ (store graphics and screenshots)
 │   ├── design/             the approved UI design (Claude Design): notes, prototype, mock-ups, and the icon's source
 │   └── planning/           the plan: state, handoff, stories, receipts, review checklist
 ├── CLAUDE.md               working rules for Claude Code sessions
@@ -98,12 +100,15 @@ needs `http://localhost` or HTTPS, not `file://`.
 
 | Command | What it runs | Needs |
 |---|---|---|
-| `npm test` | The Android app's settings (package, permissions, API level, signing set-up), the balance maths, group codes, sync status, the outbox, the recent-groups list, the real service worker against a fake network, the server (files, database, API, live updates) and the page's client in-process on 127.0.0.1 with a temporary database, the move script against fake Firestore answers, and checks that the page, worker, server and `Dockerfile` agree | Node 24 (for `node:sqlite`); no install, no network |
+| `npm test` | The privacy page (word for word the policy, nothing loaded from other sites, linked in the app), the Android app's settings (package, permissions, API level, signing set-up), the balance maths, group codes, sync status, the outbox, the recent-groups list, the real service worker against a fake network, the server (files, database, API, live updates) and the page's client in-process on 127.0.0.1 with a temporary database, the move script against fake Firestore answers, and checks that the page, worker, server, `Dockerfile` and Railway's redeploy rules agree | Node 24 (for `node:sqlite`); no install, no network |
 
 ## Build the Android app
 
 See [docs/google-play/BUILD_RELEASE.md](docs/google-play/BUILD_RELEASE.md): JDK 21, the Android
-SDK, then `gradlew bundleRelease` in `android/` with your own upload key. Web changes reach the
+SDK, then `gradlew bundleRelease` in `android/` with your own upload key. Before a release:
+[RELEASE_TESTING.md](docs/google-play/RELEASE_TESTING.md), then
+[PRODUCTION_RELEASE_CHECKLIST.md](docs/google-play/PRODUCTION_RELEASE_CHECKLIST.md); where things stand:
+[READINESS_REPORT.md](docs/google-play/READINESS_REPORT.md). Web changes reach the
 Android app with each deploy; only changes to `android/` need a new Play upload.
 
 ## Deploying

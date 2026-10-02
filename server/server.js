@@ -4,7 +4,7 @@
 import { createServer } from "node:http";
 import { loadStaticFiles, serveStatic, sendText, COMMON_HEADERS } from "./static.js";
 import { openLedger } from "./db.js";
-import { createApi, createGuessLimiter, createWriteLimiter } from "./api.js";
+import { createApi, createGuessLimiter, createWriteLimiter, SWEEP_MS } from "./api.js";
 import { createLiveHub } from "./live.js";
 
 // True when the path has a "." or ".." segment, however it is written ("/..", "/%2e%2e/",
@@ -39,7 +39,7 @@ function reason(err){
 // - trustProxy: true behind Railway's proxy (see clientAddress in api.js);
 // - importToken: the IMPORT_TOKEN variable, which opens POST /api/import (SF-037) while it is set;
 // - heartbeatMs, maxStreams, maxStreamsPerAddress, guessLimit, guessWindowMs, writeLimit,
-//   writeWindowMs, maxExpenses, maxSplitEntries, maxAnswerBytes, now: for tests.
+//   writeWindowMs, sweepMs, maxExpenses, maxSplitEntries, maxAnswerBytes, now: for tests.
 export function createApp(options){
   const log = options.log || console.log;
   const files = loadStaticFiles(options.root);
@@ -57,6 +57,14 @@ export function createApp(options){
   });
   const limiter = createGuessLimiter({ limit: options.guessLimit, windowMs: options.guessWindowMs, now: options.now });
   const writes = createWriteLimiter({ limit: options.writeLimit, windowMs: options.writeWindowMs, now: options.now });
+  // The privacy policy says the server forgets an address within 11 minutes of its last request
+  // (the T-06 review's F-16): the limiters are swept every 30 seconds. The timer doesn't keep the
+  // process running, and close() stops it.
+  const sweeper = setInterval(function(){
+    limiter.sweep();
+    writes.sweep();
+  }, options.sweepMs || SWEEP_MS);
+  sweeper.unref();
   const api = createApi({
     ledger: ledger, hub: hub, limiter: limiter, writes: writes, log: log,
     trustProxy: Boolean(options.trustProxy), maxExpenses: options.maxExpenses, maxSplitEntries: options.maxSplitEntries,
@@ -114,6 +122,7 @@ export function createApp(options){
     close: function(){
       return new Promise(function(resolve){
         closing = true;
+        clearInterval(sweeper);
         hub.closeAll();
         // A request still running after 3 seconds is cut off; a phone sends it again.
         const force = setTimeout(function(){ server.closeAllConnections(); }, 3000);

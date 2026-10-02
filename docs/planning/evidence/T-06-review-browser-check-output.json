@@ -1,0 +1,689 @@
+{
+ "I1": {
+  "wordmark": "SplitFamilia",
+  "tagline": "a running ledger for shared costs",
+  "start": "Start a new group",
+  "join": "Join with a link",
+  "fine": "Groups are kept on SplitFamilia's server. Anyone with a group's invite link can open it on any phone.Privacy policy",
+  "policyHref": "privacy.html",
+  "installVisible": true,
+  "wide": {
+   "scroll": "ok",
+   "over": []
+  }
+ },
+ "G1": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "Add people",
+  "guide": "Step 1 of 3 | Who's sharing costs?",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null
+ },
+ "G3_emptyName": 3,
+ "G2_peopleSheet": [
+  "Asha",
+  "Ben",
+  "Chitra"
+ ],
+ "G2": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 2 of 3 | Add the first expense",
+  "balances": null,
+  "ledger": null,
+  "sheet": null,
+  "notice": null
+ },
+ "M1": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹100.00",
+   "Chitra owes Asha ₹100.00"
+  ],
+  "ledger": [
+   "Dinner | paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M2_empty": {
+  "desc": "Add a description.",
+  "amount": "Enter an amount."
+ },
+ "M2_zero": {
+  "amount": "Enter an amount greater than 0.",
+  "sheetStillOpen": "Add expense"
+ },
+ "M2_ledger": [
+  "Dinner | paid by Asha · split among everyone | ₹300.00"
+ ],
+ "M3_hint": "₹50.00 each",
+ "M3": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹150.00",
+   "Chitra owes Asha ₹150.00"
+  ],
+  "ledger": [
+   "Taxi | paid by Asha · split among 2 | ₹100.00",
+   "Dinner | paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M4_confirm": "Delete ‘Taxi’ (₹100.00)?",
+ "M4": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹100.00",
+   "Chitra owes Asha ₹100.00"
+  ],
+  "ledger": [
+   "Dinner | paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M5": {
+  "title": "Rounding test",
+  "status": "live",
+  "people": "4 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Dev owes Asha ₹33.34",
+   "Ben owes Asha ₹33.33",
+   "Chitra owes Asha ₹33.33"
+  ],
+  "ledger": [
+   "Cake | paid by Asha · split among 3 | ₹100.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M5_extraPaisaGoesTo": "the first of [\"Ben 0f3904e4\",\"Chitra 3cfede2d\",\"Dev 0dd4dd6a\"] by ID",
+ "M5_allFour": {
+  "split": "₹100 / 4",
+  "each": 25
+ },
+ "M6_deleteConfirm": "Delete ‘Cake’ (₹100.00)?",
+ "M6": {
+  "title": "Rounding test",
+  "status": "live",
+  "people": "4 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹33.34",
+   "Chitra owes Asha ₹33.33"
+  ],
+  "ledger": [
+   "Cake | paid by Asha · split among 3 | ₹100.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M6_ids": [
+  "Ben 0f3904e4",
+  "Chitra 3cfede2d",
+  "Asha 86ddad8c"
+ ],
+ "M7_sheet": {
+  "title": "Record payment",
+  "from": "Ben",
+  "to": "Asha",
+  "amount": "100.00",
+  "note": "That's everything Ben owes. Change it for a part payment.",
+  "outside": "This only records a payment made outside the app. SplitFamilia never moves money."
+ },
+ "M7": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Chitra owes Asha ₹100.00",
+   "Ben owes Asha ₹60.00"
+  ],
+  "ledger": [
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M8": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹60.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Asha · split among everyone | ₹300.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M9": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹160.00",
+   "Chitra owes Asha ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Asha · split among everyone | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M10": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹340.00",
+   "Chitra owes Ben ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Ben · split among everyone | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M11": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹340.00",
+   "Asha owes Chitra ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M12": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹340.00",
+   "Asha owes Chitra ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹40.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null,
+  "serverVersionUnchanged": true
+ },
+ "M13_sheet": "Edit payment",
+ "M13_edit": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹350.00",
+   "Asha owes Chitra ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Ben paid Asha | payment | ₹50.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M13_deleteConfirm": "Delete ‘Ben paid Asha’ (₹50.00)?",
+ "M13_delete": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹300.00",
+   "Asha owes Chitra ₹100.00"
+  ],
+  "ledger": [
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "M14": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "All settled up.",
+   "Nobody owes anybody."
+  ],
+  "ledger": [
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "P1": "Can't remove someone who appears in an expense. Delete their expenses first.",
+ "P2_confirm": {
+  "title": "Remove Dev from the group?",
+  "body": "Their name comes off the People list for everyone in the group.",
+  "ok": "Remove"
+ },
+ "P2": "3 people",
+ "L2": [
+  "GGoa tripOpened just now",
+  "RRounding testOpened just now"
+ ],
+ "L3_note": "Removing a group only takes it off this device. The group itself isn't deleted, and its invite link still works.",
+ "L3_list": [
+  "Goa trip"
+ ],
+ "L3_reopened": {
+  "title": "Rounding test",
+  "status": "live",
+  "people": "4 people",
+  "guide": null,
+  "balances": [
+   "Ben owes Asha ₹33.34",
+   "Chitra owes Asha ₹33.33"
+  ],
+  "ledger": [
+   "Cake | paid by Asha · split among 3 | ₹100.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "S5_menuLink": {
+  "text": "Privacy policy",
+  "href": "privacy.html",
+  "height": 44,
+  "visible": true
+ },
+ "S5_page": {
+  "title": "Privacy policy · SplitFamilia",
+  "url": "/privacy.html",
+  "h1": "Privacy policy",
+  "draft": "Draft. This policy is not final: its owner hasn't approved it yet, and the marked items and the names in angle brackets are still to be filled in.",
+  "sections": 17,
+  "first": "1. Who we are",
+  "last": "17. Contact",
+  "back": "Back to SplitFamilia",
+  "fonts": 0
+ },
+ "S5_wide360": {
+  "scroll": "ok",
+  "over": []
+ },
+ "S5_backTo": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹30.00",
+   "Chitra owes Asha ₹30.00"
+  ],
+  "ledger": [
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "S5_fromWelcome": "Privacy policy · SplitFamilia",
+ "S5_wide800": {
+  "scroll": "ok",
+  "over": []
+ },
+ "S2_status": "live",
+ "S2_post": 201,
+ "S2": true,
+ "S2_view": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Ben owes Asha ₹40.00",
+   "Ben owes Chitra ₹10.00"
+  ],
+  "ledger": [
+   "Ice cream | paid by Chitra · split among everyone | ₹60.00",
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "O1": "offline: changes will sync when you're back online",
+ "O2": {
+  "title": "Goa trip",
+  "status": "offline: 1 change waiting to sync",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Chitra owes Ben ₹10.00",
+   "Chitra owes Asha ₹10.00"
+  ],
+  "ledger": [
+   "Snacks | paid by Ben · split among everyone | ₹90.00 | waiting to sync",
+   "Ice cream | paid by Chitra · split among everyone | ₹60.00",
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "O3": {
+  "title": "Goa trip",
+  "status": "offline: 3 changes waiting to sync",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Chitra owes Ben ₹50.00",
+   "Chitra owes Asha ₹20.00"
+  ],
+  "ledger": [
+   "Snacks | paid by Ben · split among everyone | ₹120.00 | waiting to sync",
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "O4_status": "live",
+ "O4": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Chitra owes Ben ₹50.00",
+   "Chitra owes Asha ₹20.00"
+  ],
+  "ledger": [
+   "Snacks | paid by Ben · split among everyone | ₹120.00",
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "O4_server": [
+  "Payment 10000",
+  "Dinner 60000",
+  "Payment 30000",
+  "Payment 10000",
+  "Lunch 9000",
+  "Snacks 12000"
+ ],
+ "O5": {
+  "title": "Goa trip",
+  "status": "offline: changes will sync when you're back online",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Chitra owes Ben ₹50.00",
+   "Chitra owes Asha ₹20.00"
+  ],
+  "ledger": [
+   "Snacks | paid by Ben · split among everyone | ₹120.00",
+   "Lunch | paid by Asha · split among everyone | ₹90.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "O5_privacyOffline": "Privacy policy · SplitFamilia | 17 sections",
+ "R1_reload": {
+  "title": "Goa trip",
+  "status": "live"
+ },
+ "E1": "No group found with that code. Check it, or ask for the invite link.",
+ "E2": "That group link isn't valid.",
+ "E3_computerDelete": 200,
+ "E3": {
+  "text": "Couldn't save the expense “Lunch”. Someone else changed or deleted it first, so this edit wasn't saved.",
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "sheet",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   545,
+   336,
+   103
+  ],
+  "closeAt": [
+   321,
+   567.8125
+  ],
+  "sheetOpen": true
+ },
+ "E3_ax": {
+  "text": {
+   "ignored": false,
+   "role": "generic",
+   "name": ""
+  },
+  "close": {
+   "ignored": false,
+   "role": "button",
+   "name": "Dismiss message"
+  }
+ },
+ "E3_sheetClosed": {
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "BODY",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   545,
+   336,
+   103
+  ],
+  "closeAt": [
+   321,
+   567.8125
+  ],
+  "sheetOpen": false
+ },
+ "E3_editSheet": {
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "sheet",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   545,
+   336,
+   103
+  ],
+  "closeAt": [
+   321,
+   567.8125
+  ],
+  "sheetOpen": true
+ },
+ "E3_confirmOpen": {
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "confirm",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   545,
+   336,
+   103
+  ],
+  "closeAt": [
+   321,
+   567.8125
+  ],
+  "sheetOpen": true,
+  "ax": {
+   "ignored": false,
+   "role": "button",
+   "name": "Dismiss message"
+  }
+ },
+ "E3_confirmCancelled": {
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "sheet",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   545,
+   336,
+   103
+  ],
+  "closeAt": [
+   321,
+   567.8125
+  ],
+  "sheetOpen": true
+ },
+ "E3_afterTapOnClose": {
+  "noticeHidden": true,
+  "popoverOpen": false,
+  "sheetOpen": true
+ },
+ "E3_after": {
+  "title": "Goa trip",
+  "status": "live",
+  "people": "3 people",
+  "guide": "Step 3 of 3 | Invite your group",
+  "balances": [
+   "Asha owes Ben ₹40.00",
+   "Chitra owes Ben ₹40.00"
+  ],
+  "ledger": [
+   "Snacks | paid by Ben · split among everyone | ₹120.00",
+   "Asha paid Chitra | payment | ₹100.00",
+   "Asha paid Ben | payment | ₹300.00",
+   "Chitra paid Asha | payment | ₹100.00",
+   "Dinner | paid by Ben · split among 2 | ₹600.00"
+  ],
+  "sheet": null,
+  "notice": null
+ },
+ "E3_server": [
+  "Payment 10000",
+  "Dinner 60000",
+  "Payment 30000",
+  "Payment 10000",
+  "Snacks 12000"
+ ],
+ "F14_before": {
+  "text": "No group found with that code. Check it, or ask for the invite link.",
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "BODY",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   585,
+   336,
+   63
+  ],
+  "closeAt": [
+   321,
+   608.40625
+  ],
+  "sheetOpen": false
+ },
+ "F14_menuOpen": {
+  "shown": true,
+  "popoverOpen": true,
+  "inside": "sheet",
+  "noticeOnTop": true,
+  "hitIs": "notice-text",
+  "box": [
+   12,
+   585,
+   336,
+   63
+  ],
+  "closeAt": [
+   321,
+   608.40625
+  ],
+  "sheetOpen": true,
+  "ax": {
+   "ignored": false,
+   "role": "button",
+   "name": "Dismiss message"
+  }
+ },
+ "F14_afterTapOnClose": {
+  "noticeHidden": true,
+  "sheetOpen": true
+ },
+ "dialogs": [],
+ "errors": [],
+ "timeouts": []
+}

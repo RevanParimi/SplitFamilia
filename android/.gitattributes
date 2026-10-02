@@ -7,3 +7,6 @@ gradlew text eol=lf
 # Every build rewrites this file with LF endings (Bubblewrap's generateShorcutsFile task), so
 # check it out with LF too; otherwise core.autocrlf marks it modified after each build.
 app/src/main/res/xml/shortcuts.xml text eol=lf
+# Bubblewrap records the SHA-1 of this file as checked out with LF (manifest-checksum.txt); a
+# CRLF checkout would make it see a changed manifest (the T-05 review's N-18).
+twa-manifest.json text eol=lf

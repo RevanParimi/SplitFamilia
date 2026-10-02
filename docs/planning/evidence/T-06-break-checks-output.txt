@@ -1,0 +1,21 @@
+K1 CAUGHT (SF-018, 1 failing): privacy.html says something the policy doesn't (60 days of logs, not 30)
+K2 CAUGHT (SF-017, 1 failing): the policy text changes in PRIVACY_POLICY.md only
+K3 CAUGHT (SF-017, 1 failing): a section of the policy is dropped from privacy.html
+K4 CAUGHT (SF-018, 1 failing): privacy.html loads the app's web fonts from Google
+K5 CAUGHT (SF-018, 1 failing): privacy.html runs a script
+K6 CAUGHT (SF-018, 1 failing): the group menu loses its privacy link
+K7 CAUGHT (SF-018, 1 failing): the welcome screen's privacy link is hidden inside the app (web-only)
+K8 CAUGHT (SF-018, 2 failing): privacy.html is dropped from the worker's SHELL (no offline copy)
+K9 CAUGHT (SF-018, 2 failing): privacy.html is not copied into the Docker image (a 404 on Railway)
+K10 CAUGHT (SF-018, 2 failing): .dockerignore keeps privacy.html out of the build
+K11 CAUGHT (SF-018, 2 failing): a change to privacy.html alone wouldn't redeploy (no watch pattern)
+K12 CAUGHT (SF-018, 1 failing): a watch pattern so wide that docs and tests redeploy the site
+K13 CAUGHT (SF-018, 3 failing): the server stops serving privacy.html
+K14 CAUGHT (SF-017 F-16, 2 failing): the limiters' sweep forgets nothing
+K15 CAUGHT (SF-017 F-16, 1 failing): the server's timer never sweeps the limiters
+K16 CAUGHT (SF-017 F-16, 1 failing): close() leaves the sweep timer running
+K17 CAUGHT (SF-017 F-16, 1 failing): the sweep timer keeps the process running (no unref)
+K18 CAUGHT (SF-017 F-16, 1 failing): the policy promises 10 minutes again, in both files alike
+K19 CAUGHT (SF-017 F-16, 1 failing): the change window grows to 15 minutes and the policy isn't updated
+K20 CAUGHT (SF-017 F-16, 1 failing): the declarations give Play Console a different time from the policy
+20/20 caught

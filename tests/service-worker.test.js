@@ -100,11 +100,11 @@ function loadWorker(files){
 
 const SHELL_FILES = ["index.html", "money.js?v=" + VERSION, "group-code.js?v=" + VERSION, "sync-status.js?v=" + VERSION,
   "ledger-rules.js?v=" + VERSION, "ledger-client.js?v=" + VERSION, "outbox.js?v=" + VERSION, "recent-groups.js?v=" + VERSION,
-  "manifest.json", "icon-192.png", "icon-512.png"];
+  "privacy.html", "manifest.json", "icon-192.png", "icon-512.png"];
 function site(pageBody){
   const files = {};
   SHELL_FILES.forEach(function(f){ files[ORIGIN + "/" + f.replace(/\?.*$/, "")] = f === "index.html" ? pageBody : "file " + f; });
-  files[ORIGIN + "/privacy.html"] = "privacy";
+  files[ORIGIN + "/help.html"] = "help";
   files[ORIGIN + "/api/group"] = "a group";
   return files;
 }
@@ -218,9 +218,17 @@ test("a redirected response is never kept as the page (a browser refuses it for 
 
 test("other pages on the site are cached as themselves, not as the app page", async function(){
   const w = await installed("page A");
+  const r = await w.request(ORIGIN + "/help.html", { mode: "navigate" });
+  assert.equal(r.res.body, "help");
+  assert.equal(w.cached("help.html").body, "help");
+});
+
+test("the privacy policy opens offline once the app has been opened (SF-018)", async function(){
+  const w = await installed("page A");
+  w.net.online = false;
   const r = await w.request(ORIGIN + "/privacy.html", { mode: "navigate" });
-  assert.equal(r.res.body, "privacy");
-  assert.equal(w.cached("privacy.html").body, "privacy");
+  assert.equal(r.res.body, "file privacy.html");
+  assert.deepEqual(w.net.log.filter(function(e){ return e.url.startsWith(ORIGIN); }).map(function(e){ return e.url; }), [ORIGIN + "/privacy.html"]);
 });
 
 // ---------- left alone ----------

@@ -1,0 +1,221 @@
+T-06 second review (fresh conversation), 2026-10-02 about 07:54-08:15 IST. Node 24.21.0. Outputs as printed (trimmed where marked).
+
+===== 1. Input: the receipt's digest command (Git Bash), before and after every break run =====
+fd61c458ab25db2db547f399e4359eb507aba2f8dfc145607554d349d13fdddb over 59 files (= the receipt's Rework section); every per-file hash in both receipt tables equal
+
+===== 2. npm test (tail) =====
+✔ assetlinks.json names the Android app, with real or clearly marked fingerprints (SF-011) (1.0258ms)
+ℹ tests 230
+ℹ suites 0
+ℹ pass 230
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4832.3854
+
+===== 3. node docs/planning/evidence/T-06-break-checks.mjs =====
+K1 CAUGHT (SF-018, 1 failing): privacy.html says something the policy doesn't (60 days of logs, not 30)
+K2 CAUGHT (SF-017, 1 failing): the policy text changes in PRIVACY_POLICY.md only
+K3 CAUGHT (SF-017, 1 failing): a section of the policy is dropped from privacy.html
+K4 CAUGHT (SF-018, 1 failing): privacy.html loads the app's web fonts from Google
+K5 CAUGHT (SF-018, 1 failing): privacy.html runs a script
+K6 CAUGHT (SF-018, 1 failing): the group menu loses its privacy link
+K7 CAUGHT (SF-018, 1 failing): the welcome screen's privacy link is hidden inside the app (web-only)
+K8 CAUGHT (SF-018, 2 failing): privacy.html is dropped from the worker's SHELL (no offline copy)
+K9 CAUGHT (SF-018, 2 failing): privacy.html is not copied into the Docker image (a 404 on Railway)
+K10 CAUGHT (SF-018, 2 failing): .dockerignore keeps privacy.html out of the build
+K11 CAUGHT (SF-018, 2 failing): a change to privacy.html alone wouldn't redeploy (no watch pattern)
+K12 CAUGHT (SF-018, 1 failing): a watch pattern so wide that docs and tests redeploy the site
+K13 CAUGHT (SF-018, 3 failing): the server stops serving privacy.html
+K14 CAUGHT (SF-017 F-16, 2 failing): the limiters' sweep forgets nothing
+K15 CAUGHT (SF-017 F-16, 1 failing): the server's timer never sweeps the limiters
+K16 CAUGHT (SF-017 F-16, 1 failing): close() leaves the sweep timer running
+K17 CAUGHT (SF-017 F-16, 1 failing): the sweep timer keeps the process running (no unref)
+K18 CAUGHT (SF-017 F-16, 1 failing): the policy promises 10 minutes again, in both files alike
+K19 CAUGHT (SF-017 F-16, 1 failing): the change window grows to 15 minutes and the policy isn't updated
+K20 CAUGHT (SF-017 F-16, 1 failing): the declarations give Play Console a different time from the policy
+20/20 caught
+
+===== 4. node docs/planning/evidence/T-06-review2-breaks.mjs . =====
+X1 CAUGHT (1 failing): the timer sweeps only the guess limiter, not the change limiter
+    ✖ F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close (270.8962ms)
+    ✖ failing tests:
+    ✖ F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close (270.8962ms)
+X2 CAUGHT (2 failing): SWEEP_MS becomes 90 s (window + 1.5 min > the policy's 11 minutes)
+    ✖ the policy's time for IP addresses in the server's memory covers what the server does (the T-06 review's F-16) (1.2331ms)
+    ✖ F-16: a sweep forgets an address that never comes back once its last event leaves the window (3.0684ms)
+    ✖ failing tests:
+    ✖ the policy's time for IP addresses in the server's memory covers what the server does (the T-06 review's F-16) (1.2331ms)
+X3 CAUGHT (2 failing): the sweep forgets every address, even ones still inside the window (weakens the guessing limit)
+    ✖ F-16: a sweep forgets an address that never comes back once its last event leaves the window (2.7468ms)
+    ✖ F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close (174.165ms)
+    ✖ failing tests:
+    ✖ F-16: a sweep forgets an address that never comes back once its last event leaves the window (2.7468ms)
+X4 CAUGHT (1 failing): createApp ignores the sweepMs option (always 30 s)
+    ✖ F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close (280.6407ms)
+    ✖ failing tests:
+    ✖ F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close (280.6407ms)
+X5 CAUGHT (2 failing): the live hub keeps an address (at 0) after its last stream closes
+    ✖ 100 streams opened and closed leave nothing behind (212.0565ms)
+    ✖ one address holds at most 10 streams: the 11th gets 503, others still get theirs, and closing one frees a place (75.2884ms)
+    ✖ failing tests:
+    ✖ 100 streams opened and closed leave nothing behind (212.0565ms)
+X6 NOT CAUGHT: section 5 drops the live-connection clause (both files alike); section 10 keeps it
+
+===== 5. node docs/planning/evidence/T-08-break-checks.mjs (CAUGHT lines and summary) =====
+CAUGHT B1 (SF-031) drop X-Content-Type-Options: nosniff: 6 failing, 3 passing
+CAUGHT B2 (SF-031) serve package.json too: 3 failing, 22 passing
+CAUGHT B3 (SF-031) leave server/live.js out of the image: 1 failing, 15 passing
+CAUGHT B4 (SF-032) build one query by string concatenation: 1 failing, 11 passing
+CAUGHT B5 (SF-032) really delete an expense (no record), so a replay brings it back: 7 failing, 49 passing
+CAUGHT B6 (SF-033) F-7: skip the code check on DELETE: 1 failing, 43 passing
+CAUGHT B7 (SF-033) F-6: allow a split of 101: 2 failing, 65 passing
+CAUGHT B8 (SF-033) let a person used in an expense be deleted: 2 failing, 42 passing
+CAUGHT B14 (SF-033) no cap on people per group: 1 failing, 43 passing
+CAUGHT B9 (SF-033) allow one more unknown code (the 31st gets 404): 4 failing, 40 passing
+CAUGHT B10 (SF-033) log the group code with a refusal: 1 failing, 43 passing
+CAUGHT B11 (SF-034) don't tell other pages about a change: 1 failing, 11 passing
+CAUGHT B12 (SF-034) cap the reconnect delay at 60 s: 1 failing, 11 passing
+CAUGHT B13 (SF-034) keep the old watch when a new one starts (two connections per page): 1 failing, 11 passing
+CAUGHT B15 (SF-033) F-8: check the guess limit only before the body is read: 1 failing, 43 passing
+CAUGHT B16 (SF-033) D-17: no limit on changes per address: 1 failing, 43 passing
+CAUGHT B17 (SF-033) D-17: no cap on expenses per group: 1 failing, 43 passing
+CAUGHT B18 (SF-034) D-17: no cap on streams per address: 1 failing, 11 passing
+CAUGHT B19 (SF-034) D-17: an address's closed streams still count against it: 2 failing, 10 passing
+CAUGHT B20 (SF-033) N-4: take a date that rolls over (2026-02-30): 1 failing, 6 passing
+All 20 breaks caught; every file restored byte for byte.
+
+===== 6. node docs/planning/evidence/T-08-review-breaks.mjs (summary lines) =====
+CAUGHT R1 no dot-segment check (the URL parser tidies /%2e%2e/ to /): 1 failing, 8 passing
+CAUGHT R2 trust X-Real-IP everywhere, not only behind Railway: 1 failing, 43 passing
+SKIP R3: pattern not found in server/api.js
+CAUGHT R4 a closed stream stays in the hub: 5 failing, 7 passing
+CAUGHT R5 a person only in a split (not the payer) can be deleted: 1 failing, 43 passing
+CAUGHT R6 the client keeps retrying an unknown code: 1 failing, 11 passing
+CAUGHT R7 the API answers without Cache-Control: no-store: 1 failing, 52 passing
+CAUGHT R8 reading a group drops the first person of every split: 12 failing, 44 passing
+(R3 skipped: its text left server/api.js in T-09, as in T-09's receipt C21 and the rework's record)
+
+===== 7. node docs/planning/evidence/T-06-rework-probe.mjs (the real 30 s sweep) =====
+{
+  "sweepMs": 30000,
+  "windowsMs": [
+    600000,
+    600000
+  ],
+  "policyBoundMinutes": 11,
+  "unknownCode": 404,
+  "newGroup": 200,
+  "streamStatus": 200,
+  "atStart": {
+    "guessLimiter": 2,
+    "writeLimiter": 1,
+    "liveHub": 1
+  },
+  "after9m59s": {
+    "guessLimiter": 2,
+    "writeLimiter": 1,
+    "liveHub": 1
+  },
+  "afterWindow": {
+    "guessLimiter": 0,
+    "writeLimiter": 0,
+    "liveHub": 1
+  },
+  "realSecondsUntilForgotten": 27.8,
+  "forgottenWithinOneSweep": true,
+  "streamHeldAfterWindow": 1,
+  "afterStreamClosed": {
+    "guessLimiter": 0,
+    "writeLimiter": 0,
+    "liveHub": 0
+  },
+  "pass": true
+}
+
+===== 8. node docs/planning/evidence/T-06-browser-check.mjs . <scratch> <shots> -> T-06-review2-browser-check-output.json, compared with T-06-rework-browser-check-output.json =====
+differences: 21
+.M1.balances.0: "Chitra owes Asha ₹100.00"  ->  "Ben owes Asha ₹100.00"
+.M1.balances.1: "Ben owes Asha ₹100.00"  ->  "Chitra owes Asha ₹100.00"
+.M3.balances.0: "Chitra owes Asha ₹150.00"  ->  "Ben owes Asha ₹150.00"
+.M3.balances.1: "Ben owes Asha ₹150.00"  ->  "Chitra owes Asha ₹150.00"
+.M4.balances.0: "Chitra owes Asha ₹100.00"  ->  "Ben owes Asha ₹100.00"
+.M4.balances.1: "Ben owes Asha ₹100.00"  ->  "Chitra owes Asha ₹100.00"
+.M5.balances.0: "Chitra owes Asha ₹33.34"  ->  "Ben owes Asha ₹33.34"
+.M5.balances.1: "Ben owes Asha ₹33.33"  ->  "Dev owes Asha ₹33.33"
+.M5.balances.2: "Dev owes Asha ₹33.33"  ->  "Chitra owes Asha ₹33.33"
+.M5_extraPaisaGoesTo: "the first of [\"Ben 623d98ce\",\"Chitra 5601588d\",\"Dev 8679563f\"] by ID"  ->  "the first of [\"Ben 2b973647\",\"Chitra 87747bbd\",\"Dev 5563be7d\"] by ID"
+.M6.balances.0: "Chitra owes Asha ₹33.34"  ->  "Ben owes Asha ₹33.34"
+.M6.balances.1: "Ben owes Asha ₹33.33"  ->  "Chitra owes Asha ₹33.33"
+.M6_ids.0: "Chitra 5601588d"  ->  "Ben 2b973647"
+.M6_ids.1: "Ben 623d98ce"  ->  "Asha 4f00ecf1"
+.M6_ids.2: "Asha 7228e1cf"  ->  "Chitra 87747bbd"
+.L3_reopened.balances.0: "Chitra owes Asha ₹33.34"  ->  "Ben owes Asha ₹33.34"
+.L3_reopened.balances.1: "Ben owes Asha ₹33.33"  ->  "Chitra owes Asha ₹33.33"
+.S5_backTo.balances.0: "Chitra owes Asha ₹30.00"  ->  "Ben owes Asha ₹30.00"
+.S5_backTo.balances.1: "Ben owes Asha ₹30.00"  ->  "Chitra owes Asha ₹30.00"
+.E3_after.balances.0: "Chitra owes Ben ₹40.00"  ->  "Asha owes Ben ₹40.00"
+.E3_after.balances.1: "Asha owes Ben ₹40.00"  ->  "Chitra owes Ben ₹40.00"
+errors [] dialogs [] timeouts []
+S5_page {"title":"Privacy policy · SplitFamilia","url":"/privacy.html","h1":"Privacy policy","draft":"Draft. This policy is not final: its owner hasn't approved it yet, and the marked items and the names in angle brackets are still to be filled in.","sections":17,"first":"1. Who we are","last":"17. Contact","back":"Back to SplitFamilia","fonts":0}
+S5_wide360 {"scroll":"ok","over":[]} S5_wide800 {"scroll":"ok","over":[]} O5_privacyOffline "Privacy policy · SplitFamilia | 17 sections"
+F14_menuOpen {"shown":true,"popoverOpen":true,"inside":"sheet","noticeOnTop":true,"hitIs":"notice-text","box":[12,585,336,63],"closeAt":[321,608.40625],"sheetOpen":true,"ax":{"ignored":false,"role":"button","name":"Dismiss message"}}
+F14_afterTapOnClose {"noticeHidden":true,"sheetOpen":true}
+
+===== 9. node docs/planning/evidence/T-06-checklist-diff.mjs . (tail) =====
+Brief boxes: 37; found: 37; ticked: 8; added for this app: 8 (Application: The Railway volume is mounted and its backups are  | Application: `IMPORT_TOKEN` is removed from Railway's variables | Application: GitHub Pages is off and the Firebase project is de | Application: The web app is deployed before the bundle goes liv | Security: `assetlinks.json` has the real fingerprints and is | Play Store: The privacy policy URL is live and linked in the a | Compliance: The other App content items answered: Advertising  | Release: `versionCode` was raised for this upload, if any b)
+nothing missing
+
+===== 10. node docs/planning/evidence/T-06-codes-check.mjs =====
+reports: 2; code-like words: 3; candidates after excluding report wording: 2
+HIT: a candidate, in history: tests/
+1 hit(s): see above (codes not printed)
+
+===== 11. bash docs/planning/evidence/T-06-audit.sh, diffed with T-06-audit-output.txt =====
+1c1
+< Audit run: 2026-10-01T20:38:05Z (UTC); HEAD 5f51b22; 11 commits; 288 files in the tree
+---
+> Audit run: 2026-10-02T02:34:13Z (UTC); HEAD 5f51b22; 11 commits; 298 files in the tree
+43a44,46
+> docs/planning/evidence/T-06-implementation.md:5
+> docs/planning/evidence/T-06-review-probe.mjs:1
+> docs/planning/evidence/T-06-review.md:2
+59c62
+< docs/google-play/PRODUCTION_AUDIT.md:23
+---
+> docs/google-play/PRODUCTION_AUDIT.md:25
+63c66
+< docs/planning/STATE.json:14
+---
+> docs/planning/STATE.json:17
+103c106
+< docs/planning/stories/SF-020.md:1
+---
+> docs/planning/stories/SF-020.md:2
+127a131,132
+> docs/planning/evidence/T-06-review-probe.mjs:4
+> docs/planning/evidence/T-06-rework-probe.mjs:3
+187a193,194
+> docs/planning/evidence/T-06-review-probe.mjs:2
+> docs/planning/evidence/T-06-rework-probe.mjs:1
+207a215
+> docs/planning/STATE.json:1
+268c276,277
+< docs/google-play/PRODUCTION_AUDIT.md:276:| TODOs affecting production | None (`TODO`, `FIXME`, `XXX`, `HACK` in code: 0) | None |
+---
+> docs/google-play/PRODUCTION_AUDIT.md:266:section), `release.gradle`'s `storePassword:` line and the word "TODO" (in the table below).
+> docs/google-play/PRODUCTION_AUDIT.md:280:| TODOs affecting production | None (`TODO`, `FIXME`, `XXX`, `HACK` in code: 0) | None |
+285a295,296
+>   docs/planning/evidence/T-06-implementation.md:4
+>   docs/planning/evidence/T-06-review.md:1
+386,389c397,400
+< server/api.js:251:    if(status !== 429) log("SplitFamilia api: " + req.method + " " + status + " " + code);
+< server/api.js:372:      if(writes.hit(address)) log("SplitFamilia api: an address reached the limit of changes");
+< server/api.js:378:      if(limiter.hit(address)) log("SplitFamilia api: an address reached the limit of unknown group codes");
+< server/api.js:439:      log("SplitFamilia api: " + req.method + " 500 internal (" + ((err && (err.code || err.name)) || "unknown") + ")");
+---
+> server/api.js:261:    if(status !== 429) log("SplitFamilia api: " + req.method + " " + status + " " + code);
+> server/api.js:382:      if(writes.hit(address)) log("SplitFamilia api: an address reached the limit of changes");
+> server/api.js:388:      if(limiter.hit(address)) log("SplitFamilia api: an address reached the limit of unknown group codes");
+> server/api.js:449:      log("SplitFamilia api: " + req.method + " 500 internal (" + ((err && (err.code || err.name)) || "unknown") + ")");

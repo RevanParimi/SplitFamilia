@@ -76,6 +76,10 @@ These are the starting set. Adjust them as stories are written.
   - One address sends at most 300 changes in 10 minutes (then 429 for its changes, not its
     reads) and holds at most 10 live streams (then 503) (the owner, D-17).
   - No log line holds a code, a name or a description.
+  - The server keeps an address in memory only, never stored or logged: in the limiters until
+    its last event leaves the window (a sweep every 30 seconds, so at most 10.5 minutes), and in
+    the live hub while its stream is open. The privacy policy states that bound (11 minutes), and
+    a test checks it still covers the code (T-06 review, F-16).
   - Sending the same ID again adds nothing, even after a delete: deletes only mark a row.
   - A group's answer is built once per version and shared by every reader, and gzipped on
     Node's worker threads, so no read of even the largest group holds the server for long (D-18).
@@ -114,12 +118,21 @@ These are the starting set. Adjust them as stories are written.
   Railway's variables and a git-ignored file (`data/`).
 - **Release signing:** the release AAB is signed with the upload key from environment variables
   or the ignored properties file, never with the debug key. Every upload raises `versionCode`.
-- **Least permission:** the merged release manifest asks only for what the app uses (expected:
-  `INTERNET`).
+- **Least permission:** the merged release manifest asks only for what the app uses (since T-05:
+  no permission at all, apart from AndroidX's private signature permission).
 - **HTTPS only:** shipped files contain no `localhost` URLs and no non-local `http://` URLs.
 - **Only the app is shipped:** the Docker image holds the app's files and the server's code, and
   nothing else (no docs, tests, tooling, rules, local data or secrets), and every file the service
-  worker caches is in it.
+  worker caches is in it. Each shipped file is covered by a `railway.json` watch pattern, so a
+  push that changes it redeploys (T-06).
+- **The privacy policy is the truth (T-06):** `privacy.html` shows `PRIVACY_POLICY.md` section A
+  word for word, and both change whenever the app changes what it sends or keeps (a new third
+  party, a new stored field, a deletion feature). The page loads nothing from another site.
+- **Messages stay usable over sheets (T-06, F-14):** the message bar is a popover inside the
+  topmost open dialog, so it is drawn on top and not inert. A probe for a new sheet or dialog:
+  the bar's centre is the topmost element there, and its × works.
+- **No private data in git:** no real group code, invite link or person's name in any file,
+  example or test (the T-06 audit's D-21). Examples use made-up codes.
 - **Honest docs:** store and compliance docs claim only features the code has. Every compliance
   answer cites code or an official page (with the date checked), or says **OWNER CONFIRMATION
   REQUIRED**.

@@ -9,7 +9,7 @@ WORKDIR /app
 # The server and the page's modules are ES modules.
 RUN echo '{ "type": "module" }' > /app/package.json
 
-COPY index.html manifest.json service-worker.js /app/
+COPY index.html privacy.html manifest.json service-worker.js /app/
 COPY money.js group-code.js sync-status.js ledger-rules.js ledger-client.js outbox.js recent-groups.js /app/
 COPY icon-192.png icon-512.png apple-touch-icon.png /app/
 COPY .well-known/assetlinks.json /app/.well-known/assetlinks.json

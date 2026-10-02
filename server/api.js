@@ -6,6 +6,8 @@
 // - an address that tries more than 30 unknown codes in 10 minutes is refused for a while;
 // - an address may send at most 300 changes in 10 minutes, and hold at most 10 live streams
 //   (the owner, D-17), so no one can fill the database quickly or take every stream;
+// - an address is kept in memory only: by the limiters until its last event leaves the window
+//   (createApp sweeps them every SWEEP_MS), and by the live hub while its stream is open;
 // - a group holds at most 20,000 split entries (D-18), and its answer is built once per version
 //   and shared by every reader, gzipped when the browser accepts it, so reading even the largest
 //   group stays cheap;
@@ -52,6 +54,9 @@ export const GUESS_WINDOW_MS = 10 * 60 * 1000;
 // sending a day's waiting changes at once.
 export const WRITE_LIMIT = 300;
 export const WRITE_WINDOW_MS = 10 * 60 * 1000;
+// How often createApp sweeps the limiters, so an address is forgotten at most a window plus this
+// after its last request (the privacy policy's 11 minutes; the T-06 review's F-16).
+export const SWEEP_MS = 30 * 1000;
 const MAX_TRACKED_ADDRESSES = 10000;
 // The group answers kept ready (D-18), by size: a few of the largest groups, or many small ones.
 export const MAX_ANSWER_BYTES = 32 * 1024 * 1024;
@@ -121,6 +126,11 @@ function createAddressLimiter(defaultLimit, defaultWindowMs, options){
     retryAfter: function(address){
       const list = recent(address);
       return list === null ? 0 : Math.max(1, Math.ceil((list[0] + windowMs - now()) / 1000));
+    },
+    // Forgets every address with no event left in the window. The calls above forget only the
+    // address they look at, so one never seen again would stay until a restart.
+    sweep: function(){
+      hits.forEach(function(_, address){ recent(address); });
     },
     size: function(){ return hits.size; }
   };

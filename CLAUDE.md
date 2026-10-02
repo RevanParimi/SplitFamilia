@@ -19,7 +19,9 @@
   (`<dialog>`), a group menu, a guide for new groups, confirmations before deleting, and form
   errors under their fields (no `alert()`).
 
-  Also `manifest.json` and `service-worker.js` (a PWA; its cache is named `splitsheet-vN`, the
+  Also `privacy.html` (the privacy policy: `docs/google-play/PRIVACY_POLICY.md` section A word for
+  word, linked from the welcome screen and the group menu; `npm test` checks they match), and
+  `manifest.json` and `service-worker.js` (a PWA; its cache is named `splitsheet-vN`, the
   page imports the modules as `./name.js?v=N` with the same N; it never touches `/api/`). No
   build step.
 - **Server (T-08, SF-031 to SF-034):** `server/` runs on Node 24 with built-in modules only
@@ -36,7 +38,8 @@
   - Limits (`ledger-rules.js`, D-17, D-18): 100 people and a split of 100; 5,000 expenses and
     20,000 split entries per group (deleted ones included); per address, 30 unknown codes and
     300 changes per 10 minutes, and 10 live streams. A group's answer is built once per version
-    and gzipped off the main thread.
+    and gzipped off the main thread. Addresses stay in memory only: a sweep every 30 seconds
+    forgets them, as the privacy policy's 11 minutes says (`tests/privacy.test.js` checks).
   - `POST /api/import` (SF-037) exists only while Railway's `IMPORT_TOKEN` is set; the copy
     from Firestore is `scripts/move-from-firestore.mjs` (not shipped).
   - `/healthz` answers 503 when the database can't be opened.
@@ -47,7 +50,8 @@
 - **Hosting files (SF-011, SF-031):** `Dockerfile` (`node:24.21.0-alpine`, only the app's files
   and `server/`), `.dockerignore`, `railway.json` (health check `/healthz`) and
   `.well-known/assetlinks.json`. A new file the page or the server needs must be added to the
-  `Dockerfile` and `.dockerignore`, and a new page file to `server/static.js`; `npm test` checks.
+  `Dockerfile` and `.dockerignore`, a new page file to `server/static.js`, and each to a
+  `railway.json` watch pattern (or a push changing only it won't redeploy); `npm test` checks.
   Owner steps: `docs/google-play/HOSTING_RAILWAY.md`.
 - **Repo map:** `README.md` lists every top-level file and folder and why the app's files sit at
   the top level. Keep it current when a file is added or moved. The approved UI design is in
@@ -70,6 +74,9 @@
   - `tests/money.test.js`, `tests/group-code.test.js`, `tests/sync-status.test.js`,
     `tests/ledger-rules.test.js`, `tests/outbox.test.js` and `tests/recent-groups.test.js` cover
     the pure modules.
+  - `tests/privacy.test.js` checks `privacy.html` against the policy text, that it loads nothing
+    from other sites, that the app links to it, and that the policy's 11 minutes for IP
+    addresses still covers the server's windows and sweep.
   - `tests/service-worker.test.js` runs the real worker against a fake cache and network.
   - `tests/server-*.test.js` and `tests/page-client.test.js` run the real server in-process on
     127.0.0.1, with a temporary database (`tests/helpers/test-server.js`): files, database, API,

@@ -16,6 +16,7 @@ after(async function(){ await t.close(); });
 // Worked out from the Caddy run in docs/planning/evidence/T-03-caddy-headers.txt.
 const EXPECTED_TYPES = {
   "/index.html": "text/html; charset=utf-8",
+  "/privacy.html": "text/html; charset=utf-8",
   "/service-worker.js": "text/javascript; charset=utf-8",
   "/money.js": "text/javascript; charset=utf-8",
   "/group-code.js": "text/javascript; charset=utf-8",

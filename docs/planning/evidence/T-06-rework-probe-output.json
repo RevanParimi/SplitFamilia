@@ -1,0 +1,35 @@
+{
+  "sweepMs": 30000,
+  "windowsMs": [
+    600000,
+    600000
+  ],
+  "policyBoundMinutes": 11,
+  "unknownCode": 404,
+  "newGroup": 200,
+  "streamStatus": 200,
+  "atStart": {
+    "guessLimiter": 2,
+    "writeLimiter": 1,
+    "liveHub": 1
+  },
+  "after9m59s": {
+    "guessLimiter": 2,
+    "writeLimiter": 1,
+    "liveHub": 1
+  },
+  "afterWindow": {
+    "guessLimiter": 0,
+    "writeLimiter": 0,
+    "liveHub": 1
+  },
+  "realSecondsUntilForgotten": 27.9,
+  "forgottenWithinOneSweep": true,
+  "streamHeldAfterWindow": 1,
+  "afterStreamClosed": {
+    "guessLimiter": 0,
+    "writeLimiter": 0,
+    "liveHub": 0
+  },
+  "pass": true
+}

@@ -150,8 +150,10 @@ as Play asks.
 
 - Email address (required): `<SUPPORT_EMAIL>`
 - Website (optional): `<SUPPORT_WEBSITE>`
-- Privacy policy (in App content → Privacy policy): `<PRIVACY_POLICY_URL>`. It exists only once
-  SF-017 (the policy) and SF-018 (its page on the site) are done.
+- Privacy policy (in App content → Privacy policy): **`https://splitfamilia.up.railway.app/privacy.html`**
+  (SF-017 wrote the policy, [PRIVACY_POLICY.md](PRIVACY_POLICY.md); SF-018 made the page, linked
+  from the welcome screen and the group menu). It is live only after you approve the text and a
+  web deploy (pending check PC-010); until then the page shows a "Draft" note.
 
 **OWNER CONFIRMATION REQUIRED:** which email and website to show. The owner keeps their personal
 name out of public IDs and store text, so a dedicated support address is a good fit.

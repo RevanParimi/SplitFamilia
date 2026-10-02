@@ -1,0 +1,263 @@
+{
+ "A": {
+  "guessLimiter": {
+   "atStart": 1,
+   "after11Minutes": 2,
+   "after7Days": 3,
+   "afterFirstAddressSeenAgain": 2
+  },
+  "writeLimiter": {
+   "atStart": 1,
+   "after11Minutes": 2,
+   "after7Days": 3,
+   "afterFirstAddressSeenAgain": 2
+  },
+  "liveHub": {
+   "addressHeldWhileStreamOpen": true,
+   "addressHeldAfterClose": false
+  },
+  "timersInServer": [
+   "live.js: 1 setInterval (the stream heartbeat)"
+  ]
+ },
+ "B": {
+  "bar": {
+   "seeded": [
+    200,
+    201,
+    201,
+    201,
+    201
+   ],
+   "status": "live",
+   "B1_sheetOpen": {
+    "text": "Something went wrong. If the page looks wrong, reload the app.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "sheet",
+    "noticeOnTop": true,
+    "hitIs": "notice-text",
+    "closeAt": [
+     321,
+     608.40625
+    ],
+    "sheetOpen": true,
+    "confirmOpen": false,
+    "ax": {
+     "ignored": false,
+     "role": "button"
+    }
+   },
+   "B1_afterEscape": {
+    "text": "Something went wrong. If the page looks wrong, reload the app.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "BODY",
+    "noticeOnTop": true,
+    "hitIs": "notice-text",
+    "closeAt": [
+     321,
+     608.40625
+    ],
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B1_afterTapOnClose": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "BODY",
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B2_computerDeletesLunch": 200,
+   "B2_beforeOnline": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "confirm",
+    "sheetOpen": true,
+    "confirmOpen": true
+   },
+   "B2_messageWhileConfirmOpen": {
+    "text": "Couldn't save the expense “Lunch”. Someone else changed or deleted it first, so this edit wasn't saved.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "confirm",
+    "noticeOnTop": true,
+    "hitIs": "notice-text",
+    "closeAt": [
+     321,
+     567.8125
+    ],
+    "sheetOpen": true,
+    "confirmOpen": true,
+    "ax": {
+     "ignored": false,
+     "role": "button"
+    }
+   },
+   "B2_afterTapOnClose": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "confirm",
+    "sheetOpen": true,
+    "confirmOpen": true
+   },
+   "B2_afterCancel": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "sheet",
+    "sheetOpen": true,
+    "confirmOpen": false
+   },
+   "B2_end": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "BODY",
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B2_server": [
+    "Dinner 30000"
+   ]
+  },
+  "bar_break": {
+   "seeded": [
+    200,
+    201,
+    201,
+    201,
+    201
+   ],
+   "status": "live",
+   "B1_sheetOpen": {
+    "text": "Something went wrong. If the page looks wrong, reload the app.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "BODY",
+    "noticeOnTop": false,
+    "hitIs": "split-text",
+    "closeAt": [
+     321,
+     608.40625
+    ],
+    "sheetOpen": true,
+    "confirmOpen": false,
+    "ax": {
+     "ignored": true,
+     "role": "none"
+    }
+   },
+   "B1_afterEscape": {
+    "text": "Something went wrong. If the page looks wrong, reload the app.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "BODY",
+    "noticeOnTop": true,
+    "hitIs": "notice-text",
+    "closeAt": [
+     321,
+     608.40625
+    ],
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B1_afterTapOnClose": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "BODY",
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B2_computerDeletesLunch": 200,
+   "B2_beforeOnline": {
+    "noticeHidden": true,
+    "popoverOpen": false,
+    "noticeIn": "BODY",
+    "sheetOpen": true,
+    "confirmOpen": true
+   },
+   "B2_messageWhileConfirmOpen": {
+    "text": "Couldn't save the expense “Lunch”. Someone else changed or deleted it first, so this edit wasn't saved.",
+    "shown": true,
+    "popoverOpen": true,
+    "inside": "BODY",
+    "noticeOnTop": false,
+    "hitIs": "confirm",
+    "closeAt": [
+     321,
+     567.8125
+    ],
+    "sheetOpen": true,
+    "confirmOpen": true,
+    "ax": {
+     "ignored": true,
+     "role": "none"
+    }
+   },
+   "B2_afterTapOnClose": {
+    "noticeHidden": false,
+    "popoverOpen": true,
+    "noticeIn": "BODY",
+    "sheetOpen": true,
+    "confirmOpen": false
+   },
+   "B2_afterCancel": {
+    "noticeHidden": false,
+    "popoverOpen": true,
+    "noticeIn": "BODY",
+    "sheetOpen": true,
+    "confirmOpen": false
+   },
+   "B2_end": {
+    "noticeHidden": false,
+    "popoverOpen": true,
+    "noticeIn": "BODY",
+    "sheetOpen": false,
+    "confirmOpen": false
+   },
+   "B2_server": [
+    "Dinner 30000"
+   ]
+  },
+  "n14": {
+   "seeded": [
+    200,
+    201,
+    201,
+    201,
+    201
+   ],
+   "status": "live",
+   "showModal": "undefined",
+   "sheetOpenAfterSave": false,
+   "server": [
+    "Dinner 30000",
+    "Lunch 9000",
+    "Bread 5000"
+   ]
+  },
+  "n14_break": {
+   "seeded": [
+    200,
+    201,
+    201,
+    201,
+    201
+   ],
+   "status": "live",
+   "showModal": "undefined",
+   "sheetOpenAfterSave": true,
+   "server": [
+    "Dinner 30000",
+    "Lunch 9000"
+   ]
+  }
+ },
+ "dialogs": [],
+ "errors": [],
+ "timeouts": [
+  "Network.emulateNetworkConditions",
+  "Network.emulateNetworkConditions",
+  "Network.emulateNetworkConditions"
+ ]
+}

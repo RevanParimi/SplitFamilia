@@ -1,16 +1,17 @@
-const CACHE = "splitsheet-v7";
+const CACHE = "splitsheet-v8";
 // The page imports its modules as "./name.js?v=N", where N is the number in CACHE (npm test
 // checks this). So a new page never runs with an old cached copy of a module, and an old page
 // never gets a new one: bump both together.
 const SHELL = [
   "./index.html",
-  "./money.js?v=7",
-  "./group-code.js?v=7",
-  "./sync-status.js?v=7",
-  "./ledger-rules.js?v=7",
-  "./ledger-client.js?v=7",
-  "./outbox.js?v=7",
-  "./recent-groups.js?v=7",
+  "./money.js?v=8",
+  "./group-code.js?v=8",
+  "./sync-status.js?v=8",
+  "./ledger-rules.js?v=8",
+  "./ledger-client.js?v=8",
+  "./outbox.js?v=8",
+  "./recent-groups.js?v=8",
+  "./privacy.html",
   "./manifest.json",
   "./icon-192.png",
   "./icon-512.png"

@@ -5,8 +5,13 @@ import { test, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
 import { connect } from "node:net";
 import { gunzipSync } from "node:zlib";
-import { startTestServer, api, raw } from "./helpers/test-server.js";
-import { MAX_BODY_BYTES, WRITE_LIMIT, WRITE_WINDOW_MS } from "../server/api.js";
+import { spawnSync } from "node:child_process";
+import { mkdtempSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
+import { startTestServer, api, raw, REPO_ROOT } from "./helpers/test-server.js";
+import { MAX_BODY_BYTES, WRITE_LIMIT, WRITE_WINDOW_MS, GUESS_WINDOW_MS, SWEEP_MS, createGuessLimiter, createWriteLimiter } from "../server/api.js";
 import { MAX_EXPENSES, MAX_SPLIT_ENTRIES } from "../ledger-rules.js";
 import { computeBalances, simplifyDebts } from "../money.js";
 import { forBalances } from "../outbox.js";
@@ -753,6 +758,71 @@ test("an address sends at most 300 changes in 10 minutes; then its changes wait,
     assert.equal((await api(g.base, "DELETE", "/api/expenses/e0", { code: code, headers: asha })).status, 200);
   }finally{
     await g.close();
+  }
+});
+
+// ---------- forgetting addresses (the privacy policy's 11 minutes; the T-06 review's F-16) ----------
+
+test("F-16: a sweep forgets an address that never comes back once its last event leaves the window", function(){
+  assert.equal(SWEEP_MS, 30 * 1000);
+  for(const [name, make, windowMs] of [["guesses", createGuessLimiter, GUESS_WINDOW_MS], ["changes", createWriteLimiter, WRITE_WINDOW_MS]]){
+    let clock = Date.parse("2026-10-02T00:00:00Z");
+    const lim = make({ now: function(){ return clock; } });
+    lim.hit("192.0.2.1");
+    clock += 5 * 60 * 1000;
+    lim.hit("192.0.2.1"); // its last event
+    lim.hit("198.51.100.2");
+    clock += windowMs - 1;
+    lim.sweep();
+    assert.equal(lim.size(), 2, name + ": both still have an event in the window");
+    clock += 1;
+    lim.sweep();
+    assert.equal(lim.size(), 0, name + ": nothing left in the window, so nothing kept");
+    // The sweep changes nothing else: an address that returns starts afresh.
+    assert.equal(lim.blocked("192.0.2.1"), false, name);
+    lim.hit("192.0.2.1");
+    lim.sweep();
+    assert.equal(lim.size(), 1, name + ": a fresh event stays");
+  }
+});
+
+test("F-16: the server sweeps both limiters on a timer, without another request, and stops sweeping on close", async function(){
+  let clock = Date.parse("2026-10-02T00:00:00Z");
+  const g = await startTestServer({ sweepMs: 20, now: function(){ return clock; } });
+  let closed = false;
+  try{
+    // Creating a group counts as an unknown code and as a change.
+    assert.equal((await api(g.base, "PUT", "/api/group", { code: "sweep-trip", body: { currency: "₹" } })).status, 200);
+    assert.equal((await api(g.base, "GET", "/api/group", { code: "sweep-guess" })).status, 404);
+    await new Promise(function(r){ setTimeout(r, 100); });
+    assert.deepEqual([g.app.limiter.size(), g.app.writes.size()], [1, 1], "still inside the window");
+    clock += 10 * 60 * 1000;
+    await new Promise(function(r){ setTimeout(r, 100); });
+    assert.deepEqual([g.app.limiter.size(), g.app.writes.size()], [0, 0], "forgotten with no request since");
+    // After close() the timer is gone: nothing calls the sweep any more.
+    await g.close();
+    closed = true;
+    let calls = 0;
+    g.app.limiter.sweep = function(){ calls++; };
+    g.app.writes.sweep = function(){ calls++; };
+    await new Promise(function(r){ setTimeout(r, 100); });
+    assert.equal(calls, 0);
+  }finally{
+    if(!closed) await g.close();
+  }
+});
+
+test("F-16: the sweep timer doesn't keep the process running", function(){
+  const dir = mkdtempSync(join(tmpdir(), "splitfamilia-sweep-"));
+  try{
+    // An app made and never closed or started: the process must still end by itself.
+    const code = "import { createApp } from " + JSON.stringify(pathToFileURL(join(REPO_ROOT, "server", "server.js")).href) + ";\n" +
+      "createApp({ root: " + JSON.stringify(REPO_ROOT) + ", dbFile: " + JSON.stringify(join(dir, "s.db")) + ", log: function(){} });\n";
+    const run = spawnSync(process.execPath, ["--input-type=module", "--no-warnings", "-e", code], { encoding: "utf8", timeout: 15000 });
+    assert.equal(run.error, undefined, "the process was still running after 15 seconds");
+    assert.equal(run.status, 0, run.stderr);
+  }finally{
+    rmSync(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 });
   }
 });
 

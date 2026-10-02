@@ -1,0 +1,396 @@
+Audit run: 2026-10-01T20:38:05Z (UTC); HEAD 5f51b22; 11 commits; 288 files in the tree
+
+== 1. Key-like paths ever committed, or in the tree now
+(none)
+
+== 2. Secret patterns in every commit (text files): rev:file:count
+5f51b22:docs/google-play/PRODUCTION_AUDIT.md:1
+cc489a5:docs/google-play/PRODUCTION_AUDIT.md:1
+db0580b:docs/google-play/PRODUCTION_AUDIT.md:1
+db540e7:docs/google-play/PRODUCTION_AUDIT.md:1
+db540e7:index.html:1
+a8bffb8:docs/google-play/PRODUCTION_AUDIT.md:1
+a8bffb8:index.html:1
+fa17597:docs/google-play/PRODUCTION_AUDIT.md:1
+fa17597:index.html:1
+6f3b3fe:docs/google-play/PRODUCTION_AUDIT.md:1
+6f3b3fe:index.html:1
+8898b50:index.html:1
+(end)
+-- of which Firebase web API keys (AIza...), by commit:file
+db540e7:index.html
+a8bffb8:index.html
+fa17597:index.html
+6f3b3fe:index.html
+8898b50:index.html
+
+== 3. PEM private keys in any file of any commit, binary included (count)
+0
+
+== 4. The tree now: the same patterns, and value-like assignments to password/secret/token
+docs/google-play/PRODUCTION_AUDIT.md
+-- assignments of a 6+ character literal to a password, secret, token or key name:
+android/app/release.gradle
+docs/google-play/PRODUCTION_AUDIT.md
+tests/move-from-firestore.test.js
+-- files that mention password/secret/token at all (count of lines):
+docs/google-play/PRIVACY_POLICY.md:7
+docs/google-play/PRODUCTION_RELEASE_CHECKLIST.md:7
+docs/google-play/READINESS_REPORT.md:3
+docs/google-play/RELEASE_TESTING.md:3
+docs/planning/evidence/T-06-browser-check.mjs:1
+docs/planning/evidence/T-06-build-transcripts.txt:1
+docs/planning/evidence/T-06-checklist-diff-output.txt:2
+privacy.html:4
+.gitignore:1
+CLAUDE.md:6
+android/app/release.gradle:7
+android/keystore.properties.example:5
+docs/design/CLAUDE_DESIGN_PROMPT.md:1
+docs/design/DESIGN_NOTES.md:3
+docs/design/README.md:1
+docs/design/prototype/SplitFamilia-Prototype-v2.html:2
+docs/google-play/ANDROID_APPROACH.md:1
+docs/google-play/BUILD_RELEASE.md:14
+docs/google-play/HOSTING_RAILWAY.md:1
+docs/google-play/MOVE_FROM_FIREBASE.md:8
+docs/google-play/PLAY_CONSOLE_DECLARATIONS.md:2
+docs/google-play/PLAY_CONSOLE_SETUP.md:2
+docs/google-play/PRODUCTION_AUDIT.md:23
+docs/google-play/REVIEWER_ACCESS.md:2
+docs/planning/HANDOFF.md:3
+docs/planning/REVIEW.md:6
+docs/planning/STATE.json:14
+docs/planning/brief/2026-09-28-google-play-release-brief.md:12
+docs/planning/evidence/SF-001-implementation.md:1
+docs/planning/evidence/T-02-implementation.md:1
+docs/planning/evidence/T-02-review.md:2
+docs/planning/evidence/T-03-browser-check-output.json:2
+docs/planning/evidence/T-03-browser-check.mjs:4
+docs/planning/evidence/T-03-implementation.md:1
+docs/planning/evidence/T-04-browser-check.mjs:1
+docs/planning/evidence/T-04-contrast-check.mjs:1
+docs/planning/evidence/T-04-review-probe.mjs:1
+docs/planning/evidence/T-05-break-checks-output.txt:1
+docs/planning/evidence/T-05-break-checks.mjs:2
+docs/planning/evidence/T-05-build-transcripts.txt:8
+docs/planning/evidence/T-05-implementation.md:7
+docs/planning/evidence/T-05-review-output.txt:10
+docs/planning/evidence/T-05-review.md:6
+docs/planning/evidence/T-08-browser-check.mjs:1
+docs/planning/evidence/T-08-review-probe.mjs:10
+docs/planning/evidence/T-08-review.md:2
+docs/planning/evidence/T-08-review2-probe.mjs:8
+docs/planning/evidence/T-09-break-checks-output.txt:2
+docs/planning/evidence/T-09-break-checks.mjs:2
+docs/planning/evidence/T-09-implementation.md:6
+docs/planning/evidence/T-09-pc006-check.mjs:4
+docs/planning/evidence/T-09-pc006-output.txt:3
+docs/planning/evidence/T-09-pc007-check.mjs:1
+docs/planning/evidence/T-09-pc007-output.txt:1
+docs/planning/evidence/T-09-review-breaks.mjs:2
+docs/planning/evidence/T-09-review-probe-output.json:6
+docs/planning/evidence/T-09-review-probe.mjs:32
+docs/planning/evidence/T-09-review-runs-output.txt:10
+docs/planning/evidence/T-09-review.md:10
+docs/planning/stories/SF-003.md:5
+docs/planning/stories/SF-011.md:1
+docs/planning/stories/SF-013.md:2
+docs/planning/stories/SF-014.md:1
+docs/planning/stories/SF-016.md:1
+docs/planning/stories/SF-017.md:3
+docs/planning/stories/SF-019.md:1
+docs/planning/stories/SF-020.md:1
+docs/planning/stories/SF-021.md:5
+docs/planning/stories/SF-026.md:2
+docs/planning/stories/SF-027.md:1
+docs/planning/stories/SF-028.md:2
+docs/planning/stories/SF-037.md:5
+scripts/move-from-firestore.mjs:17
+server/api.js:15
+server/main.js:9
+server/server.js:2
+tests/android.test.js:3
+tests/move-from-firestore.test.js:25
+tests/wiring.test.js:1
+
+== 5. Git-ignored local files that hold or may hold secrets (names only)
+present: data
+  ignored by .gitignore
+  data/move-report-2026-09-30T18-54-26-891Z.txt
+  data/move-report-2026-09-30T19-02-13-636Z.txt
+-- tracked files git would ignore (should be none):
+
+== 6. localhost, 127.0.0.1 and plain http:// (count of lines per file)
+docs/google-play/READINESS_REPORT.md:1
+docs/planning/evidence/T-06-browser-check.mjs:4
+docs/planning/evidence/T-06-deletion-check.mjs:3
+CLAUDE.md:4
+README.md:3
+docs/google-play/ANDROID_APPROACH.md:1
+docs/google-play/HOSTING_RAILWAY.md:1
+docs/google-play/PRODUCTION_AUDIT.md:3
+docs/planning/HANDOFF.md:2
+docs/planning/REVIEW.md:2
+docs/planning/brief/2026-09-28-google-play-release-brief.md:1
+docs/planning/evidence/SF-001-browser-smoke.mjs:5
+docs/planning/evidence/T-02-browser-check-output.json:1
+docs/planning/evidence/T-02-browser-check.mjs:5
+docs/planning/evidence/T-02-implementation.md:1
+docs/planning/evidence/T-02-review-probe-output.json:2
+docs/planning/evidence/T-02-review-probe.mjs:6
+docs/planning/evidence/T-02-review.md:2
+docs/planning/evidence/T-03-browser-check-output.json:2
+docs/planning/evidence/T-03-browser-check.mjs:6
+docs/planning/evidence/T-03-caddy-headers.txt:9
+docs/planning/evidence/T-03-implementation.md:4
+docs/planning/evidence/T-03-review-probe-output.json:1
+docs/planning/evidence/T-03-review-probe.mjs:4
+docs/planning/evidence/T-03-review.md:1
+docs/planning/evidence/T-03-rules-emulator.txt:1
+docs/planning/evidence/T-04-browser-check.mjs:5
+docs/planning/evidence/T-04-make-icons.mjs:1
+docs/planning/evidence/T-04-review-probe.mjs:6
+docs/planning/evidence/T-04-store-shots.mjs:4
+docs/planning/evidence/T-08-browser-check.mjs:3
+docs/planning/evidence/T-08-image-check.mjs:1
+docs/planning/evidence/T-08-implementation.md:2
+docs/planning/evidence/T-08-review-probe.mjs:6
+docs/planning/evidence/T-08-review.md:2
+docs/planning/evidence/T-08-review2-probe.mjs:5
+docs/planning/evidence/T-09-browser-check.mjs:6
+docs/planning/evidence/T-09-implementation.md:2
+docs/planning/evidence/T-09-pc007-check.mjs:1
+docs/planning/evidence/T-09-read-cost-probe.mjs:2
+docs/planning/evidence/T-09-review-probe-output.json:7
+docs/planning/evidence/T-09-review-probe.mjs:7
+docs/planning/evidence/T-09-review-runs-output.txt:8
+docs/planning/evidence/T-09-review.md:3
+docs/planning/stories/SF-005.md:1
+docs/planning/stories/SF-011.md:1
+docs/planning/stories/SF-012.md:1
+docs/planning/stories/SF-021.md:1
+docs/planning/stories/SF-026.md:2
+docs/planning/stories/SF-031.md:1
+docs/planning/stories/SF-038.md:2
+scripts/move-from-firestore.mjs:1
+tests/group-code.test.js:4
+tests/helpers/test-server.js:3
+tests/page-client.test.js:4
+tests/server-api.test.js:1
+tests/server-static.test.js:1
+tests/wiring.test.js:2
+-- http:// (not https):
+android/app/src/main/res/raw/keep.xml:1
+docs/google-play/READINESS_REPORT.md:1
+docs/planning/evidence/T-06-browser-check.mjs:2
+docs/planning/evidence/T-06-deletion-check.mjs:1
+CLAUDE.md:2
+README.md:2
+android/app/build.gradle:2
+android/app/src/main/AndroidManifest.xml:2
+android/app/src/main/java/com/splitfamilia/app/Application.java:1
+android/app/src/main/java/com/splitfamilia/app/LauncherActivity.java:1
+android/app/src/main/res/drawable-anydpi/shortcut_legacy_background.xml:3
+android/app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml:3
+android/app/src/main/res/values/colors.xml:1
+android/app/src/main/res/values/strings.xml:1
+android/app/src/main/res/xml/filepaths.xml:1
+android/app/src/main/res/xml/shortcuts.xml:1
+android/build.gradle:1
+android/gradle.properties:2
+docs/design/prototype/SplitFamilia-Prototype-v2.html:1
+docs/google-play/HOSTING_RAILWAY.md:1
+docs/google-play/PLAY_CONSOLE_DECLARATIONS.md:1
+docs/google-play/PRODUCTION_AUDIT.md:3
+docs/planning/HANDOFF.md:1
+docs/planning/REVIEW.md:1
+docs/planning/evidence/SF-001-browser-smoke.mjs:4
+docs/planning/evidence/T-02-browser-check-output.json:1
+docs/planning/evidence/T-02-browser-check.mjs:4
+docs/planning/evidence/T-02-implementation.md:1
+docs/planning/evidence/T-02-review-probe-output.json:2
+docs/planning/evidence/T-02-review-probe.mjs:5
+docs/planning/evidence/T-02-review.md:2
+docs/planning/evidence/T-03-browser-check-output.json:2
+docs/planning/evidence/T-03-browser-check.mjs:5
+docs/planning/evidence/T-03-caddy-headers.txt:9
+docs/planning/evidence/T-03-implementation.md:5
+docs/planning/evidence/T-03-review-probe.mjs:6
+docs/planning/evidence/T-03-review.md:1
+docs/planning/evidence/T-03-rules-emulator.txt:1
+docs/planning/evidence/T-04-browser-check.mjs:3
+docs/planning/evidence/T-04-make-icons.mjs:1
+docs/planning/evidence/T-04-review-probe.mjs:3
+docs/planning/evidence/T-04-store-shots.mjs:2
+docs/planning/evidence/T-05-build-transcripts.txt:2
+docs/planning/evidence/T-08-browser-check.mjs:2
+docs/planning/evidence/T-08-image-check.mjs:1
+docs/planning/evidence/T-09-browser-check.mjs:3
+docs/planning/evidence/T-09-pc007-check.mjs:1
+docs/planning/evidence/T-09-review-probe-output.json:8
+docs/planning/evidence/T-09-review-probe.mjs:4
+docs/planning/evidence/T-09-review-runs-output.txt:8
+docs/planning/stories/SF-005.md:1
+docs/planning/stories/SF-011.md:1
+docs/planning/stories/SF-021.md:2
+docs/planning/stories/SF-031.md:1
+tests/group-code.test.js:3
+tests/helpers/test-server.js:1
+tests/move-from-firestore.test.js:1
+tests/page-client.test.js:2
+tests/server-static.test.js:1
+tests/wiring.test.js:1
+-- in the shipped files (must be none):
+(none)
+-- http:// in android/ sources, by kind:
+      2 http://schemas.android.com/aapt
+      5 http://schemas.android.com/apk/res/android
+      1 http://schemas.android.com/tools
+     10 http://www.apache.org/licenses/LICENSE-2.0
+      1 http://www.gradle.org/docs/current/userguide/build_environment.html
+      1 http://www.gradle.org/docs/current/userguide/multi_project_builds.html
+
+== 7. Debug flags
+-- shipped files: console calls (all should be error codes or plain status lines):
+index.html:820: console.error("SplitFamilia: unexpected error", err && err.code ? err.code : (err && err.name) || "unknown");
+index.html:1811: console.error("SplitFamilia: sync stopped", "not-found");
+index.html:1838: console.error("SplitFamilia: a change was refused", (body && body.error) || "unknown");
+server/main.js:14: console.log("SplitFamilia server: no Railway volume is attached, so the database won't survive a redeploy.");
+server/main.js:21: console.log("SplitFamilia server: IMPORT_TOKEN is shorter than " + MIN_IMPORT_TOKEN_LENGTH + " characters, so the import endpoint stays off.");
+server/main.js:23: console.log("SplitFamilia server: the import endpoint is on. Remove IMPORT_TOKEN once the move is done.");
+server/main.js:36: console.log("SplitFamilia server: listening on port " + port + "; database " + (app.ledger ? "ok" : "unavailable") + ".");
+server/main.js:45: console.log("SplitFamilia server: stopping (" + signal + ").");
+-- debug switches anywhere in the app, the server or android/:
+(end)
+
+== 8. TODO, FIXME, XXX, HACK in code (case-sensitive; docs/planning excluded: its 'todo' is a status)
+docs/google-play/PRODUCTION_AUDIT.md:276:| TODOs affecting production | None (`TODO`, `FIXME`, `XXX`, `HACK` in code: 0) | None |
+(end)
+
+== 9. Test credentials
+docs/google-play/BUILD_RELEASE.md:1
+docs/planning/evidence/T-05-break-checks.mjs:1
+docs/planning/evidence/T-05-review-output.txt:2
+(end)
+
+== 10. Firebase, Firestore and gstatic
+-- in shipped files (must be none):
+(none)
+-- tracked files that mention them (history and guides):
+  docs/google-play/PRIVACY_POLICY.md:2
+  docs/google-play/PRODUCTION_RELEASE_CHECKLIST.md:3
+  docs/google-play/READINESS_REPORT.md:7
+  docs/google-play/RELEASE_TESTING.md:1
+  docs/planning/evidence/T-06-checklist-diff-output.txt:1
+  .dockerignore:1
+  .gitignore:5
+  CLAUDE.md:11
+  Dockerfile:1
+  README.md:6
+  docs/design/CLAUDE_DESIGN_PROMPT.md:1
+  docs/design/prototype/SplitFamilia-Prototype-v2.html:1
+  docs/design/source/SplitFamilia Prototype v2.dc.html:1
+  docs/design/source/SplitFamilia Prototype.dc.html:1
+  docs/google-play/BUILD_RELEASE.md:1
+  docs/google-play/HOSTING_RAILWAY.md:11
+  docs/google-play/MOVE_FROM_FIREBASE.md:20
+  docs/google-play/PRODUCTION_AUDIT.md:38
+  docs/planning/HANDOFF.md:6
+  docs/planning/REVIEW.md:2
+  docs/planning/STATE.json:42
+  docs/planning/brief/2026-09-28-google-play-release-brief.md:3
+  docs/planning/evidence/SF-001-browser-smoke.mjs:7
+  docs/planning/evidence/SF-001-implementation.md:5
+  docs/planning/evidence/SF-001-review.md:6
+  docs/planning/evidence/T-02-browser-check-output.json:1
+  docs/planning/evidence/T-02-browser-check.mjs:6
+  docs/planning/evidence/T-02-implementation.md:11
+  docs/planning/evidence/T-02-review-probe.mjs:6
+  docs/planning/evidence/T-02-review.md:5
+  docs/planning/evidence/T-03-browser-check-output.json:9
+  docs/planning/evidence/T-03-browser-check.mjs:26
+  docs/planning/evidence/T-03-caddy-headers.txt:1
+  docs/planning/evidence/T-03-implementation.md:59
+  docs/planning/evidence/T-03-review-probe-output.json:3
+  docs/planning/evidence/T-03-review-probe.mjs:16
+  docs/planning/evidence/T-03-review.md:24
+  docs/planning/evidence/T-03-rules-emulator.txt:29
+  docs/planning/evidence/T-04-implementation.md:1
+  docs/planning/evidence/T-05-implementation.md:2
+  docs/planning/evidence/T-05-review.md:1
+  docs/planning/evidence/T-08-browser-check-output.json:3
+  docs/planning/evidence/T-08-browser-check.mjs:8
+  docs/planning/evidence/T-08-image-check-output.txt:1
+  docs/planning/evidence/T-08-image-check.mjs:1
+  docs/planning/evidence/T-08-implementation.md:14
+  docs/planning/evidence/T-08-review-probe-output.json:1
+  docs/planning/evidence/T-08-review-probe.mjs:2
+  docs/planning/evidence/T-08-review.md:10
+  docs/planning/evidence/T-08-rework-probe-output.json:1
+  docs/planning/evidence/T-09-break-checks-output.txt:4
+  docs/planning/evidence/T-09-break-checks.mjs:9
+  docs/planning/evidence/T-09-browser-check-output.json:1
+  docs/planning/evidence/T-09-image-check-output.txt:1
+  docs/planning/evidence/T-09-implementation.md:28
+  docs/planning/evidence/T-09-pc007-check.mjs:1
+  docs/planning/evidence/T-09-pushA-image-check-output.txt:1
+  docs/planning/evidence/T-09-review-breaks.mjs:5
+  docs/planning/evidence/T-09-review-browser-check-output.json:1
+  docs/planning/evidence/T-09-review-probe.mjs:2
+  docs/planning/evidence/T-09-review-runs-output.txt:6
+  docs/planning/evidence/T-09-review.md:18
+  docs/planning/stories/SF-001.md:2
+  docs/planning/stories/SF-003.md:8
+  docs/planning/stories/SF-004.md:1
+  docs/planning/stories/SF-005.md:3
+  docs/planning/stories/SF-007.md:9
+  docs/planning/stories/SF-008.md:8
+  docs/planning/stories/SF-009.md:2
+  docs/planning/stories/SF-011.md:2
+  docs/planning/stories/SF-014.md:1
+  docs/planning/stories/SF-016.md:8
+  docs/planning/stories/SF-017.md:10
+  docs/planning/stories/SF-019.md:1
+  docs/planning/stories/SF-020.md:6
+  docs/planning/stories/SF-021.md:5
+  docs/planning/stories/SF-022.md:8
+  docs/planning/stories/SF-023.md:4
+  docs/planning/stories/SF-024.md:3
+  docs/planning/stories/SF-025.md:1
+  docs/planning/stories/SF-026.md:7
+  docs/planning/stories/SF-027.md:1
+  docs/planning/stories/SF-028.md:7
+  docs/planning/stories/SF-030.md:3
+  docs/planning/stories/SF-031.md:3
+  docs/planning/stories/SF-032.md:2
+  docs/planning/stories/SF-033.md:3
+  docs/planning/stories/SF-034.md:1
+  docs/planning/stories/SF-035.md:8
+  docs/planning/stories/SF-036.md:3
+  docs/planning/stories/SF-037.md:8
+  docs/planning/stories/SF-038.md:15
+  scripts/move-from-firestore.mjs:20
+  tests/money.test.js:1
+  tests/move-from-firestore.test.js:20
+  tests/server-api.test.js:1
+  tests/server-static.test.js:2
+  tests/wiring.test.js:6
+-- Firebase settings files in the tree:
+(end)
+
+== 11. assetlinks.json fingerprints
+2 entries: <UPLOAD_KEY_SHA256>, <PLAY_APP_SIGNING_SHA256>
+
+== 12. The server's log lines (what can reach Railway's deploy logs)
+server/api.js:251:    if(status !== 429) log("SplitFamilia api: " + req.method + " " + status + " " + code);
+server/api.js:372:      if(writes.hit(address)) log("SplitFamilia api: an address reached the limit of changes");
+server/api.js:378:      if(limiter.hit(address)) log("SplitFamilia api: an address reached the limit of unknown group codes");
+server/api.js:439:      log("SplitFamilia api: " + req.method + " 500 internal (" + ((err && (err.code || err.name)) || "unknown") + ")");
+server/main.js:14:  console.log("SplitFamilia server: no Railway volume is attached, so the database won't survive a redeploy.");
+server/main.js:21:  console.log("SplitFamilia server: IMPORT_TOKEN is shorter than " + MIN_IMPORT_TOKEN_LENGTH + " characters, so the import endpoint stays off.");
+server/main.js:23:  console.log("SplitFamilia server: the import endpoint is on. Remove IMPORT_TOKEN once the move is done.");
+server/main.js:36:  console.log("SplitFamilia server: listening on port " + port + "; database " + (app.ledger ? "ok" : "unavailable") + ".");
+server/main.js:45:    console.log("SplitFamilia server: stopping (" + signal + ").");
+server/server.js:38:// - log(line): where log lines go (console.log by default);
+server/server.js:52:    log("SplitFamilia server: the database is unavailable (" + reason(err) + "). The API answers 503.");

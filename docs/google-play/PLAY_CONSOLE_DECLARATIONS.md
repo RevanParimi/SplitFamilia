@@ -2,7 +2,15 @@
 
 Prepared answers for every declaration on Play Console's **App content** page (Policy and
 programs → App content). Story SF-016 (task T-05), from the code as it stands after T-05
-(2026-10-01 IST). Each answer rests on what the code does, with the file and line.
+(2026-10-01 IST). Each answer rests on what the code does, with the file and line. T-06
+(2026-10-02 IST) added the privacy policy ([PRIVACY_POLICY.md](PRIVACY_POLICY.md), which
+cross-checks every data type against section 0 here), the server's timestamps to section 0, and
+moved two `index.html` line numbers; nothing else the app sends or keeps changed.
+
+**The owner confirmed every recommendation in section 15 on 2026-10-02 (IST) ("All
+recommended").** Where a section below says OWNER CONFIRMATION REQUIRED next to a
+recommendation, the recommendation is the answer. Still to come from the owner: the support
+email address itself (item 5).
 
 - **What the code does** is stated plainly, with evidence.
 - **OWNER CONFIRMATION REQUIRED** marks what only the owner can decide or knows.
@@ -35,14 +43,14 @@ contacts and no payments.
 
 | Data | Typed by | Sent to | Stored | Who can see it | Deleted? |
 |---|---|---|---|---|---|
-| People's names ("Asha") | a group member | the app's own server on Railway | SQLite on a Railway volume in **Southeast Asia (Singapore)**; daily volume backups kept 6 days | everyone who has the group's code | "Remove" marks a person removed; the row stays |
-| Expenses: description ("Dinner"), amount in paise, date, who paid, who shares it | a group member | the same server | the same | everyone with the code | "Delete" marks it deleted, and an edit replaces it with a new row; the old rows stay |
+| People's names ("Asha") | a group member | the app's own server on Railway | SQLite on a Railway volume in **Southeast Asia (Singapore)**; daily volume backups kept 6 days | everyone who has the group's code | "Remove" marks a person removed; the row stays. The server also records when each person was added and removed |
+| Expenses: description ("Dinner"), amount in paise, date, who paid, who shares it | a group member | the same server | the same | everyone with the code | "Delete" marks it deleted, and an edit replaces it with a new row; the old rows stay. The server also records when each was added, deleted or replaced |
 | Settle-ups: who paid whom, the amount, the date | a group member | the same server | the same, as an expense marked `settlement` | everyone with the code | as expenses |
 | The group's currency symbol ("₹") | the person starting the group | the same server | the same | everyone with the code | stays with the group |
 | The group code | made by the app (new groups: random) or typed in | the same server, in the `X-Group-Code` header of every request | the group's key in the database | whoever has the link | stays with the group |
 | The phone's copy of its group and its waiting changes | (the app) | nowhere: on the phone only | the browser's IndexedDB for the site (`splitfamilia`) | the phone | "Remove from this device" deletes it |
 | The current group and "Your groups" (up to 20 codes with when each was last opened) | (the app) | nowhere | the browser's `localStorage` (`splitsheet-group`, `splitfamilia-recent`) | the phone | "Remove from this device", or clearing the site's data |
-| The device's IP address and browser (user agent) | (sent with every web request) | Railway (the host), and Google Fonts | Railway's HTTP logs: IP, user agent, path, status; 30 days on the Pro plan. The server itself keeps an address only in memory, up to 10 minutes, to enforce its limits, and never logs it | the owner (Railway dashboard); Google | Railway deletes logs after its retention period |
+| The device's IP address and browser (user agent) | (sent with every web request) | Railway (the host), and Google Fonts | Railway's HTTP logs: IP, user agent, path, status; 30 days on the Pro plan. The server itself keeps an address only in memory, to enforce its limits: while a live connection from the app is open, and at most 11 minutes after its last request; it never logs it | the owner (Railway dashboard); Google | Railway deletes logs after its retention period |
 
 Not created or sent anywhere: email addresses, phone numbers, accounts or passwords, contacts,
 location, photos, files, payment details, device identifiers, advertising ID, crash or usage
@@ -55,11 +63,11 @@ analytics.
 | Person: `{ id, name }` (name 1–60 characters) | [ledger-client.js:67](../../ledger-client.js#L67); checked by [ledger-rules.js:73-77](../../ledger-rules.js#L73-L77); stored in `people` ([server/db.js:34-41](../../server/db.js#L34-L41)) |
 | Expense and settle-up: `{ id, date, desc, amountPaise, paidBy, split[, kind] }` (description 1–200 characters) | [ledger-client.js:69-70](../../ledger-client.js#L69-L70); [ledger-rules.js:84-100](../../ledger-rules.js#L84-L100); stored in `expenses` and `expense_split` ([server/db.js:42-64](../../server/db.js#L42-L64)) |
 | Currency: `{ currency }` | [ledger-client.js:66](../../ledger-client.js#L66); [ledger-rules.js:66-70](../../ledger-rules.js#L66-L70); `groups.currency` ([server/db.js:28-33](../../server/db.js#L28-L33)) |
-| Group code, in a header, never in an API URL | [ledger-client.js:9](../../ledger-client.js#L9); [server/api.js:41](../../server/api.js#L41) |
-| Removing a person ("Remove", [index.html:1390](../../index.html#L1390)) or deleting an expense keeps the row | [server/db.js:122](../../server/db.js#L122), [server/db.js:143](../../server/db.js#L143) |
-| The client's address, for the limits only (in memory) | [server/api.js:129-135](../../server/api.js#L129-L135); limits [server/api.js:49-55](../../server/api.js#L49-L55) |
-| The server's own log lines: method, status, error code; never an address or a code | [server/api.js:251](../../server/api.js#L251), [server/api.js:372-378](../../server/api.js#L372-L378), [server/api.js:439](../../server/api.js#L439) |
-| On the phone: `localStorage` keys | [index.html:873](../../index.html#L873), [recent-groups.js:7](../../recent-groups.js#L7) |
+| Group code, in a header, never in an API URL | [ledger-client.js:9](../../ledger-client.js#L9); [server/api.js:43](../../server/api.js#L43) |
+| Removing a person ("Remove", [index.html:1426](../../index.html#L1426)) or deleting an expense keeps the row | [server/db.js:122](../../server/db.js#L122), [server/db.js:143](../../server/db.js#L143) |
+| The client's address, for the limits only (in memory) | [server/api.js:139-145](../../server/api.js#L139-L145); limits and the sweep interval [server/api.js:51-59](../../server/api.js#L51-L59); the sweep [server/api.js:130-134](../../server/api.js#L130-L134), run on a timer [server/server.js:60-67](../../server/server.js#L60-L67); the live hub counts it while its stream is open [server/live.js:72](../../server/live.js#L72), [server/live.js:44-45](../../server/live.js#L44-L45) |
+| The server's own log lines: method, status, error code; never an address or a code | [server/api.js:261](../../server/api.js#L261), [server/api.js:382-388](../../server/api.js#L382-L388), [server/api.js:449](../../server/api.js#L449) |
+| On the phone: `localStorage` keys | [index.html:909](../../index.html#L909), [recent-groups.js:7](../../recent-groups.js#L7) |
 | On the phone: IndexedDB `splitfamilia` (`outbox`, `copies`) | [outbox.js:198-202](../../outbox.js#L198-L202) |
 | Google Fonts (the device's IP and user agent go to Google on each page load, until SF-025) | [index.html:15-16](../../index.html#L15-L16) |
 | HTTPS: Railway redirects `http://` to `https://` (301; checked 2026-10-01 IST), and the app only opens `https://` | the Android link filter is `https` only ([ANDROID_APPROACH.md](ANDROID_APPROACH.md)) |
@@ -85,8 +93,9 @@ analytics.
 - Is all of the user data collected by your app encrypted in transit? **Yes.**
 - Do you provide a way for users to request that their data is deleted? **OWNER CONFIRMATION
   REQUIRED.** Recommended: **Yes**, by email to the support address, *if* you commit to doing
-  it: on request, delete the group's rows from the database (a session can write the exact
-  command; SF-024, deleting a group from the app, is a stretch story). Otherwise **No**. Play
+  it: on request, delete the group's rows from the database, by the tested steps in
+  [PRIVACY_POLICY.md](PRIVACY_POLICY.md) section C (SF-024, deleting a group from the app, is a
+  stretch story). Otherwise **No**, and change the policy's sections 10 and 12 to match. Play
   shows this answer on the store page.
 - Account creation: the app has no accounts (Play asks for an account-deletion URL only from
   apps that let users create an account).
@@ -103,7 +112,8 @@ collected**.
 
 **IP addresses. OWNER CONFIRMATION REQUIRED.** Play has no "IP address" type; it says to
 disclose IP addresses "based on their particular usage". The code uses them only to enforce
-limits (in memory, up to 10 minutes, never stored or logged by the server), and never to work
+limits (in memory only, while a live connection from the app is open and at most 11 minutes
+after the last request; never stored or logged by the server), and never to work
 out a location. Railway's HTTP logs record them for 30 days (Pro), for the owner's own
 troubleshooting. Recommended: declare no data type for them, and say so in the privacy policy
 (SF-017). Google Fonts receives them from every page load until SF-025 self-hosts the fonts;
@@ -125,8 +135,8 @@ hand (no automatic expiry). Daily volume backups are kept 6 days. Railway's logs
 | 1 | Functionality | All of section 0 |
 | 2–7 | Data | As in Data safety |
 | 8 | SDKs | None that collect data; Google Fonts (until SF-025); Railway (host) |
-| 9 | Likely selection | Play requires a privacy policy URL. Planned: `https://splitfamilia.up.railway.app/privacy.html` (SF-017 writes it, SF-018 serves it; T-06) |
-| 10 | Owner to confirm | **OWNER CONFIRMATION REQUIRED:** the support email the policy names, and the deletion answer above. **MANUAL ACTION REQUIRED:** paste the URL in App content → Privacy policy once it is live |
+| 9 | Likely selection | Play requires a privacy policy URL: **`https://splitfamilia.up.railway.app/privacy.html`**. The draft is [PRIVACY_POLICY.md](PRIVACY_POLICY.md) (SF-017); `privacy.html` shows it word for word, linked from the welcome screen and the group menu (SF-018, T-06). It is live only after the owner approves the text and a web deploy (pending check PC-010) |
+| 10 | Owner to confirm | **OWNER CONFIRMATION REQUIRED:** the policy's placeholders and marked items ([PRIVACY_POLICY.md](PRIVACY_POLICY.md) section F), the support email the policy names, and the deletion answer above. **MANUAL ACTION REQUIRED:** paste the URL in App content → Privacy policy once it is live |
 
 ## 3. App access
 
@@ -246,6 +256,11 @@ CONSOLE:** the App content page shows the exact list for your account; answer an
 section 0, or ask a session to add it here.
 
 ## 15. Everything the owner must confirm
+
+Confirmed by the owner on 2026-10-02 (IST): **all as recommended**. So: 1 Yes, by email; 2 not
+declared; 3 not a User ID; 4 as listed; 5 a dedicated address (the address itself still to
+come); 6 Yes; 7 18 and over; 8 no financial features; 9 no demo link for now; 10 not now (SF-025
+stays a stretch story).
 
 1. Data deletion requests: offer them by email (recommended, if you commit to it) or answer No.
 2. IP addresses: not declared as a data type (recommended), and named in the privacy policy.

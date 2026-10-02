@@ -5,6 +5,7 @@
     "dockerfilePath": "Dockerfile",
     "watchPatterns": [
       "/index.html",
+      "/privacy.html",
       "/manifest.json",
       "/*.js",
       "/*.png",

@@ -1,0 +1,47 @@
+## Developer account
+  found    [ ] Developer verification complete
+  found    [ ] Registration/payment complete
+## Application
+  found    [ ] Production backend configured
+  found    [x] HTTPS enabled
+  found    [ ] Production environment configured
+  found    [x] No production secrets committed
+  found    [ ] Release build tested
+  found    [x] versionCode/versionName correct
+## Security
+  found    [ ] Signing/upload key securely stored
+  found    [ ] No sensitive information logged
+  found    [x] Permissions reviewed
+  found    [x] Authentication/session handling reviewed
+## Play Store
+  found    [ ] Store listing complete
+  found    [ ] App icon uploaded
+  found    [ ] Screenshots uploaded
+  found    [ ] Feature graphic uploaded
+  found    [ ] Support details entered
+  found    [ ] Privacy policy publicly accessible
+## Compliance
+  found    [ ] Data Safety completed
+  found    [ ] App Access completed
+  found    [ ] Ads declaration completed
+  found    [ ] Content Rating completed
+  found    [ ] Target Audience completed
+  found    [ ] Financial Features completed
+  found    [ ] Health declaration completed if required
+  found    [x] Sensitive permission declarations completed if required
+  found    [x] Account deletion requirements satisfied
+## Testing
+  found    [ ] Internal testing completed
+  found    [ ] Closed testing completed if required
+  found    [ ] Production AAB tested
+  found    [x] Reviewer/demo account created if authentication is required
+## Release
+  found    [ ] Correct AAB uploaded
+  found    [ ] Release notes entered
+  found    [ ] Countries/regions selected
+  found    [ ] Pricing configured
+  found    [ ] Production release reviewed
+  found    [ ] Ready to submit for Google review
+
+Brief boxes: 37; found: 37; ticked: 8; added for this app: 8 (Application: The Railway volume is mounted and its backups are  | Application: `IMPORT_TOKEN` is removed from Railway's variables | Application: GitHub Pages is off and the Firebase project is de | Application: The web app is deployed before the bundle goes liv | Security: `assetlinks.json` has the real fingerprints and is | Play Store: The privacy policy URL is live and linked in the a | Compliance: The other App content items answered: Advertising  | Release: `versionCode` was raised for this upload, if any b)
+nothing missing

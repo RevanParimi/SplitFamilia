@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Privacy policy · SplitFamilia</title>
+<meta name="description" content="What SplitFamilia keeps, who receives it, and how to delete it." />
+<meta name="theme-color" content="#4F46E5" />
+<link rel="icon" href="icon-192.png" />
+<link rel="apple-touch-icon" href="apple-touch-icon.png" />
+<style>
+  /* SF-018: the privacy policy, in the app's colours (index.html). It loads nothing from another
+     site, not even the app's web fonts, so reading it sends nothing to anyone but this server.
+     The text is docs/google-play/PRIVACY_POLICY.md's section A, word for word (npm test checks). */
+  :root{
+    --bg:#FFFFFF;
+    --surface:#F6F5F2;
+    --line:#E7E4DE;
+    --ink:#1C1A18;
+    --ink-soft:#56514B;
+    --brand:#4F46E5;
+    --brand-press:#4038C9;
+    --brand-soft:#ECEBFE;
+    --accent:#F4A51C;
+    --accent-soft:#FFF3D9;
+    --accent-ink:#8A5300;
+    --font-head:"Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+    --gutter-l:max(20px, env(safe-area-inset-left));
+    --gutter-r:max(20px, env(safe-area-inset-right));
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);color:var(--ink);font-family:var(--font);font-size:16px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;overflow-wrap:break-word;
+  }
+  a{color:var(--brand);}
+  a:hover{color:var(--brand-press);}
+  :focus{outline:none;}
+  :focus-visible{outline:3px solid var(--brand);outline-offset:2px;}
+  .page{
+    max-width:680px;margin:0 auto;
+    padding:calc(env(safe-area-inset-top) + 24px) var(--gutter-r) calc(env(safe-area-inset-bottom) + 40px) var(--gutter-l);
+  }
+  .brand-row{display:inline-flex;align-items:center;gap:12px;min-height:48px;color:var(--ink);text-decoration:none;}
+  .brand-row:hover{color:var(--ink);}
+  .logo{flex:none;width:36px;height:36px;border-radius:12px;background:var(--brand);position:relative;overflow:hidden;}
+  .logo::after{content:"";position:absolute;right:-9px;bottom:-9px;width:27px;height:27px;border-radius:50%;background:var(--accent);}
+  .wordmark{font-family:var(--font-head);font-size:24px;line-height:1.1;font-weight:800;letter-spacing:-0.02em;}
+  h1,h2{font-family:var(--font-head);font-weight:800;line-height:1.25;margin:0;}
+  h1{margin-top:20px;font-size:30px;letter-spacing:-0.015em;}
+  h2{margin-top:32px;font-size:20px;}
+  p{margin:12px 0 0;}
+  ul{margin:12px 0 0;padding-left:22px;}
+  li + li{margin-top:8px;}
+  li::marker{color:var(--ink-soft);}
+  code{font-family:inherit;font-size:.95em;padding:1px 6px;border-radius:6px;background:var(--surface);color:var(--ink-soft);}
+  .draft{
+    margin-top:20px;padding:14px 16px;border-radius:16px;background:var(--accent-soft);color:var(--accent-ink);
+    font-size:15px;line-height:1.5;
+  }
+  .draft strong{font-weight:800;}
+  .todo{padding:0 4px;border-radius:4px;background:var(--accent-soft);color:var(--accent-ink);font-weight:700;}
+  .back{
+    display:inline-flex;align-items:center;justify-content:center;min-height:48px;margin-top:36px;padding:0 20px;
+    border:1.5px solid var(--brand);border-radius:14px;font-weight:700;text-decoration:none;
+  }
+  .back:hover{background:var(--brand-soft);}
+</style>
+</head>
+<body>
+<main class="page">
+  <a class="brand-row" href="./" aria-label="SplitFamilia: back to the app"><span class="logo" aria-hidden="true"></span><span class="wordmark">SplitFamilia</span></a>
+  <h1>Privacy policy</h1>
+  <p class="draft" role="note"><strong>Draft.</strong> This policy is not final: its owner hasn't approved it yet, and the marked items and the names in angle brackets are still to be filled in.</p>
+  <div id="policy">
+  <section>
+  <h2>1. Who we are</h2>
+  <p>SplitFamilia is a shared-expense ledger offered by <code>&lt;OWNER_OR_COMPANY_NAME&gt;</code> ("we", "us"). It runs as a website at <a href="https://splitfamilia.up.railway.app/">https://splitfamilia.up.railway.app</a> and as an Android app that opens that website. This policy explains what information SplitFamilia handles, why, who receives it, how long it is kept and what you can do about it. <strong class="todo">LEGAL/OWNER INPUT REQUIRED:</strong> the name to show here.</p>
+  <p>Effective date: <code>&lt;EFFECTIVE_DATE&gt;</code>.</p>
+  </section>
+  <section>
+  <h2>2. The short version</h2>
+  <ul>
+    <li>There are no accounts. You never give us an email address, a phone number or a password.</li>
+    <li>A group holds what its members type: people's names, expenses, payments recorded between them, and a currency symbol. Anyone who has the group's invite link can see and change it.</li>
+    <li>That information is kept on SplitFamilia's own server, so every phone in the group sees the same ledger.</li>
+    <li>There are no ads, no analytics, no crash reporting and no cookies. We don't sell your information or share it for advertising.</li>
+    <li>SplitFamilia only records payments made elsewhere. It never moves money and doesn't connect to banks or payment apps.</li>
+  </ul>
+  </section>
+  <section>
+  <h2>3. Information you give us</h2>
+  <p>There is no account information: SplitFamilia has no sign-up, sign-in or password, and never asks for an email address or a phone number.</p>
+  <p>The people in a group type the group's information:</p>
+  <ul>
+    <li>people's names, up to 60 characters each, written however the group likes (a first name or a nickname is enough);</li>
+    <li>expenses: what each was for (up to 200 characters), the amount, the date and time, who paid and whom it is split among;</li>
+    <li>payments recorded between people, such as "Ben paid Asha ₹100", with the amount and the date;</li>
+    <li>the group's currency symbol.</li>
+  </ul>
+  <p>Each group also has a code, which is part of its invite link. A new group gets a code with a long random part. The code works like a password for the group.</p>
+  <p>The server also records when each entry was added and, for a removed person or a deleted or edited expense, when that happened.</p>
+  <p>Anyone with the invite link can read every entry, so write only what the group needs.</p>
+  </section>
+  <section>
+  <h2>4. Information kept on your phone</h2>
+  <p>To work offline, the app keeps some information in your browser's storage for the SplitFamilia site:</p>
+  <ul>
+    <li>a copy of each group opened on the phone, and any changes still waiting to be sent;</li>
+    <li>the group open now, and a list of up to 20 groups opened on the phone, with when each was last opened ("Your groups");</li>
+    <li>the app's own files, so it can start without a connection.</li>
+  </ul>
+  <p>This stays on the phone. "Remove from this device" (in "Your groups", under Edit) deletes a group's entry and the phone's copy of it; a change still waiting to be sent is still sent the next time a group is open in the app while online. Clearing the site's data in your browser deletes all of it.</p>
+  </section>
+  <section>
+  <h2>5. Technical information</h2>
+  <p>Every device that loads a web page sends its IP address and a description of its browser and device (the "user agent").</p>
+  <ul>
+    <li>Our hosting provider, Railway, records each request in its logs: the IP address, the user agent, the address requested and the result. When an invite link is opened, the address requested can include the group's code. Railway keeps these logs for 30 days, and we use them only to fix problems.</li>
+    <li>SplitFamilia's server uses the IP address in memory only, to limit how many requests one address can make, so no one can guess group codes or flood a group. It keeps the address while a live connection from the app is open (the app keeps one open while a group is open, for live updates), and for at most 11 minutes after the last request from that address. It never stores or logs the address.</li>
+    <li>The page's fonts come from Google Fonts, so each time the page loads, Google receives the device's IP address, the user agent and the site's address (not the group's). Google's privacy policy (<a href="https://policies.google.com/privacy">https://policies.google.com/privacy</a>) applies to that.</li>
+  </ul>
+  <p>We don't use IP addresses to work out where anyone is.</p>
+  </section>
+  <section>
+  <h2>6. How we use information</h2>
+  <p>We use information only to run SplitFamilia: to keep one shared ledger for each group, work out who owes whom, keep every phone in the group up to date, and keep the service working and safe from abuse. We don't use it for advertising, and we don't sell it.</p>
+  </section>
+  <section>
+  <h2>7. Where it is stored, and how it travels</h2>
+  <ul>
+    <li>The groups are stored in a database on SplitFamilia's server, which runs on Railway in Railway's Southeast Asia (Singapore) region. Railway keeps a daily backup of that database for 6 days. <strong class="todo">OWNER CONFIRMATION REQUIRED:</strong> the region.</li>
+    <li>Every connection uses HTTPS, which encrypts the information on its way between your phone and the server. A request over plain HTTP is redirected to HTTPS.</li>
+  </ul>
+  <p><strong class="todo">LEGAL/OWNER INPUT REQUIRED:</strong> whether to say more about information travelling from your users' countries to Singapore.</p>
+  </section>
+  <section>
+  <h2>8. Who else receives information</h2>
+  <ul>
+    <li><strong>Other members of your group:</strong> everyone with the group's invite link sees everything in the group.</li>
+    <li><strong>Railway</strong> (<a href="https://railway.com/">https://railway.com</a>), our hosting provider: it runs the server and stores the database, its backups and the request logs for us.</li>
+    <li><strong>Google Fonts:</strong> the IP address and browser details, as in section 5.</li>
+  </ul>
+  <p>We can read the database too, and we do so only to keep the service running, to fix a problem or to handle your request. No one else receives the information, and we don't share it for advertising. <strong class="todo">LEGAL/OWNER INPUT REQUIRED:</strong> what to say about disclosure when the law requires it.</p>
+  <p>The Android app asks for no permissions and contains no analytics or advertising code. It shows the website in your phone's browser (usually Chrome), and that browser's own privacy policy covers the browser.</p>
+  </section>
+  <section>
+  <h2>9. No ads, analytics, crash reporting or cookies</h2>
+  <p>SplitFamilia shows no ads and uses no analytics, crash reporting, tracking or advertising ID. It sets no cookies and sends no notifications.</p>
+  </section>
+  <section>
+  <h2>10. How long we keep it</h2>
+  <ul>
+    <li>A group, with everything in it, is kept until we delete it at someone's request (section 12). Nothing is deleted automatically.</li>
+    <li>Removing a person, or deleting or editing an expense, takes it off the group for everyone straight away. The server keeps the old entry, marked as deleted, until the whole group is deleted, so that a phone which was offline can't bring a deleted entry back.</li>
+    <li>Railway's backups are kept for 6 days, and its request logs for 30 days. The server keeps an IP address in memory only while a live connection from the app is open, and for at most 11 minutes after the last request from it.</li>
+    <li>On your phone, the information stays until you remove the group from the device or clear the site's data.</li>
+  </ul>
+  </section>
+  <section>
+  <h2>11. Accounts and account deletion</h2>
+  <p>SplitFamilia has no accounts, so there is no account to create or delete. Section 12 explains how to delete information.</p>
+  </section>
+  <section>
+  <h2>12. Deleting your information</h2>
+  <p>In the app:</p>
+  <ul>
+    <li><strong>An expense or a payment:</strong> tap it, tap Delete, then confirm. It disappears for everyone in the group (the server keeps it marked as deleted, as in section 10).</li>
+    <li><strong>A person:</strong> in People, tap Remove next to their name. Someone who is part of an expense can be removed only after their expenses are deleted.</li>
+    <li><strong>A group on your phone:</strong> in "Your groups", tap Edit, then "Remove from this device". The group stays for everyone else.</li>
+  </ul>
+  <p>On request: email <code>&lt;CONTACT_EMAIL&gt;</code> with the group's invite link and what you would like deleted. We will delete the whole group from the server, including the entries marked as deleted, within <code>&lt;RESPONSE_TIME&gt;</code>, and reply when it is done. The backups that still hold it are gone within 6 days, and the request logs within 30 days. Copies on other people's phones stay until they remove the group from their device. <strong class="todo">OWNER CONFIRMATION REQUIRED:</strong> the response time, who may ask for a whole group to be deleted, and whether you will also delete a single entry on request.</p>
+  </section>
+  <section>
+  <h2>13. Security</h2>
+  <ul>
+    <li>Every connection uses HTTPS.</li>
+    <li>The invite link is the key to a group: anyone who has it can see and change the group. Share it like a password, only with the people in the group.</li>
+    <li>The server has no list of groups that anyone can browse, and it blocks an address that tries many wrong codes.</li>
+    <li>Anyone who uses your phone can open the groups on it, so keep your phone locked.</li>
+  </ul>
+  </section>
+  <section>
+  <h2>14. Children</h2>
+  <p>SplitFamilia is meant for adults (18 and over) sharing costs, and it is not directed at children. We don't knowingly collect information from children. If you think a child has entered information, contact us and we will delete it. <strong class="todo">LEGAL/OWNER INPUT REQUIRED:</strong> the age of consent that applies in <code>&lt;JURISDICTION&gt;</code>.</p>
+  </section>
+  <section>
+  <h2>15. Your rights</h2>
+  <p><strong class="todo">LEGAL/OWNER INPUT REQUIRED:</strong> the laws that apply in <code>&lt;JURISDICTION&gt;</code>, and any rights or legal-basis statement they require. This draft names no law and claims compliance with none.</p>
+  </section>
+  <section>
+  <h2>16. Changes to this policy</h2>
+  <p>If this policy changes, the new version will be posted on this page with a new effective date. <strong class="todo">OWNER CONFIRMATION REQUIRED:</strong> whether to announce changes in the app as well.</p>
+  </section>
+  <section>
+  <h2>17. Contact</h2>
+  <p>Questions and requests: <code>&lt;CONTACT_EMAIL&gt;</code>. <code>&lt;OWNER_OR_COMPANY_NAME&gt;</code>, <code>&lt;JURISDICTION&gt;</code>.</p>
+  </section>
+  </div>
+  <a class="back" href="./">Back to SplitFamilia</a>
+</main>
+</body>
+</html>

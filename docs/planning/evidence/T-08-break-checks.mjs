@@ -55,8 +55,10 @@ const BREAKS = [
   { id: "B16", story: "SF-033", what: "D-17: no limit on changes per address", file: "server/api.js",
     from: "      if(writes.blocked(address)) return tooMany(req, res, writes, address);\n", to: "",
     tests: ["tests/server-api.test.js"] },
+  // Since T-04 (SF-022) the edit route has the same cap line, so B17 is anchored on the line
+  // before it in the add route (the T-06 rework, 2026-10-02).
   { id: "B17", story: "SF-033", what: "D-17: no cap on expenses per group", file: "server/api.js",
-    from: "      if(ledger.expenseCount(code) >= maxExpenses) return", to: "      if(false && ledger.expenseCount(code) >= maxExpenses) return",
+    from: "{ version: version });\n      if(ledger.expenseCount(code) >= maxExpenses) return", to: "{ version: version });\n      if(false && ledger.expenseCount(code) >= maxExpenses) return",
     tests: ["tests/server-api.test.js"] },
   { id: "B18", story: "SF-034", what: "D-17: no cap on streams per address", file: "server/live.js",
     from: "return total >= maxStreams || (perAddress.get(address) || 0) >= maxPerAddress;", to: "return total >= maxStreams;",

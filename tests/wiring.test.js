@@ -143,6 +143,27 @@ test("the Docker image ships every file the server serves or imports, and .docke
   shipped.forEach(function(f){ assert.doesNotMatch(f, /^(docs|tests|node_modules|android|data)\/|\.md$|^package|^firebase|^firestore|\.env|Caddyfile/); });
 });
 
+// Railway's watch patterns are globs from the repo root ("/*.js", "/server/**"): "**" spans
+// folders, "*" stays inside one.
+function watched(patterns, file){
+  return patterns.some(function(p){
+    const re = p.replace(/^\//, "").replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+      .replace(/\*\*/g, "\u0000").replace(/\*/g, "[^/]*").replace(/\u0000/g, ".*");
+    return new RegExp("^" + re + "$").test(file);
+  });
+}
+
+test("a push that changes any shipped file redeploys: Railway watches every file the image copies (SF-018)", function(){
+  const patterns = JSON.parse(read("railway.json")).build.watchPatterns;
+  dockerFiles(read("Dockerfile")).concat(["Dockerfile", ".dockerignore", "railway.json"]).forEach(function(f){
+    assert.ok(watched(patterns, f), f + " is shipped but no watch pattern covers it, so changing it alone wouldn't redeploy");
+  });
+  // And the patterns aren't so wide that docs or tests redeploy the site.
+  ["docs/google-play/PRIVACY_POLICY.md", "tests/privacy.test.js", "android/app/build.gradle", "README.md"].forEach(function(f){
+    assert.ok(!watched(patterns, f), f);
+  });
+});
+
 test("the image runs the Node server on node:24 Alpine, checked at /healthz; Caddy is gone (SF-031)", function(){
   const dockerfile = read("Dockerfile");
   assert.match(dockerfile, /^FROM node:24(\.\d+){0,2}-alpine\s*$/m);

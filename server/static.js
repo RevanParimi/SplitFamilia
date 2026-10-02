@@ -10,6 +10,8 @@ import { gzipSync } from "node:zlib";
 const JS = "text/javascript; charset=utf-8";
 export const STATIC_FILES = {
   "/index.html": "text/html; charset=utf-8",
+  // The privacy policy (SF-018), linked from the welcome screen and the group menu.
+  "/privacy.html": "text/html; charset=utf-8",
   "/service-worker.js": JS,
   "/money.js": JS,
   "/group-code.js": JS,

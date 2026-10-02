@@ -1,0 +1,96 @@
+T-06 fresh review (2026-10-02, about 06:30-06:55 IST): command outputs. Node 24.21.0, Git Bash, JDK 21.
+Local paths are left out. No real group code, invite link or name appears here.
+
+== 1. The input (Git Bash, the receipt's command)
+43 files; sha256sum digest 7c0a2d6fe923cbb1085bede125d4869a31a086c2a3b377c761925a306ee56558 (same as the receipt);
+every per-file SHA-256 (first 16) equal to the receipt's "Changes" table. Re-checked after the break checks: unchanged.
+
+== 2. npm test (working tree)
+tests 226, pass 226, fail 0 (duration about 3.5 s)
+
+== 3. node docs/planning/evidence/T-06-break-checks.mjs
+K1-K13 CAUGHT, 13/13 caught; the input digest unchanged afterwards (every file restored)
+
+== 4. node docs/planning/evidence/T-06-checklist-diff.mjs .
+identical to T-06-checklist-diff-output.txt: brief boxes 37, found 37, ticked 8, added 8, nothing missing
+
+== 5. bash docs/planning/evidence/T-06-audit.sh, against T-06-audit-output.txt
+Differences only: the run time; 289 files in the tree (was 288); and per-file match counts in four documents edited after
+the first run (evidence/T-06-implementation.md in sections 4 and 10, STATE.json in sections 4 and 6, PRODUCTION_AUDIT.md
+in sections 4 and 8: each quotes the searched words). No new hit in code or shipped files.
+
+== 6. node docs/planning/evidence/T-06-codes-check.mjs
+identical to T-06-codes-check-output.txt: reports 2; candidates 2; HIT: a candidate, in history: tests/ (D-21, accepted;
+none in the tree); codes not printed
+
+== 7. The T-06 browser dry run, re-run: node docs/planning/evidence/T-06-browser-check.mjs . <scratch> <shots>
+Output: T-06-review-browser-check-output.json. Against T-06-browser-check-output.json: the same, apart from random IDs,
+dates, and the order of rows with equal amounts (the guide: "rows with equal amounts can come in either order"). M6: this
+time Ben got the extra paisa ("Ben owes Asha ₹33.34", "Chitra owes Asha ₹33.33"), the guide's other outcome. No crash,
+no dialogs, no page errors, no CDP timeouts.
+
+== 8. node docs/planning/evidence/T-06-review-probe.mjs . <scratch>
+Output: T-06-review-probe-output.json (Part A: the IP address in memory; Part B: B1-B3 and their break runs).
+
+== 9. The live site sets no cookie (policy sections 2 and 9; read-only, no group code)
+curl -s -o /dev/null -D - https://splitfamilia.up.railway.app<path>, 2026-10-02 about 06:44 IST:
+/ status 200, set-cookie headers: 0
+/index.html status 200, set-cookie headers: 0
+/healthz status 200, set-cookie headers: 0
+/privacy.html status 404, set-cookie headers: 0   (expected: T-06 is not deployed)
+
+== 10. Android: a clean clone outside OneDrive, T-06's files copied over, throwaway key (build.sh in the session scratchpad)
+== clone at 5f51b22 Ship T-05: the Android app, its signed release build, the build guide and the Play declarations
+== copied 43 T-06 files; digest of the copies:
+7c0a2d6fe923cbb1085bede125d4869a31a086c2a3b377c761925a306ee56558 *-
+== N-18: twa-manifest.json line endings and Bubblewrap's checksum
+checksum file: 19959be809202e44829d1f3d89c629b970e5aad7
+as cloned before T-06 (old .gitattributes): CR bytes 46, sha1 8874269536bab1307308fdf871c0d59913b36327
+warning: in the working copy of 'android/.gitattributes', LF will be replaced by CRLF the next time Git touches it
+eol attribute now: android/twa-manifest.json: eol: lf
+re-checked out with T-06's rule: CR bytes 0, sha1 19959be809202e44829d1f3d89c629b970e5aad7
+== npm test in the clone
+ℹ tests 226
+ℹ pass 226
+ℹ fail 0
+== throwaway key
+keytool exit 0
+== gradlew --no-daemon clean lintRelease bundleRelease (2026-10-02T01:13:20Z)
+gradle exit 0
+BUILD SUCCESSFUL in 1m
+lint: errors 0, fatal 0, warnings 14
+== the bundle: 2133414 bytes
+jarsigner: jar verified.
+signer: Owner: CN=SplitFamilia throwaway
+bundletool validate exit 0
+== F-15
+2013:@com.splitfamilia.app:raw/web_app_manifest : reachable=true
+3848: raw:web_app_manifest:2131558401
+unused raw entries: raw:keep 
+in the bundle: base/res/raw/web_app_manifest.json 
+== the 17 Android checks
+PASS M1 merged release manifest requests only INTERNET or the app-private androidx permission
+PASS M2 no notification, location, billing, advertising-ID, phone, camera or contacts permission
+PASS M3 every permission the app declares is its own and signature-level
+PASS M4 cleartext traffic not allowed
+PASS M5 a verified
+PASS M6 the notification delegation service is switched by enableNotification
+PASS V1 host is the Railway domain
+PASS V2 start URL is the page's start_url
+PASS V3 app and launcher name SplitFamilia
+PASS V4 status bar #4F46E5 and splash #FFFFFF
+PASS B1 bundle: package com.splitfamilia.app
+PASS B2 bundle: targetSdk 36
+PASS B3 bundle: the same permissions as the merged manifest
+PASS D1 the bundle's DEX parsed
+PASS D2 R8 kept all 9 classes the manifest names
+PASS D3 R8 ran
+PASS D4 LauncherActivity still extends androidbrowserhelper's LauncherActivity, and it and TwaLauncher are in the DEX
+all checks passed
+== key folder deleted: yes
+== build folder deleted: yes
+
+== 11. node docs/planning/evidence/T-06-deletion-check.mjs . <scratch>
+the same as T-06-deletion-check-output.json (codes and times aside): before { groups: 1, people: 4, expenses: 5, splits: 9 };
+the DELETE answers { changes: 1, lastInsertRowid: 0 }; after { groups: 0, people: 0, expenses: 0, splits: 0 }; the API then 404
+for that code and 200 for the other group, whose rows are unchanged (4 people, 5 expenses, 9 splits).

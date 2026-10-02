@@ -1,0 +1,48 @@
+{
+ "before": {
+  "del": 200,
+  "keep": 200
+ },
+ "blockCount": 2,
+ "repl": [
+  "Welcome to Node.js v24.21.0.",
+  "Type \".help\" for more information.",
+  "undefined",
+  "undefined",
+  "undefined",
+  "undefined",
+  "undefined",
+  "[Object: null prototype] {",
+  "  groups: 1,",
+  "  people: 4,",
+  "  expenses: 5,",
+  "  splits: 9",
+  "}",
+  "{ changes: 1, lastInsertRowid: 0 }",
+  "[Object: null prototype] {",
+  "  groups: 0,",
+  "  people: 0,",
+  "  expenses: 0,",
+  "  splits: 0",
+  "}",
+  "undefined"
+ ],
+ "after": {
+  "del": 404,
+  "keep": 200
+ },
+ "keepRows": [
+  {
+   "people": 4,
+   "expenses": 5,
+   "splits": 9
+  }
+ ],
+ "delRows": [
+  {
+   "people": 0,
+   "expenses": 0,
+   "splits": 0
+  }
+ ]
+}

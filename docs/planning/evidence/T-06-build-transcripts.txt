@@ -1,0 +1,132 @@
+T-06 / SF-021: the Android release build from a clean clone outside OneDrive (2026-10-02, about 02:20 IST).
+Clone of 5f51b22 with this session's changed files copied over (git status list), Node 24.21.0, JDK 21, Gradle 8.11.1,
+JAVA_TOOL_OPTIONS=-Djava.net.preferIPv4Stack=true, ANDROID_HOME set for the command. Signed with a THROWAWAY RSA 2048 key made in the
+session scratchpad (CN=SplitFamilia throwaway; password random, read from a file, never printed), deleted after. Local paths are
+shown as <scratch>. 'Picked up JAVA_TOOL_OPTIONS' lines removed.
+
+== npm test in the clone: 226 tests, 226 pass, 0 fail
+
+== build.sh (keytool, then ./gradlew --no-daemon clean lintRelease bundleRelease; last 60 lines)
+keytool exit 0
+== gradlew clean lintRelease bundleRelease (2026-10-01T20:28:53Z)
+> Task :app:extractProguardFiles
+> Task :app:preReleaseUnitTestBuild UP-TO-DATE
+> Task :app:extractReleaseVersionControlInfo
+> Task :app:mergeReleaseShaders
+> Task :app:compileReleaseShaders NO-SOURCE
+> Task :app:generateReleaseAssets UP-TO-DATE
+> Task :app:mergeReleaseAssets
+> Task :app:processReleaseJavaRes NO-SOURCE
+> Task :app:mergeReleaseArtProfile
+> Task :app:checkReleaseDuplicateClasses
+> Task :app:mergeReleaseStartupProfile
+> Task :app:mergeReleaseJniLibFolders
+> Task :app:mergeReleaseNativeLibs NO-SOURCE
+> Task :app:stripReleaseDebugSymbols NO-SOURCE
+> Task :app:writeReleaseAppMetadata
+> Task :app:collectReleaseDependencies
+> Task :app:configureReleaseDependencies
+> Task :app:extractReleaseNativeSymbolTables NO-SOURCE
+> Task :app:parseReleaseIntegrityConfig
+> Task :app:processReleaseManifestForPackage
+> Task :app:validateSigningRelease
+> Task :app:mergeReleaseJavaResource
+> Task :app:mergeReleaseResources
+> Task :app:processReleaseResources
+> Task :app:compileReleaseJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+> Task :app:generateReleaseLintReportModel
+> Task :app:bundleReleaseClassesToCompileJar
+> Task :app:generateReleaseUnitTestLintModel
+> Task :app:mergeReleaseGeneratedProguardFiles
+> Task :app:expandReleaseArtProfileWildcards
+> Task :app:lintAnalyzeReleaseUnitTest
+> Task :app:lintAnalyzeRelease
+> Task :app:lintReportRelease
+Wrote HTML report to <scratch>/b/sf/android/app/build/reports/lint-results-release.html
+> Task :app:lintRelease
+> Task :app:minifyReleaseWithR8
+> Task :app:buildReleasePreBundle
+> Task :app:compileReleaseArtProfile
+> Task :app:packageReleaseBundle
+> Task :app:signReleaseBundle
+> Task :app:produceReleaseBundleIdeListingFile
+> Task :app:createReleaseBundleListingFileRedirect
+> Task :app:bundleRelease
+[Incubating] Problems report is available at: <scratch>/b/sf/android/build/reports/problems/problems-report.html
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+For more on this, please refer to https://docs.gradle.org/8.11.1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+BUILD SUCCESSFUL in 42s
+47 actionable tasks: 45 executed, 2 up-to-date
+gradle exit 0
+
+== verify.sh
+== the bundle
+2133421 app/build/outputs/bundle/release/app-release.aab
+f546feb2ca8afe7b9678e7af037dc74e4df32e6c4e8d0e7319a63e588c01daab
+== lint (app/build/reports/lint-results-release.xml)
+{"Warning":14} {"UnusedAttribute":1,"SourceLockedOrientationActivity":1,"UnusedResources":6,"IconLauncherShape":5,"MonochromeLauncherIcon":1}
+== jarsigner
+- Signed by "CN=SplitFamilia throwaway, O=SplitFamilia"
+jar verified.
+== bundletool validate
+validate exit 0
+		File: root/kotlin/kotlin.kotlin_builtins
+		File: root/kotlin/ranges/ranges.kotlin_builtins
+		File: root/kotlin/reflect/reflect.kotlin_builtins
+== dump manifest
+versionCode="1"
+versionName="1.0.0"
+package="com.splitfamilia.app"
+minSdkVersion="21"
+targetSdkVersion="36"
+<permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION" android:protectionLevel="0x00000002"/
+uses-permission android:name="com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"/
+== F-15: the shrinker's report, and the bundle's raw resources
+2
+3848: raw:web_app_manifest:2131558401
+base/res/raw/web_app_manifest.json
+== R8 mapping inside the bundle
+BUNDLE-METADATA/com.android.tools.build.obfuscation/proguard.map
+== keep.xml itself is not packaged
+0
+== the 17 Android checks
+PASS M1 merged release manifest requests only INTERNET or the app-private androidx permission (uses-permission: com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS M2 no notification, location, billing, advertising-ID, phone, camera or contacts permission
+PASS M3 every permission the app declares is its own and signature-level (DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION=signature)
+PASS M4 cleartext traffic not allowed (no usesCleartextTraffic="true", no network security config; targetSdk 36 defaults to off)
+PASS M5 a verified (autoVerify) VIEW filter for https on the host, every path, so invite links open the app
+PASS M6 the notification delegation service is switched by enableNotification (false below)
+PASS V1 host is the Railway domain (D-10) (splitfamilia.up.railway.app)
+PASS V2 start URL is the page's start_url (https://splitfamilia.up.railway.app/index.html)
+PASS V3 app and launcher name SplitFamilia (D-2)
+PASS V4 status bar #4F46E5 and splash #FFFFFF (manifest.json), navigation bar #FFFFFF, notifications off (colorPrimary=#4F46E5, colorPrimaryDark=#4F46E5, navigationColor=#FFFFFF, navigationColorDark=#FFFFFF, navigationDividerColor=#FFFFFF, navigationDividerColorDark=#FFFFFF, backgroundColor=#FFFFFF)
+PASS B1 bundle: package com.splitfamilia.app (D-1), versionCode 1 and versionName 1.0.0 (twa-manifest.json) (com.splitfamilia.app, 1, 1.0.0)
+PASS B2 bundle: targetSdk 36 (Play's requirement), compileSdk >= targetSdk, minSdk 21 (Bubblewrap's default) (target 36, compile 36, min 21)
+PASS B3 bundle: the same permissions as the merged manifest (com.splitfamilia.app.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION)
+PASS D1 the bundle's DEX parsed (base/dex/classes.dex: 1017 classes)
+PASS D2 R8 kept all 9 classes the manifest names (com.splitfamilia.app.Application, com.google.androidbrowserhelper.trusted.ManageDataLauncherActivity, com.splitfamilia.app.LauncherActivity, com.google.androidbrowserhelper.trusted.FocusActivity, com.google.androidbrowserhelper.trusted.WebViewFallbackActivity, androidx.core.content.FileProvider, com.splitfamilia.app.DelegationService, androidx.startup.InitializationProvider, androidx.profileinstaller.ProfileInstallReceiver)
+PASS D3 R8 ran (mapping.txt written)
+PASS D4 LauncherActivity still extends androidbrowserhelper's LauncherActivity, and it and TwaLauncher are in the DEX (super J.h = com.google.androidbrowserhelper.trusted.LauncherActivity; TwaLauncher kept as J.K)
+all checks passed
+
+== shrinker report sections (app/build/outputs/mapping/release/resources.txt)
+line 2013: @com.splitfamilia.app:raw/web_app_manifest : reachable=true
+line 3509: The root reachable resources are:  (raw:web_app_manifest listed at line 3848)
+line 3877: Unused resources are:  (the only raw: entry is raw:keep, the keep.xml rule file itself)
+
+== debug flags in the release manifest (bundletool dump manifest | grep -ciE 'debuggable|testOnly|usesCleartextTraffic')
+0  (and 0 'debuggable' in app/build/intermediates/merged_manifest/release/.../AndroidManifest.xml)
+
+== after the checks: the throwaway key folder deleted first, then the whole scratch build folder (clone, build outputs, the throwaway-signed bundle).

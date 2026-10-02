@@ -1,0 +1,3 @@
+reports: 2; code-like words: 3; candidates after excluding report wording: 2
+HIT: a candidate, in history: tests/
+1 hit(s): see above (codes not printed)

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Ours (SF-021, the T-05 review's F-15): keeps Bubblewrap's raw/web_app_manifest.json, which the
+     release build's resource shrinker would otherwise remove. Chrome OS reads it to install the
+     web app without a network request; phones don't need it. `bubblewrap update` leaves this file
+     alone. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@raw/web_app_manifest" />
